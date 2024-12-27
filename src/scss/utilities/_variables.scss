@@ -1,0 +1,70 @@
+$colors-dark: 
+(
+    bg-primary: hsl(220, 66%, 8%),
+    bg-secondary: hsl(220, 34%, 20%),
+    bg-tertiary: hsl(220, 29%, 27%),
+    bg-quaternary: hsl(220, 20%, 30%),
+
+    text-primary: hsl(28, 100%, 65%),
+    text-secondary: hsl(28, 44%, 66%),
+    text-white: hsl(0, 0%, 97%),
+    text-off-white: hsl(0, 0%, 80%),
+    text-highlighted: hsl(0, 100%, 73%),
+    text-examine: hsl(41, 100%, 65%),
+
+    strong-neutral: hsl(0, 0%, 10%),
+    soft-neutral: hsl(0, 0%, 40%),
+    mid-neutral: hsl(0, 0%, 25%),
+
+    // hsl(0, 0%, 97%)
+    svg: invert(99%) sepia(6%) saturate(144%) hue-rotate(238deg) brightness(112%) contrast(94%)
+);
+
+$colors-light:
+(
+    bg-primary: rgb(250, 250, 250),
+    bg-secondary: rgb(230, 230, 230),
+    bg-tertiary: rgb(210, 210, 210),
+    bg-quaternary: rgb(190, 190, 190),
+
+    text-primary: rgb(23, 102, 206),
+    text-secondary: rgb(50, 160, 238),
+    text-grey: rgb(68, 78, 90),
+    text-off-grey: rgb(105, 105, 105),
+    text-highlighted: rgb(255, 120, 120),
+    text-examine: hsl(34, 100%, 65%),
+
+    strong-neutral: rgb(7, 135, 255),
+    soft-neutral: rgb(103, 169, 255),
+    mid-neutral: rgb(28, 141, 221),
+
+    // rgb(50, 160, 238)
+    svg: brightness(0) saturate(100%) invert(52%) sepia(62%) saturate(1252%) hue-rotate(179deg) brightness(95%) contrast(96%)
+);
+
+$font-sizes: 
+(
+    xxs: 0.625rem,
+    xs: 0.75rem,
+    sm: 0.875rem,
+    md: 1rem,
+    lg: 1.125rem,
+    xl: 1.25rem,
+    xxl: 1.5rem
+);
+
+$breakpoints: 
+(
+    mobile-s: 27.812rem,
+    mobile-l: 30.625rem,
+    tablet-s: 36rem,
+    tablet-l: 48rem,
+    laptop: 64rem
+);
+
+$priority: 
+(
+    high: 10,
+    medium: 5,
+    low: -1
+);

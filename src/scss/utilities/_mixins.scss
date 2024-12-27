@@ -1,0 +1,73 @@
+@use './_functions' as *;
+
+// Breakpoints
+@mixin mobile-small-layout() 
+{
+    @media screen and (max-width: breakpoint(mobile-s)) 
+    {
+        @content;
+    }
+}
+
+@mixin mobile-large-layout() 
+{
+    @media screen and (max-width: breakpoint(mobile-l)) 
+    {
+        @content;
+    }
+}
+
+@mixin tablet-small-layout() 
+{
+    @media screen and (max-width: breakpoint(tablet-s)) 
+    {
+        @content;
+    }
+}
+
+@mixin tablet-large-layout() 
+{
+    @media screen and (max-width: breakpoint(tablet-l)) 
+    {
+        @content;
+    }
+}
+
+@mixin laptop-layout() 
+{
+    @media screen and (max-width: breakpoint(laptop)) 
+    {
+        @content;
+    }
+}
+
+// Styles
+@mixin soft-shadow($mode) 
+{
+    @if $mode == dark
+    {
+        box-shadow: .25rem .15rem .25rem 0 color-dark(strong-neutral);
+    }
+    @else
+    {
+        box-shadow: .25rem .15rem .25rem 0 color-light(strong-neutral);
+    }
+}
+
+@mixin border-lighting($mode, $right-bottom, $left-top) 
+{
+    @if $mode == dark 
+    {
+        border-right: 0.125rem solid color-dark($right-bottom);
+        border-left: 0.125rem solid color-dark($left-top);
+        border-top: 0.125rem solid color-dark($left-top);
+        border-bottom: 0.125rem solid color-dark($right-bottom);
+    } 
+    @else 
+    {
+        border-right: 0.125rem solid color-light($right-bottom);
+        border-left: 0.125rem solid color-light($left-top);
+        border-top: 0.125rem solid color-light($left-top);
+        border-bottom: 0.125rem solid color-light($right-bottom);
+    }
+}

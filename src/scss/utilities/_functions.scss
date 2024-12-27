@@ -1,0 +1,27 @@
+@use "sass:map";
+@use './_variables' as *;
+
+@function color-dark($name) // Handle colors for all properties.
+{
+    @return map.get($colors-dark, $name);
+}
+
+@function color-light($name) // Handle colors for all properties.
+{
+    @return map.get($colors-light, $name);
+}
+
+@function fontsize($size) // Handle font-sizes.
+{
+    @return map.get($font-sizes, $size);
+}
+
+@function breakpoint($size) // Handles breakpoints.
+{
+    @return map.get($breakpoints, $size);
+}
+
+@function priority($place) // Handles z-index.
+{
+    @return map.get($priority, $place);
+}
