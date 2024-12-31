@@ -1,0 +1,81 @@
+@use '../utilities/functions' as *;
+@use '../utilities/mixins' as *;
+
+.textbox 
+{
+    position: relative;
+
+    &__textarea 
+    {
+        border: none;
+        resize: none;
+        width: 39vw;
+        height: 51vh;
+        font-size: 1rem;
+        line-height: 1.6;
+        padding: 0.5rem;
+        border-radius: 0 0 0.5rem 0.5rem;
+        overflow-y: auto;
+
+        background-color: color-dark(bg-secondary);
+        color: color-dark(text-secondary);
+
+        & a 
+        {
+            color: color-dark(text-primary);
+            cursor: pointer;
+        }
+
+        &::placeholder
+        {
+            font-family: monospace, sans-serif;
+        }
+
+        &:hover, &:focus 
+        {
+            background-color: color-dark(bg-tertiary);
+
+            &::-webkit-scrollbar-thumb 
+            {
+                border: 0.5rem solid color-dark(bg-tertiary);
+                background: color-dark(bg-secondary);
+            }
+
+            @-moz-document url-prefix() 
+            {
+                scrollbar-color: color-dark(bg-secondary) color-dark(bg-tertiary);
+            }
+        }
+
+        &::-webkit-scrollbar 
+        {
+            width: 1.5rem;
+        }
+    
+        &::-webkit-scrollbar-track 
+        {
+            border-radius: 0.2rem;
+            margin-top: 0.25rem;
+        }
+        
+        &::-webkit-scrollbar-thumb 
+        { 
+            border: 0.5rem solid color-dark(bg-secondary);
+            background: color-dark(bg-tertiary);
+            border-radius: 1rem;
+            margin: 1rem;
+        }
+
+        @-moz-document url-prefix() 
+        {
+            scrollbar-color: color-dark(bg-tertiary) color-dark(bg-secondary);
+            scrollbar-width: thin;
+        }
+    
+        @include tablet-large-layout() 
+        {
+            height: 30vh;
+            width: 90vw;
+        }
+    }
+}

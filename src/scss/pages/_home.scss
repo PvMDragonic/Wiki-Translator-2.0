@@ -1,0 +1,23 @@
+@use '../utilities/functions' as *;
+@use '../utilities/mixins' as *;
+
+.home
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: color-dark(bg-primary);
+    height: 100vh;
+    width: 100vw;
+
+    &__translator
+    {
+        display: flex;
+        gap: 1.5rem;
+
+        @include tablet-large-layout() 
+        {
+            flex-direction: column;
+        }
+    }
+}
