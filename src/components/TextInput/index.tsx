@@ -4,7 +4,7 @@ import NegativeIcon from "../../assets/NegativeIcon";
 
 interface ITextInput
 {
-    translation: string[];
+    textExists: boolean;
     setTranslation: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
@@ -13,11 +13,11 @@ interface ITextInput
  *
  * @component
  * @param {ITextInput} props - The properties object for the component.
- * @param {string[]} props.translation - The state string array.
+ * @param {boolean} props.textExists - Whether or not the textarea has actual text.
  * @param {React.Dispatch<React.SetStateAction<string[]>>} props.setTranslation - A function to update the translation state.
  * @returns {JSX.Element} The rendered TextInput component.
  */
-export function TextInput({ translation, setTranslation }: ITextInput): JSX.Element
+export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Element
 {
     // Having the <textarea>'s 'value' be 'translation.join('\n')' messes the ctrl-Z and ctrl-Y functionalities. 
     const textRef = useRef<HTMLTextAreaElement>(null);
@@ -37,11 +37,9 @@ export function TextInput({ translation, setTranslation }: ITextInput): JSX.Elem
         );     
     }
 
-    const actualTextExists = !(translation[0] === '' && translation.length === 1);
-
     return (
         <div className = "textbox">
-            {actualTextExists && (
+            {textExists && (
                 <button 
                     className = "textbox__button"
                     onClick = {handleTextReset}

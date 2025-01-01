@@ -3,6 +3,7 @@ import CopyIcon from "../../assets/CopyIcon";
 
 interface ITextOutput
 {
+    textExists: boolean;
     translation: string[];
 }
 
@@ -11,20 +12,15 @@ interface ITextOutput
  *
  * @component
  * @param {ITextOutput} props - The properties object for the component.
+ * @param {boolean} props.textExists - Whether or not the text div has actual text.
  * @param {string[]} props.translation - The updated translation string array, coming from TextInput.
  * @returns {JSX.Element} The rendered TextOutput component.
  */
-export function TextOutput({ translation }: ITextOutput): JSX.Element
+export function TextOutput({ textExists, translation }: ITextOutput): JSX.Element
 {
-    const [textExists, setTextExists] = useState<Boolean>(false);
-    const [showCopy, setShowCopy] = useState<Boolean>(false);
+    const [showCopy, setShowCopy] = useState<boolean>(false);
 
-    useEffect(() => 
-    {
-        const actualTextExists = !(translation[0] === '' && translation.length === 1);
-        setTextExists(actualTextExists);
-        setShowCopy(actualTextExists);
-    }, [translation]);
+    useEffect(() => setShowCopy(textExists), [textExists]);
 
     function handleClipboard()
     {
