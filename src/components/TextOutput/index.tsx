@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import CopyIcon from "../../assets/CopyIcon";
 
 interface ITextOutput
 {
@@ -15,9 +16,42 @@ interface ITextOutput
  */
 export function TextOutput({ translation }: ITextOutput): JSX.Element
 {
+    const [textExists, setTextExists] = useState<Boolean>(false);
+    const [showCopy, setShowCopy] = useState<Boolean>(false);
+
+    useEffect(() => 
+    {
+        const actualTextExists = !(translation[0] === '' && translation.length === 1);
+        setTextExists(actualTextExists);
+        setShowCopy(actualTextExists);
+    }, [translation]);
+
+    function handleClipboard()
+    {
+        navigator.clipboard
+            .writeText(translation.join('\n'))
+            .then(() => 
+            {
+                setShowCopy(false);
+                setTimeout(() => setShowCopy(true), 2500);
+            })
+            .catch((error) => {
+                console.error('Failed to copy text: ', error);
+            });
+    }
+
     return (
         <div className = "textbox">            
             <div contentEditable className = "textbox__textarea">
+                {textExists && showCopy && (
+                    <button 
+                        className = "textbox__button"
+                        onClick = {handleClipboard}
+                    >
+                        <CopyIcon/>
+                    </button>
+                )}
+
                 {translation.map((line, index) => (
                     <React.Fragment key = {index}>
                         {line}

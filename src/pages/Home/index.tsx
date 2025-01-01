@@ -6,7 +6,7 @@ export function Home()
 {
     // Needs to be a string[] due to how <div contentEditable> handles newlines.
     const [translation, setTranslation] = useState<string[]>(['']);
-    
+
     return (
         <div className = "home">
             <section className = "home__translator">

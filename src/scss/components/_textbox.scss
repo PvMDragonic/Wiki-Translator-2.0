@@ -99,6 +99,11 @@
         background-color: color-dark(bg-tertiary);
         color: color-dark(text-off-white);
 
+        & > svg
+        {
+            fill: color-dark(text-off-white);
+        }
+
         &:hover 
         {
             opacity: 1;
