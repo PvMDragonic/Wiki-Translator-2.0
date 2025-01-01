@@ -11,6 +11,7 @@ export function Home()
         <div className = "home">
             <section className = "home__translator">
                 <TextInput
+                    translation = {translation}
                     setTranslation = {setTranslation}
                 />
                 <TextOutput

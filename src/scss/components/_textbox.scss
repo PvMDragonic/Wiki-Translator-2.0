@@ -78,4 +78,30 @@
             width: 90vw;
         }
     }
+
+    &__button 
+    {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        cursor: pointer;
+        position: absolute; 
+        border-radius: 0.5rem;
+        padding: 0.4rem;
+        opacity: 0.5;
+        width: 2.5rem; 
+        height: 2.5rem; 
+        left: calc(100% - 50px);
+        top: 0.625rem;
+
+        @include border-lighting(dark, strong-neutral, soft-neutral);
+        background-color: color-dark(bg-tertiary);
+        color: color-dark(text-off-white);
+
+        &:hover 
+        {
+            opacity: 1;
+        }
+    }
 }
