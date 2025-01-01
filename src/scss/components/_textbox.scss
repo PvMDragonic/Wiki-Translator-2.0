@@ -91,8 +91,7 @@
         padding: 0.4rem;
         opacity: 0.5;
         width: 2.5rem; 
-        height: 2.5rem; 
-        left: calc(100% - 50px);
+        height: 2.5rem;
         top: 0.625rem;
 
         @include border-lighting(dark, strong-neutral, soft-neutral);

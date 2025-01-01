@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useHasScrollbar } from "../../hooks/useHasScrollbar";
 import CopyIcon from "../../assets/CopyIcon";
 
 interface ITextOutput
@@ -20,6 +21,10 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 {
     const [showCopy, setShowCopy] = useState<boolean>(false);
 
+    const textRef = useRef<HTMLDivElement>(null);
+
+    const { hasScroll } = useHasScrollbar({ elementRef: textRef })
+
     useEffect(() => setShowCopy(textExists), [textExists]);
 
     function handleClipboard()
@@ -38,11 +43,18 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     return (
         <div className = "textbox">            
-            <div contentEditable className = "textbox__textarea">
+            <div 
+                contentEditable 
+                className = "textbox__textarea"
+                ref = {textRef}
+            >
                 {textExists && showCopy && (
                     <button 
                         className = "textbox__button"
                         onClick = {handleClipboard}
+                        style = {{
+                            left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
+                        }}
                     >
                         <CopyIcon/>
                     </button>

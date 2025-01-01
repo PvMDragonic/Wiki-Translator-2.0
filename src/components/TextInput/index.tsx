@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { translate } from "./translation";
+import { useHasScrollbar } from "../../hooks/useHasScrollbar";
 import NegativeIcon from "../../assets/NegativeIcon";
 
 interface ITextInput
@@ -19,13 +20,15 @@ interface ITextInput
  */
 export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Element
 {
-    // Having the <textarea>'s 'value' be 'translation.join('\n')' messes the ctrl-Z and ctrl-Y functionalities. 
     const textRef = useRef<HTMLTextAreaElement>(null);
-
+    
+    const { hasScroll } = useHasScrollbar({ elementRef: textRef })
+    
+    // Having the <textarea>'s 'value' be 'translation.join('\n')' would both the ctrl-Z and ctrl-Y. 
     function handleTextReset()
     {
         setTranslation(['']);
-
+        
         if (textRef.current)
             textRef.current.value = '';
     }
@@ -43,6 +46,9 @@ export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Eleme
                 <button 
                     className = "textbox__button"
                     onClick = {handleTextReset}
+                    style = {{
+                        left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
+                    }}
                 >
                     <NegativeIcon/>
                 </button>
