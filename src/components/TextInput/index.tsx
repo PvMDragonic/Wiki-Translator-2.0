@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { translate } from "./translation";
 import NegativeIcon from "../../assets/NegativeIcon";
 
@@ -18,6 +19,17 @@ interface ITextInput
  */
 export function TextInput({ translation, setTranslation }: ITextInput): JSX.Element
 {
+    // Having the <textarea>'s 'value' be 'translation.join('\n')' messes the ctrl-Z and ctrl-Y functionalities. 
+    const textRef = useRef<HTMLTextAreaElement>(null);
+
+    function handleTextReset()
+    {
+        setTranslation(['']);
+
+        if (textRef.current)
+            textRef.current.value = '';
+    }
+
     function handleTranslation(event: React.ChangeEvent<HTMLTextAreaElement>)
     {
         translate(event.target.value).then(
@@ -32,7 +44,7 @@ export function TextInput({ translation, setTranslation }: ITextInput): JSX.Elem
             {actualTextExists && (
                 <button 
                     className = "textbox__button"
-                    onClick = {() => setTranslation([''])}
+                    onClick = {handleTextReset}
                 >
                     <NegativeIcon/>
                 </button>
@@ -40,10 +52,10 @@ export function TextInput({ translation, setTranslation }: ITextInput): JSX.Elem
 
             <textarea
                 lang = "pt"
+                ref = {textRef}
                 placeholder = "Digite aqui" 
                 className = "textbox__textarea" 
                 onChange = {handleTranslation}
-                value = {translation.join('\n')}
             />
         </div>
     )
