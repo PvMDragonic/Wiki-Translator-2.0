@@ -1,3 +1,4 @@
+import { OptionHU } from "../OptionsUH";
 import { OptionHelp } from "../OptionHelp";
 
 /**
@@ -11,6 +12,7 @@ export function OptionsBar(): JSX.Element
     return (
         <div className = "options-bar">
             <div className = "options-bar__container">
+                <OptionHU/>
                 <OptionHelp/>
             </div>
             <div className = "options-bar__container">
