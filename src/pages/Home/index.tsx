@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TextInput } from "../../components/TextInput";
 import { TextOutput } from "../../components/TextOutput";
+import { OptionsBar } from "../../components/OptionsBar";
 
 export function Home()
 {
@@ -15,15 +16,19 @@ export function Home()
 
     return (
         <div className = "home">
-            <section className = "home__translator">
-                <TextInput
-                    textExists = {textExists}
-                    setTranslation = {setTranslation}
-                />
-                <TextOutput
-                    textExists = {textExists}
-                    translation = {translation}
-                />
+            <section className = "home__container">
+                <OptionsBar/>
+                
+                <div className = "home__translator">
+                    <TextInput
+                        textExists = {textExists}
+                        setTranslation = {setTranslation}
+                    />
+                    <TextOutput
+                        textExists = {textExists}
+                        translation = {translation}
+                    />
+                </div>
             </section>
         </div>
     )

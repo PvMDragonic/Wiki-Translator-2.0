@@ -1,0 +1,24 @@
+@use '../utilities/_functions' as *;
+
+.options-bar
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: color-dark(text-white);
+
+    &__container
+    {
+        display: flex;
+        flex-wrap: wrap;  
+        gap: 1rem;
+
+        & > h1
+        {
+            color: color-dark(text-off-white);
+            font-family: Verdana, Tahoma, sans-serif;
+            font-size: 3rem;
+        }
+    }
+}
