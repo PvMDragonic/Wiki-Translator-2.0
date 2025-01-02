@@ -1,4 +1,5 @@
-@use '../utilities/_functions' as *;
+@use '../utilities/functions' as *;
+@use '../utilities/mixins' as *;
 
 .options-bar
 {
@@ -19,6 +20,11 @@
             color: color-dark(text-off-white);
             font-family: Verdana, Tahoma, sans-serif;
             font-size: 3rem;
+
+            @include tablet-large-layout() 
+            {
+                font-size: 2rem;
+            }
         }
     }
 }
