@@ -1,3 +1,5 @@
+import { OptionHelp } from "../OptionHelp";
+
 /**
  * Renders the container for the options atop the translator.
  *
@@ -9,7 +11,7 @@ export function OptionsBar(): JSX.Element
     return (
         <div className = "options-bar">
             <div className = "options-bar__container">
-                
+                <OptionHelp/>
             </div>
             <div className = "options-bar__container">
                 <h1>Wiki Translator</h1>

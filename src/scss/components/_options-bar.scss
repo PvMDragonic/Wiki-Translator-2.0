@@ -27,4 +27,58 @@
             }
         }
     }
+
+    &__button
+    {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-radius: 0.4rem;
+        padding: 0.25rem 0.5rem;
+        gap: 0.5rem;
+
+        @include border-lighting(dark, mid-neutral, soft-neutral);
+        background-color: color-dark(bg-secondary);
+
+        @include mobile-small-layout() 
+        {
+            justify-content: center;
+            width: 40vw;
+        }
+
+        &:hover 
+        {
+            background-color: color-dark(bg-tertiary);
+        }
+
+        & > span 
+        {
+            color: color-dark(text-white);
+            font-family: monospace, sans-serif;
+            line-height: 1rem;
+            font-size: 1rem;
+        }
+
+        & > svg 
+        {
+            filter: color-dark(svg);
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+            width: 1.15rem;
+            height: 1.15rem; 
+        }
+
+        &--active 
+        {
+            @include border-lighting(dark, soft-neutral, mid-neutral);
+            background-color: color-dark(bg-tertiary);
+            box-shadow: unset;
+
+            &:hover 
+            {
+                background-color: color-dark(bg-quaternary);
+            }
+        }
+    }
 }
