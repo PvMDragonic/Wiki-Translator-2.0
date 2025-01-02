@@ -1,5 +1,6 @@
 import { OptionHU } from "../OptionsUH";
 import { OptionGE } from "../OptionGE";
+import { OptionOptions } from "../OptionOptions";
 import { OptionHelp } from "../OptionHelp";
 
 /**
@@ -15,6 +16,7 @@ export function OptionsBar(): JSX.Element
             <div className = "options-bar__container">
                 <OptionHU/>
                 <OptionGE/>
+                <OptionOptions/>
                 <OptionHelp/>
             </div>
             <div className = "options-bar__container">
