@@ -16,6 +16,13 @@
         flex-direction: column;
         justify-content: flex-start;
         padding-bottom: 4rem; // Compensates for the <OptionsBar>.
+
+        @include laptop-layout()
+        {
+            width: 100vw;
+            margin-left: 5%;
+            margin-right: 5%;
+        }
     }
 
     &__translator
@@ -23,7 +30,7 @@
         display: flex;
         gap: 1.5rem;
 
-        @include tablet-large-layout() 
+        @include laptop-layout() 
         {
             flex-direction: column;
         }

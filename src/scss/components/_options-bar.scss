@@ -9,9 +9,17 @@
     margin-bottom: 1rem;
     color: color-dark(text-white);
 
+    @include laptop-layout() 
+    {
+        flex-direction: column-reverse;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+
     &__container
     {
         display: flex;
+        justify-content: center;
         flex-wrap: wrap;  
         gap: 1rem;
 
@@ -21,7 +29,7 @@
             font-family: Verdana, Tahoma, sans-serif;
             font-size: 3rem;
 
-            @include tablet-large-layout() 
+            @include laptop-layout() 
             {
                 font-size: 2rem;
             }
@@ -44,7 +52,7 @@
         @include mobile-small-layout() 
         {
             justify-content: center;
-            width: 40vw;
+            width: 42vw;
         }
 
         &:hover 
@@ -65,8 +73,12 @@
             filter: color-dark(svg);
             margin-top: 0.25rem;
             margin-bottom: 0.25rem;
-            width: 1.15rem;
-            height: 1.15rem; 
+
+            // Prevents options svg from shrinking.
+            min-width: 1.15rem;
+            min-height: 1.15rem; 
+            max-width: 1.15rem;
+            max-height: 1.15rem; 
         }
 
         &--active 
