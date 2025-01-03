@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { SideMenu } from "../SideMenu";
 import OptionsIcon from "../../assets/OptionsIcon";
 
 /**
@@ -8,10 +10,29 @@ import OptionsIcon from "../../assets/OptionsIcon";
  */
 export function OptionOptions(): JSX.Element
 {
-    return (      
-        <button className = "options-bar__button">
-            <OptionsIcon/>
-            <span>OPÇÕES</span>
-        </button>
+    const [showSideMenu, setShowSideMenu] = useState<boolean>(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const buttonClass = `options-bar__button options-bar__button--${showSideMenu ? 'active' : 'inactive'}`;
+
+    return (    
+        <>
+            <SideMenu
+                buttonRef = {buttonRef}
+                showSideMenu = {showSideMenu}
+                setShowSideMenu = {setShowSideMenu}
+            >
+                {<></>}
+            </SideMenu>
+
+            <button 
+                ref = {buttonRef}
+                className = {buttonClass}
+                onClick = {() => setShowSideMenu(prev => !prev)}
+            >
+                <OptionsIcon/>
+                <span>OPÇÕES</span>
+            </button>
+        </>  
     )
 }

@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { SideMenu } from "../SideMenu";
 import GrandExchangeIcon from "../../assets/GrandExchangeIcon";
 
 /**
@@ -8,10 +10,29 @@ import GrandExchangeIcon from "../../assets/GrandExchangeIcon";
  */
 export function OptionGE(): JSX.Element
 {
+    const [showSideMenu, setShowSideMenu] = useState<boolean>(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const buttonClass = `options-bar__button options-bar__button--${showSideMenu ? 'active' : 'inactive'}`;
+
     return (      
-        <button className = "options-bar__button">
-            <GrandExchangeIcon/>
-            <span>M.G.</span>
-        </button>
+        <>
+            <SideMenu
+                buttonRef = {buttonRef}
+                showSideMenu = {showSideMenu}
+                setShowSideMenu = {setShowSideMenu}
+            >
+                {<></>}
+            </SideMenu>
+
+            <button 
+                ref = {buttonRef}
+                className = {buttonClass}
+                onClick = {() => setShowSideMenu(prev => !prev)}
+            >
+                <GrandExchangeIcon/>
+                <span>M.G.</span>
+            </button>
+        </>
     )
 }

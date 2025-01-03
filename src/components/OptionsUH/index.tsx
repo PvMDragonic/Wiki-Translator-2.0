@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { SideMenu } from "../SideMenu";
 import UpdateHistoryIcon from "../../assets/UpdateHistoryIcon";
 
 /**
@@ -8,10 +10,29 @@ import UpdateHistoryIcon from "../../assets/UpdateHistoryIcon";
  */
 export function OptionHU(): JSX.Element
 {
-    return (      
-        <button className = "options-bar__button">
-            <UpdateHistoryIcon/>
-            <span>H.A.</span>
-        </button>
+    const [showSideMenu, setShowSideMenu] = useState<boolean>(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const buttonClass = `options-bar__button options-bar__button--${showSideMenu ? 'active' : 'inactive'}`;
+
+    return ( 
+        <>
+            <SideMenu
+                buttonRef = {buttonRef}
+                showSideMenu = {showSideMenu}
+                setShowSideMenu = {setShowSideMenu}
+            >
+                {<></>}
+            </SideMenu>
+
+            <button 
+                ref = {buttonRef}
+                className = {buttonClass}
+                onClick = {() => setShowSideMenu(prev => !prev)}
+            >
+                <UpdateHistoryIcon/>
+                <span>H.A.</span>
+            </button>
+        </>     
     )
 }
