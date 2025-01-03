@@ -1,0 +1,88 @@
+@use '../utilities/functions' as *;
+@use '../utilities/mixins' as *;
+
+.side-menu
+{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    overflow-y: auto;
+    background-color: color-dark(bg-secondary);
+    padding: 1.3rem 1rem 1.25rem 1rem;
+    max-width: 27.5rem;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1001; 
+    right: -30rem;
+    top: 0rem;
+    gap: 1rem;
+
+    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.5);
+
+    @include mobile-small-layout() 
+    {
+        width: 100%;
+    }
+
+    &--no-scroll
+    {
+        padding-right: 1rem;
+    }
+
+    &--scroll
+    {
+        padding-right: 0rem;
+
+        @-moz-document url-prefix()
+        {
+            padding-right: 1rem;
+        }
+    }
+
+    &--show
+    {
+        animation: showSidebar 0.35s forwards;
+
+        @keyframes showSidebar 
+        {
+            to 
+            {
+                right: 0rem;
+            }
+        }
+    }
+
+    &--hide
+    {
+        right: 0rem;
+        animation: hideSidebar 0.35s forwards;
+
+        @keyframes hideSidebar 
+        {
+            to 
+            {
+                right: -30rem;
+            }
+        }
+    }
+
+    &::-webkit-scrollbar 
+    {
+        width: 2rem;
+    }
+
+    &::-webkit-scrollbar-thumb 
+    { 
+        background-color: color-dark(bg-tertiary);
+        border: 0.75rem solid color-dark(bg-secondary);
+        background-clip: padding-box;
+        border-radius: 1rem;
+        cursor: ns-resize;
+    }
+
+    @-moz-document url-prefix() 
+    {
+        scrollbar-color: color-dark(bg-tertiary) color-dark(bg-secondary);
+        scrollbar-width: thin;
+    }
+}
