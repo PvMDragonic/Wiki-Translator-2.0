@@ -30,6 +30,15 @@ export function Home()
                     />
                 </div>
             </section>
+            <p className = "home__credits">
+                Feito por <a 
+                    target = "_blank" 
+                    href = "https://github.com/LucianoDLima"
+                >Queen Guava</a> & <a 
+                    target = "_blank" 
+                    href = "https://github.com/PvMDragonic"
+                >PvM Dragonic</a>.
+            </p>
         </div>
     )
 }
