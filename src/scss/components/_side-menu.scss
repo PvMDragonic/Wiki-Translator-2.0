@@ -5,8 +5,8 @@
 {
     display: flex;
     flex-direction: column;
-    position: absolute;
     overflow-y: auto;
+    position: fixed;
     background-color: color-dark(bg-secondary);
     padding: 1.3rem 1rem 1.25rem 1rem;
     max-width: 27.5rem;
