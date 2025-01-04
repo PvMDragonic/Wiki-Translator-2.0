@@ -10,10 +10,12 @@ import UpdateHistoryIcon from "../../assets/UpdateHistoryIcon";
  */
 export function OptionHU(): JSX.Element
 {
-    const [showSideMenu, setShowSideMenu] = useState<boolean>(false);
+    const [showSideMenu, setShowSideMenu] = useState<string>('');
     const buttonRef = useRef<HTMLButtonElement>(null);
 
-    const buttonClass = `options-bar__button options-bar__button--${showSideMenu ? 'active' : 'inactive'}`;
+    const buttonClass = `options-bar__button options-bar__button--${
+        showSideMenu === 'show' ? 'active' : 'inactive'
+    }`;
 
     return ( 
         <>
@@ -28,7 +30,7 @@ export function OptionHU(): JSX.Element
             <button 
                 ref = {buttonRef}
                 className = {buttonClass}
-                onClick = {() => setShowSideMenu(prev => !prev)}
+                onClick = {() => setShowSideMenu(prev => prev === 'show' ? 'hide' : 'show')}
             >
                 <UpdateHistoryIcon/>
                 <span>H.A.</span>

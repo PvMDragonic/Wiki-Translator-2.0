@@ -5,8 +5,8 @@ interface ISideMenu
 {
     children: React.ReactNode;
     buttonRef: React.RefObject<HTMLButtonElement>;
-    showSideMenu: boolean;
-    setShowSideMenu: React.Dispatch<React.SetStateAction<boolean>>;
+    showSideMenu: string;
+    setShowSideMenu: React.Dispatch<React.SetStateAction<string>>;
 }
 
 /**
@@ -15,8 +15,8 @@ interface ISideMenu
  * @component
  * @param {ISideMenu} props - The properties object for the component.
  * @param {JSX.Element} props.children - Whatever will be rendered inside the side-menu.
- * @param {boolean} props.showSideMenu - Whether or not the side-menu is open/displayed.
- * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setTranslation - A function to update the side-menu state.
+ * @param {string} props.showSideMenu - Whether or not the side-menu is open/displayed.
+ * @param {React.Dispatch<React.SetStateAction<string>>} props.setTranslation - A function to update the side-menu state.
  * @returns {JSX.Element} The rendered side-menu component.
  */
 export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }: ISideMenu): JSX.Element
@@ -37,7 +37,9 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
             if (!section || !button) return;
 
             if (!section.contains(event.target as Node) && !button.contains(event.target as Node))
-                setShowSideMenu(false);
+                // All buttons run this when any given button is pressed,
+                // so it needs to keep neutral buttons ('') at neutral ('').
+                setShowSideMenu(current => current !== '' ? 'hide' : '');
         }
     
         document.addEventListener("click", handleClickOutside);
@@ -68,13 +70,12 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
     
             // Handles the closing of the popup windows by a swipe-to-close motion on mobile.
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) 
-                setShowSideMenu(false);
+                setShowSideMenu(current => current !== '' ? 'hide' : '');
         });
     }, []);
-    
-    const showNotShow = showSideMenu ? 'show' : 'hide';
+
     const scrollNoScroll = hasScroll ? 'scroll' : 'no-scroll';
-    const sectionClass = `side-menu side-menu--${showNotShow} side-menu--${scrollNoScroll}`;
+    const sectionClass = `side-menu side-menu--${showSideMenu} side-menu--${scrollNoScroll}`;
 
     return (
         <section 
