@@ -24,8 +24,14 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
     const sectionRef = useRef<HTMLDivElement>(null);
     const touchStartX = useRef<number | null>(null);
     const touchStartY = useRef<number | null>(null);
+    const displayState = useRef<string>('');
 
     const { hasScroll } = useHasScrollbar({ elementRef: sectionRef });
+
+    useEffect(() => 
+    {
+        displayState.current = showSideMenu;
+    }, [showSideMenu]);
 
     useEffect(() => 
     {
@@ -36,10 +42,11 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
             const button = buttonRef.current;
             if (!section || !button) return;
 
+            if (displayState.current !== 'show')
+                return;
+
             if (!section.contains(event.target as Node) && !button.contains(event.target as Node))
-                // All buttons run this when any given button is pressed,
-                // so it needs to keep neutral buttons ('') at neutral ('').
-                setShowSideMenu(current => current !== '' ? 'hide' : '');
+                setShowSideMenu('hide');
         }
     
         document.addEventListener("click", handleClickOutside);
@@ -51,6 +58,9 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
     {
         window.addEventListener('touchstart', (event: TouchEvent): void => 
         {
+            if (displayState.current !== 'show')
+                return;
+
             const touch = event.touches[0];
             touchStartX.current = touch.clientX;
             touchStartY.current = touch.clientY;
@@ -58,6 +68,9 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
     
         window.addEventListener('touchend', (event: TouchEvent): void => 
         {
+            if (displayState.current !== 'show')
+                return;
+
             const touch = event.changedTouches[0];
             const endX = touch.clientX;
             const endY = touch.clientY;
@@ -70,7 +83,7 @@ export function SideMenu({ children, buttonRef, showSideMenu, setShowSideMenu }:
     
             // Handles the closing of the popup windows by a swipe-to-close motion on mobile.
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) 
-                setShowSideMenu(current => current !== '' ? 'hide' : '');
+                setShowSideMenu('hide');
         });
     }, []);
 
