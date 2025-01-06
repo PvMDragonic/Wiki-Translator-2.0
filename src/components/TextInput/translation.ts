@@ -110,7 +110,7 @@ async function requestWikiItemNames()
 
 function extractInputData(text: string)
 {
-    const templateName = text.split('|')[0].slice(2).trim();
+    const templateName = text.split('|')[0].trim();
     const templateEntries = text.split('\n').slice(1, -1).map(entry => 
     {
         const [key, value] = entry.split('=').map(
@@ -134,58 +134,62 @@ function extractInputData(text: string)
 
 export async function translate(textToTranslate: string)
 {
-    if (!textToTranslate.startsWith('{{'))
-        return textToTranslate.split('\n');
-
-    if (!textToTranslate.includes('|'))
-        return textToTranslate.split('\n');;
-
     const templatesInfo = (await requestWikiTemplates()) as IWikiTemplates;
     const itemsNames = await requestWikiItemNames();
 
-    // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
-    const { templateName, templateEntries } = extractInputData(textToTranslate);
-
-    const templateData = templatesInfo[templateName];
-
-    const translatedInput = templateEntries.map(entry =>
+    // Starts split by newline double bracket and ends with 
+    // double bracket newline not followed by a pipe.
+    return textToTranslate.split(/\n{{|}}\n(?!\|)/).map((text, index) => 
     {
-        const name = entry.paramName;
-        const value = entry.paramValue;
+        if (index % 2 === 0) 
+            return text.split('\n');
 
-        const translatedParam = templateData.templateParams[name];
-        const correctedParam = translatedParam ? translatedParam : name; 
-    
-        const paramValues = templateData.templateValues[name];
-        const correctedValue = paramValues?.[value.toLowerCase()] || value;
+        // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
+        const { templateName, templateEntries } = extractInputData(text);
 
-        // Brute force translation since hash tables are O(1).
-        if (correctedValue === value)
-        {
-            if (value.includes('equipped'))
-            {
-                const cleanValue = value.split('equipped')[0].trim();
-                return `|${correctedParam} = ${itemsNames[cleanValue]} equipado.png`;
-            }
-
-            if (value.includes('.png') || value.includes('.gif'))
-            {
-                const cleanValue = value.split('.');
-                return `|${correctedParam} = ${itemsNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
-            }
-
-            // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-            const itemName = itemsNames[value];
-            if (itemName !== undefined)
-                return `|${correctedParam} = ${itemName}`;
-        }        
+        const templateData = templatesInfo[templateName];
         
-        return `|${correctedParam} = ${correctedValue}`;
-    });
+        //console.log(templateName, templateEntries, templateData)
 
-    return [
-        `{{${templateData.templateName}`, 
-        ...translatedInput, 
-        '}}'
-    ];
+        const translatedInput = templateEntries.map(entry =>
+        {
+            const name = entry.paramName;
+            const value = entry.paramValue;
+
+            const translatedParam = templateData.templateParams[name];
+            const correctedParam = translatedParam ? translatedParam : name; 
+        
+            const paramValues = templateData.templateValues[name];
+            const correctedValue = paramValues?.[value.toLowerCase()] || value;
+
+            // Brute force translation since hash tables are O(1).
+            if (correctedValue === value)
+            {
+                if (value.includes('equipped'))
+                {
+                    const cleanValue = value.split('equipped')[0].trim();
+                    return `|${correctedParam} = ${itemsNames[cleanValue]} equipado.png`;
+                }
+
+                if (value.includes('.png') || value.includes('.gif'))
+                {
+                    const cleanValue = value.split('.');
+                    return `|${correctedParam} = ${itemsNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                }
+
+                // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
+                const itemName = itemsNames[value];
+                if (itemName !== undefined)
+                    return `|${correctedParam} = ${itemName}`;
+            }        
+            
+            return `|${correctedParam} = ${correctedValue}`;
+        });
+
+        return [
+            `{{${templateData.templateName}`, 
+            ...translatedInput, 
+            '}}'
+        ];
+    }).flat();
 }
