@@ -148,6 +148,12 @@ export async function translate(textToTranslate: string)
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
 
+        // Unconventional templates like {{Uses material list}} or {{UH}} will fall here.
+        if (templateEntries.length === 0)
+            // Will leave some untranslated stuff without {{ and }}, but it 
+            // doesn't matter since those will need to be manually edited anyway. 
+            return text.split('\n');
+
         const templateData = templatesInfo[templateName];
 
         const translatedInput = templateEntries.map(entry =>
@@ -158,8 +164,8 @@ export async function translate(textToTranslate: string)
             const translatedParam = templateData.templateParams[name];
             const correctedParam = translatedParam ? translatedParam : name; 
         
-            const paramValues = templateData.templateValues[name];
-            const correctedValue = paramValues?.[value.toLowerCase()] || value;
+            // Templates with untranslatable values (numbers), like {{Disassembly}}, may not have 'templateValues'.
+            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || value;
 
             // Brute force translation since hash tables are O(1).
             if (correctedValue === value)
