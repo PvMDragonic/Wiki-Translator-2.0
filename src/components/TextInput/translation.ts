@@ -158,8 +158,8 @@ export async function translate(textToTranslate: string)
             const translatedParam = templateData.templateParams[name];
             const correctedParam = translatedParam ? translatedParam : name; 
         
-            const paramValues = templateData.templateValues[name];
-            const correctedValue = paramValues?.[value.toLowerCase()] || value;
+            // Templates with untranslatable values (numbers), like {{Disassembly}}, may not have 'templateValues'.
+            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || value;
 
             // Brute force translation since hash tables are O(1).
             if (correctedValue === value)
