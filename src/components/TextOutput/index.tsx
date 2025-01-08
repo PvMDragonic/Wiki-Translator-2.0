@@ -44,8 +44,10 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
     return (
         <div className = "textbox">            
             <div 
-                contentEditable 
+                aria-readonly = "true"
                 className = "textbox__textarea"
+                onClick = {() => textRef.current?.focus()}
+                tabIndex = {0}
                 ref = {textRef}
             >
                 {textExists && showCopy && (
@@ -59,7 +61,6 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                         <CopyIcon/>
                     </button>
                 )}
-
                 {translation.map((line, index) => (
                     <React.Fragment key = {index}>
                         {line}

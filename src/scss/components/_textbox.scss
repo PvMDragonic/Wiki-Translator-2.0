@@ -19,6 +19,8 @@
 
         background-color: color-dark(bg-secondary);
         color: color-dark(text-secondary);
+        user-select: 'text';
+        cursor: text;
 
         & a 
         {
@@ -29,6 +31,13 @@
         &::placeholder
         {
             font-family: monospace, sans-serif;
+        }
+
+        &:focus
+        {
+            outline: 1px solid;
+            outline-color: white;
+            outline-offset: 2px;
         }
 
         &:hover, &:focus 
