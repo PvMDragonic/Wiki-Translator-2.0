@@ -138,16 +138,19 @@ export async function translate(textToTranslate: string)
     const templatesInfo = (await requestWikiTemplates()) as IWikiTemplates;
     const itemsNames = await requestWikiItemNames();
 
-    // Starts split by newline double bracket and ends with 
-    // double bracket newline not followed by a pipe.
-    return textToTranslate.split(/\n{{|}}\n(?!\|)/).map((text, index) => 
+    // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
+    const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/);
+
+    return splitted.map((text, index) => 
     {
-        if (index % 2 === 0) 
+        // 'splitted' will have only one element when a single, clean template is inputted.
+        // This is also why trailing newlines need to be removed, to properly detect a single template.
+        if (index % 2 === 0 && splitted.length > 1) 
             return text.split('\n');
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
-
+        
         // Unconventional templates like {{Uses material list}} or {{UH}} will fall here.
         if (templateEntries.length === 0)
             // Will leave some untranslated stuff without {{ and }}, but it 
