@@ -133,6 +133,24 @@ function extractInputData(text: string)
     };
 }
 
+function handleUnconventional(text: string, itemsNames: Record<string, string>, templateName: string)
+{
+    // Categories will fall here.
+    if (text.startsWith('[[') || text.startsWith('UH'))
+        return text.split('\n');
+    
+    // Navboxes will fall here.
+    if (!text.includes('|') && text !== '')
+        return [`{{${text}}}`]
+
+    const translatedParamName = itemsNames[text.split('|')[1]];
+
+    if (translatedParamName)
+        return [`{{${templateName}|${translatedParamName}}}`];
+
+    return text.split('\n');
+}
+
 export async function translate(textToTranslate: string)
 {
     const templatesInfo = (await requestWikiTemplates()) as IWikiTemplates;
@@ -151,13 +169,18 @@ export async function translate(textToTranslate: string)
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
         
+        const templateData = templatesInfo[templateName];
+
         // Unconventional templates like {{Uses material list}} or {{UH}} will fall here.
         if (templateEntries.length === 0)
-            // Will leave some untranslated stuff without {{ and }}, but it 
-            // doesn't matter since those will need to be manually edited anyway. 
-            return text.split('\n');
+        {
+            // Some junk gets here when a whole article is thrown at the translator.
+            if (text.startsWith('\n') || text.startsWith(''))
+                return text.split('\n');
 
-        const templateData = templatesInfo[templateName];
+            const _templateName = templateData ? templateData.templateName : templateName;
+            return handleUnconventional(text, itemsNames, _templateName);
+        }
 
         const translatedInput = templateEntries.map(entry =>
         {
