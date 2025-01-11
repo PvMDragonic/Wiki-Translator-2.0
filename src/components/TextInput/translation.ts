@@ -207,6 +207,10 @@ export async function translate(textToTranslate: string)
 
     return splitted.map((text, index) => 
     {
+        // Unsupported and unconventional template.
+        if (text.startsWith('GU'))
+            return [null]
+
         if (text.startsWith('{{UH') || text.startsWith('UH'))
             return handleUpdateHistory(splitted.slice(index));
 
@@ -231,7 +235,7 @@ export async function translate(textToTranslate: string)
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
-        
+
         const templateData = templatesInfo[templateName];
 
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
