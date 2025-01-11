@@ -203,7 +203,7 @@ export async function translate(textToTranslate: string)
     const itemsNames = await requestWikiItemNames();
 
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
-    const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/);
+    const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
 
     return splitted.map((text, index) => 
     {
@@ -236,6 +236,10 @@ export async function translate(textToTranslate: string)
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
 
+        // On occasion, stuff like [[Categories]] may get on odd indexes and making it here.
+        if (templateEntries.some(entry => entry.paramValue === undefined))
+            return text.split('\n');
+
         const templateData = templatesInfo[templateName];
 
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
@@ -255,6 +259,9 @@ export async function translate(textToTranslate: string)
             const value = entry.paramValue;
 
             const translatedParam = templateData.templateParams[name];
+            if (!translatedParam) // Wiki .json is lacking a given param.
+                return `${name} = ${value}`;
+
             const correctedParam = translatedParam ? translatedParam : name; 
         
             // Templates with untranslatable values (numbers), like {{Disassembly}}, may not have 'templateValues'.
