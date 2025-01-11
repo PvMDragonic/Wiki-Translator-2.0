@@ -260,7 +260,7 @@ export async function translate(textToTranslate: string)
 
             const translatedParam = templateData.templateParams[name];
             if (!translatedParam) // Wiki .json is lacking a given param.
-                return `${name} = ${value}`;
+                return `|${name} = ${value}`;
 
             const correctedParam = translatedParam ? translatedParam : name; 
         
