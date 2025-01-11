@@ -255,6 +255,9 @@ export async function translate(textToTranslate: string)
             const value = entry.paramValue;
 
             const translatedParam = templateData.templateParams[name];
+            if (!translatedParam) // Wiki .json is lacking a given param.
+                return `${name} = ${value}`;
+
             const correctedParam = translatedParam ? translatedParam : name; 
         
             // Templates with untranslatable values (numbers), like {{Disassembly}}, may not have 'templateValues'.
