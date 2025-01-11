@@ -133,6 +133,70 @@ function extractInputData(text: string)
     };
 }
 
+function handleUnconventional(text: string, itemsNames: Record<string, string>, templateName: string)
+{
+    // Categories will fall here.
+    if (text.startsWith('[['))
+        return text.split('\n');
+    
+    // Navboxes will fall here.
+    if (!text.includes('|') && text !== '')
+        return [`{{${text}}}`]
+
+    const translatedParamName = itemsNames[text.split('|')[1]];
+
+    if (translatedParamName)
+        return [`{{${templateName}|${translatedParamName}}}`];
+
+    return text.split('\n');
+}
+
+function handleUpdateHistory(textLines: string[])
+{
+    function translateUpdateLine(textLine: string)
+    {
+        return `${textLine
+            .replace('UL', 'LA')
+            .replace('type=', 'tipo=')
+            .replace('update=', 'atualização=')
+            .replace('date=', 'data=')
+            .replace('=patch', '=correção')
+            .replace('=update', '=atualização')
+        }}}`; // All {{UL}} lose their closing brackets after the 'textToTranslate' split.
+    }
+
+    const updateHistory = textLines.flatMap((textLine, i) => 
+    {
+        if (i === 0) 
+        {
+            const [firstLine, secondLine] = textLine.split('\n');
+
+            return [
+                firstLine.startsWith('{') 
+                    // A single, clean {{UH}} input will already have brackets; else, it won't.
+                    ? firstLine.replace('UH', 'HA') 
+                    : `{{${firstLine.replace('UH', 'HA')}`, 
+                translateUpdateLine(secondLine)
+            ];
+        }
+
+        if (textLine.startsWith('*')) 
+        {
+            return textLine.split('\n').map(line => 
+                line.startsWith('* {') 
+                    ? translateUpdateLine(line) 
+                    : line
+            );
+        }
+
+        return []; // Effectively stops processing for any other cases.
+    });
+
+    // Need to add back the bracket removed from splitting 'textToTranslate'.
+    updateHistory[updateHistory.length - 1] = '}}';
+    return updateHistory;
+}
+
 export async function translate(textToTranslate: string)
 {
     const templatesInfo = (await requestWikiTemplates()) as IWikiTemplates;
@@ -143,6 +207,27 @@ export async function translate(textToTranslate: string)
 
     return splitted.map((text, index) => 
     {
+        // Unsupported and unconventional template.
+        if (text.startsWith('GU'))
+            return [null]
+
+        if (text.startsWith('{{UH') || text.startsWith('UH'))
+            return handleUpdateHistory(splitted.slice(index));
+
+        // Handles rogue {{UL}}, since they're already dealt with alongside {{UH}}.
+        if (text.startsWith('*'))
+        {
+            // If there's relevant stuff past the {{UH}} that's not a 
+            // template, it may get stuck together with the last {{UL}}.
+            const leftoverText = text
+                .split('\n')
+                .filter(textLine => !textLine.startsWith('*'))
+                .map(line => line.startsWith('=') || line.startsWith('[') || line === '' ? line : `{{${line}}}`);
+
+            // Undesireable leftovers are either empty arrays (['']) or brackets from splitting (['}}']).
+            return leftoverText.length === 1 && leftoverText[0].length <= 2 ? [null] : leftoverText;
+        }
+
         // 'splitted' will have only one element when a single, clean template is inputted.
         // This is also why trailing newlines need to be removed, to properly detect a single template.
         if (index % 2 === 0 && splitted.length > 1) 
@@ -150,14 +235,19 @@ export async function translate(textToTranslate: string)
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
-        
-        // Unconventional templates like {{Uses material list}} or {{UH}} will fall here.
-        if (templateEntries.length === 0)
-            // Will leave some untranslated stuff without {{ and }}, but it 
-            // doesn't matter since those will need to be manually edited anyway. 
-            return text.split('\n');
 
         const templateData = templatesInfo[templateName];
+
+        // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
+        if (templateEntries.length === 0)
+        {
+            // Some junk gets here when a whole article is thrown at the translator.
+            if (text.startsWith('\n') || text.startsWith(''))
+                return text.split('\n');
+
+            const _templateName = templateData ? templateData.templateName : templateName;
+            return handleUnconventional(text, itemsNames, _templateName);
+        }
 
         const translatedInput = templateEntries.map(entry =>
         {
@@ -199,5 +289,5 @@ export async function translate(textToTranslate: string)
             ...translatedInput, 
             '}}'
         ];
-    }).flat();
+    }).flat().filter(line => line !== null);
 }
