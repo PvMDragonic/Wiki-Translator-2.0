@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { Tooltip } from "../Tooltip";
 import CheckedIcon from "../../assets/CheckedIcon";
 
 interface IOptionOptionsEntry
@@ -21,16 +23,23 @@ interface IOptionOptionsEntry
  */
 export function OptionOptionsEntry({ label, tooltip, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
 {
+    const [showTooltip, setShowTooltip] = useState<boolean>(false);
+
+    const labelRef = useRef<HTMLLabelElement>(null);
+
     const actualInputClass = `options-entry__input options-entry__input--${state ? 'active' : 'inactive'}`;
 
     return (
         <>
             <div className = "options-entry__label-container">
                 <label 
+                    ref = {labelRef}
                     htmlFor = {label}
                     className = "options-entry__label"
+                    onMouseEnter = {() => setShowTooltip(true)}
+                    onMouseLeave = {() => setShowTooltip(false)}
                 >
-                    {label}{tooltip}
+                    {label}
                 </label>
             </div>
             <div className = "options-entry__input-container">
@@ -47,6 +56,12 @@ export function OptionOptionsEntry({ label, tooltip, state, stateUpdate }: IOpti
                     <CheckedIcon/>
                 </div>
             </div>
+            {showTooltip && (
+                <Tooltip
+                    text = {tooltip}
+                    parentRef = {labelRef}
+                />
+            )}
         </>
     )
 }

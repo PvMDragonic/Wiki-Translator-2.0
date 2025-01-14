@@ -24,7 +24,23 @@ export function OptionOptionsPage(): JSX.Element
                     <li className = "options-entry__item">
                         <OptionOptionsEntry
                             label = {'Teste testificado'}
-                            tooltip = {''}
+                            tooltip = {'This is a test of the tooltip.'}
+                            state = {temp}
+                            stateUpdate = {setTemp}
+                        />
+                    </li>
+                    <li className = "options-entry__item">
+                        <OptionOptionsEntry
+                            label = {'Teste testificado'}
+                            tooltip = {'This is a test of the tooltip.'}
+                            state = {temp}
+                            stateUpdate = {setTemp}
+                        />
+                    </li>
+                    <li className = "options-entry__item">
+                        <OptionOptionsEntry
+                            label = {'Teste testificado'}
+                            tooltip = {'This is a test of the tooltip.'}
                             state = {temp}
                             stateUpdate = {setTemp}
                         />
