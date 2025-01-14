@@ -21,6 +21,8 @@ interface IOptionOptionsEntry
  */
 export function OptionOptionsEntry({ label, tooltip, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
 {
+    const actualInputClass = `options-entry__input options-entry__input--${state ? 'active' : 'inactive'}`;
+
     return (
         <>
             <div className = "options-entry__label-container">
@@ -39,10 +41,10 @@ export function OptionOptionsEntry({ label, tooltip, state, stateUpdate }: IOpti
                     onChange = {() => stateUpdate(prev => !prev)}
                 />                
                 <div
-                    className = "options-entry__actual-input"
+                    className = {actualInputClass}
                     onClick = {() => stateUpdate(prev => !prev)}
                 >
-                    {state && <CheckedIcon/>}
+                    <CheckedIcon/>
                 </div>
             </div>
         </>

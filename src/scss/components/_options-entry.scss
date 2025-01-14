@@ -72,7 +72,7 @@
         width: 1px;
     }
 
-    &__actual-input
+    &__input
     {    
         position: relative;   
         border-radius: 0.4rem;
@@ -94,6 +94,22 @@
             width: 110%;
             height: 110%;
             top: -0.15rem;
+        }
+
+        &--active
+        {
+            & > svg
+            {
+                display: block;
+            }
+        }
+
+        &--inactive
+        {
+            & > svg
+            {
+                display: none;
+            }
         }
     }
 }
