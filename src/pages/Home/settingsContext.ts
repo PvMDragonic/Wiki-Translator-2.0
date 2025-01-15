@@ -4,6 +4,8 @@ interface UserContextType
 {
     retranslate: boolean;
     setRetranslate: React.Dispatch<React.SetStateAction<boolean>>;
+    debugging: boolean;
+    setDebugging: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SettingsContext = createContext<UserContextType>(

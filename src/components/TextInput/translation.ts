@@ -1,6 +1,6 @@
 import { Wiki } from "./wiki";
 
-export async function translate(textToTranslate: string)
+export async function translate(textToTranslate: string, debugging: boolean)
 {
     function extractInputData(text: string)
     {
@@ -31,17 +31,44 @@ export async function translate(textToTranslate: string)
     {
         // Categories will fall here.
         if (text.startsWith('[['))
+        {
+            if (debugging) console.log('Category found:',
+                '\n\ttemplateName: ',
+                templateName,
+                '\n\ttext: ', 
+                text);
             return text.split('\n');
+        }
         
         // Navboxes will fall here.
         if (!text.includes('|') && text !== '')
+        {
+            if (debugging) console.log('Navbox found:',
+                '\n\ttemplateName: ',
+                templateName,
+                '\n\ttext: ', 
+                text);
             return [`{{${text}}}`]
+        }
 
         const translatedParamName = itemsNames[text.split('|')[1]];
-
         if (translatedParamName)
+        {
+            if (debugging) console.log(
+                'Unconventional translated:',
+                '\n\ttemplateName: ',
+                templateName,
+                '\n\ttranslatedParamName: ', 
+                translatedParamName);
             return [`{{${templateName}|${translatedParamName}}}`];
+        }
 
+        if (debugging) console.log(
+            'Missing unconventional:',
+            '\n\ttemplateName: ',
+            templateName,
+            '\n\ttext: ', 
+            text);
         return text.split('\n');
     }
 
@@ -96,12 +123,22 @@ export async function translate(textToTranslate: string)
 
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
     const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
+    
+    if (debugging) console.log('splitted array: \n\t', splitted);
 
     return splitted.map((text, index) => 
     {
         // Unsupported and unconventional template.
         if (text.startsWith('GU'))
-            return [null]
+        {
+            if (debugging) console.log(
+                'Skipping GU:', 
+                '\n\t\'splitted\' index: ',
+                index,
+                '\n\ttext: ', 
+                text);
+            return [null];
+        }
 
         if (text.startsWith('{{UH') || text.startsWith('UH'))
             return handleUpdateHistory(splitted.slice(index));
@@ -117,7 +154,24 @@ export async function translate(textToTranslate: string)
                 .map(line => line.startsWith('=') || line.startsWith('[') || line === '' ? line : `{{${line}}}`);
 
             // Undesireable leftovers are either empty arrays (['']) or brackets from splitting (['}}']).
-            return leftoverText.length === 1 && leftoverText[0].length <= 2 ? [null] : leftoverText;
+            if (leftoverText.length === 1 && leftoverText[0].length <= 2)
+            {
+                if (debugging) console.log(
+                    'Skipping UL:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text);
+                return [null];
+            }            
+
+            if (debugging) console.log(
+                'Leftover found:', 
+                '\n\t\'splitted\' index: ',
+                index,
+                '\n\ttext: ', 
+                text);
+            return leftoverText;
         }
 
         // 'splitted' will have only one element when a single, clean template is inputted.
@@ -130,16 +184,47 @@ export async function translate(textToTranslate: string)
 
         // On occasion, stuff like [[Categories]] may get on odd indexes and making it here.
         if (templateEntries.some(entry => entry.paramValue === undefined))
+        {
+            if (debugging) console.log(
+                'Skipping empty param values:', 
+                '\n\t\'splitted\' index: ',
+                index,
+                '\n\ttext: ', 
+                text);
             return text.split('\n');
+        }
 
         const templateData = templatesInfo[templateName];
+
+        if (debugging)
+        {
+            console.log(
+                'Template found:',
+                '\n\t\'splitted\' index: ', 
+                index, 
+                '\n\ttemplateName: ', 
+                templateName, 
+                '\n\ttemplateEntries: ', 
+                templateEntries, 
+                '\n\ttemplateData: ', 
+                templateData
+            );
+        }
 
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
         if (templateEntries.length === 0)
         {
             // Some junk gets here when a whole article is thrown at the translator.
             if (text.startsWith('\n') || text.startsWith(''))
+            {
+                if (debugging) console.log(
+                    'Skipping junk on unconventional:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text);
                 return text.split('\n');
+            }
 
             const _templateName = templateData ? templateData.templateName : templateName;
             return handleUnconventional(text, _templateName);
@@ -152,7 +237,19 @@ export async function translate(textToTranslate: string)
 
             const translatedParam = templateData.templateParams[name];
             if (!translatedParam) // Wiki .json is lacking a given param.
+            {
+                if (debugging) console.log(
+                    'Wiki .json missing: ', 
+                    '\n\t\'splitted\' index: ', 
+                    index,
+                    '\n\ttemplateName: ',
+                    templateName,
+                    '\n\tparamName: ',
+                    name,
+                    '\n\tparamValue: ',
+                    value);
                 return `|${name} = ${value}`;
+            }
 
             const correctedParam = translatedParam ? translatedParam : name; 
         
@@ -161,25 +258,46 @@ export async function translate(textToTranslate: string)
 
             // Brute force translation since hash tables are O(1).
             if (correctedValue === value)
-            {
-                if (value.includes('equipped'))
+            { 
+                try
                 {
-                    const cleanValue = value.split('equipped')[0].trim();
-                    return `|${correctedParam} = ${itemsNames[cleanValue]} equipado.png`;
+                    if (value.includes('equipped'))
+                    {
+                        const cleanValue = value.split('equipped')[0].trim();
+                        return `|${correctedParam} = ${itemsNames[cleanValue]} equipado.png`;
+                    }
+    
+                    if (value.includes('.png') || value.includes('.gif'))
+                    {
+                        const cleanValue = value.split('.');
+                        return `|${correctedParam} = ${itemsNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                    }
+    
+                    // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
+                    const itemName = itemsNames[value];
+                    if (itemName !== undefined)
+                        return `|${correctedParam} = ${itemName}`;
                 }
-
-                if (value.includes('.png') || value.includes('.gif'))
+                finally
                 {
-                    const cleanValue = value.split('.');
-                    return `|${correctedParam} = ${itemsNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                    if (debugging) console.log(
+                        'Item name translation:',
+                        '\n\tparamName: ',
+                        name,
+                        '\n\tcorrectedValue: ',
+                        correctedValue
+                    )
                 }
-
-                // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-                const itemName = itemsNames[value];
-                if (itemName !== undefined)
-                    return `|${correctedParam} = ${itemName}`;
             }        
             
+            if (debugging) console.log(
+                'Skipping item name translation:',
+                '\n\tparamName: ',
+                name,
+                '\n\tcorrectedValue: ',
+                correctedValue
+            )
+
             return `|${correctedParam} = ${correctedValue}`;
         });
 

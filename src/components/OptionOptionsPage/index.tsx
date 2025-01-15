@@ -10,14 +10,20 @@ import SettingsContext from "../../pages/Home/settingsContext";
  */
 export function OptionOptionsPage(): JSX.Element
 {
-    const { retranslate, setRetranslate } = useContext(SettingsContext);
+    const { 
+        retranslate, setRetranslate,
+        debugging, setDebugging 
+    } = useContext(SettingsContext);
 
     useEffect(() => 
     {
         const _retranslate = localStorage.getItem('wikiTranslatorRetranslate');
-
         if (_retranslate !== null) 
             setRetranslate(JSON.parse(_retranslate));
+
+        const _debugging = localStorage.getItem('wikiTranslatorDebugger');
+        if (_debugging !== null) 
+            setDebugging(JSON.parse(_debugging));
     }, []);
 
     return (
@@ -37,6 +43,15 @@ export function OptionOptionsPage(): JSX.Element
                             tooltip = {'Adiciona um botão à caixa de entrada de texto para reexecutar a tradução.'}
                             state = {retranslate}
                             stateUpdate = {setRetranslate}
+                        />
+                    </li>
+                    <li className = "options-entry__item">
+                        <OptionOptionsEntry
+                            label = {'Ativar debugger'}
+                            lcKey = {'wikiTranslatorDebugger'}
+                            tooltip = {'Ativa a exibição de todas as variáveis no console do navegador durante a tradução.'}
+                            state = {debugging}
+                            stateUpdate = {setDebugging}
                         />
                     </li>
                 </ul>

@@ -24,7 +24,7 @@ export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Eleme
 {
     const textRef = useRef<HTMLTextAreaElement>(null);
 
-    const { retranslate } = useContext(SettingsContext);
+    const { retranslate, debugging } = useContext(SettingsContext);
     
     const { hasScroll } = useHasScrollbar({ elementRef: textRef })
     
@@ -39,14 +39,14 @@ export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Eleme
 
     function handleTranslation(event: React.ChangeEvent<HTMLTextAreaElement>)
     {
-        translate(event.target.value).then(
+        translate(event.target.value, debugging).then(
             translation => setTranslation(translation)
         );     
     }
 
     function handleRetranslation()
     {
-        translate(textRef.current?.value!).then(
+        translate(textRef.current?.value!, debugging).then(
             translation => setTranslation(translation)
         );
     }

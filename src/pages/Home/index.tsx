@@ -11,6 +11,7 @@ export function Home()
     const [textExists, setTextExists] = useState<boolean>(false);
 
     const [retranslate, setRetranslate] = useState<boolean>(false);
+    const [debugging, setDebugging] = useState<boolean>(false);
     
     useEffect(() => 
     {
@@ -22,7 +23,8 @@ export function Home()
             <section className = "home__container">
                 <SettingsContext.Provider 
                     value = {{ 
-                        retranslate, setRetranslate 
+                        retranslate, setRetranslate, 
+                        debugging, setDebugging
                     }}
                 >
                     <OptionsBar/>
