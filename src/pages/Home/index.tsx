@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { TextInput } from "../../components/TextInput";
 import { TextOutput } from "../../components/TextOutput";
 import { OptionsBar } from "../../components/OptionsBar";
+import SettingsContext from "./settingsContext";
 
 export function Home()
 {
@@ -9,6 +10,14 @@ export function Home()
     const [translation, setTranslation] = useState<string[]>(['']);
     const [textExists, setTextExists] = useState<boolean>(false);
 
+    const [retranslate, setRetranslate] = useState<boolean>(false);
+    const [debugging, setDebugging] = useState<boolean>(false);
+    const [debugSplitted, setDebugSplitted] = useState<boolean>(false);
+    const [debugTemplate, setDebugTemplate] = useState<boolean>(false);
+    const [debugSuccess, setDebugSuccess] = useState<boolean>(false);
+    const [debugSkipped, setDebugSkipped] = useState<boolean>(false);
+    const [debugMissing, setDebugMissing] = useState<boolean>(false);
+    
     useEffect(() => 
     {
         setTextExists(!(translation[0] === '' && translation.length === 1));
@@ -17,18 +26,29 @@ export function Home()
     return (
         <div className = "home">
             <section className = "home__container">
-                <OptionsBar/>
-                
-                <div className = "home__translator">
-                    <TextInput
-                        textExists = {textExists}
-                        setTranslation = {setTranslation}
-                    />
-                    <TextOutput
-                        textExists = {textExists}
-                        translation = {translation}
-                    />
-                </div>
+                <SettingsContext.Provider 
+                    value = {{ 
+                        retranslate, setRetranslate, 
+                        debugging, setDebugging,
+                        debugSplitted, setDebugSplitted,
+                        debugTemplate, setDebugTemplate,
+                        debugSuccess, setDebugSuccess,
+                        debugSkipped, setDebugSkipped,
+                        debugMissing, setDebugMissing
+                    }}
+                >
+                    <OptionsBar/>
+                    <div className = "home__translator">
+                        <TextInput
+                            textExists = {textExists}
+                            setTranslation = {setTranslation}
+                        />
+                        <TextOutput
+                            textExists = {textExists}
+                            translation = {translation}
+                        />
+                    </div>
+                </SettingsContext.Provider>
             </section>
             <p className = "home__credits">
                 Feito por <a 

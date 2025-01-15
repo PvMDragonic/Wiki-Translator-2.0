@@ -101,11 +101,20 @@
         opacity: 0.5;
         width: 2.5rem; 
         height: 2.5rem;
-        top: 0.625rem;
-
+        
         @include border-lighting(dark, strong-neutral, soft-neutral);
         background-color: color-dark(bg-tertiary);
         color: color-dark(text-off-white);
+        
+        &--clear-input
+        {
+            top: 0.625rem;
+        }
+
+        &--retranslate
+        {
+            top: 3.625rem;
+        }
 
         & > svg
         {

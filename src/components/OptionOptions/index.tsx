@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { SideMenu } from "../SideMenu";
+import { OptionOptionsPage } from "../OptionOptionsPage";
 import OptionsIcon from "../../assets/OptionsIcon";
 
 /**
@@ -24,7 +25,7 @@ export function OptionOptions(): JSX.Element
                 showSideMenu = {showSideMenu}
                 setShowSideMenu = {setShowSideMenu}
             >
-                {<></>}
+                <OptionOptionsPage/>
             </SideMenu>
 
             <button 
