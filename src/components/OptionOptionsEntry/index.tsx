@@ -7,6 +7,7 @@ interface IOptionOptionsEntry
     label: string;
     lcKey: string;
     tooltip: string;
+    disabled?: boolean;
     state: boolean;
     stateUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -19,11 +20,12 @@ interface IOptionOptionsEntry
  * @param {string} props.label - Text for the setting's label.
  * @param {string} props.lcKey - String key to access the correct localStorage.
  * @param {string} props.tooltip - Text for the setting's tooltip.
+ * @param {boolean} props.disabled - (Optional) Whether or not the setting is available.
  * @param {boolean} props.state - Whether or not the setting is active.
  * @param {React.Dispatch<React.SetStateAction<boolean>>} props.stateUpdate - A function to update the setting state.
  * @returns {JSX.Element} The rendered label and input.
  */
-export function OptionOptionsEntry({ label, lcKey, tooltip, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
+export function OptionOptionsEntry({ label, lcKey, tooltip, disabled = false, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
 {
     const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
@@ -43,13 +45,17 @@ export function OptionOptionsEntry({ label, lcKey, tooltip, state, stateUpdate }
 
     return (
         <>
-            <div className = "options-entry__label-container">
+            <div 
+                className = "options-entry__label-container"
+                style = {{ ...(disabled && { opacity: '50%' }) }}
+            >
                 <label 
                     ref = {labelRef}
                     htmlFor = {label}
                     className = "options-entry__label"
                     onMouseEnter = {() => setShowTooltip(true)}
                     onMouseLeave = {() => setShowTooltip(false)}
+                    style = {{ ...(!disabled && { cursor: 'pointer' }) }}
                 >
                     {label}
                 </label>
@@ -59,16 +65,21 @@ export function OptionOptionsEntry({ label, lcKey, tooltip, state, stateUpdate }
                     id = {label}
                     type = "checkbox" 
                     className = "options-entry__accessibility-input"
+                    disabled = {disabled}
                     onChange = {handleUpdate}
                 />                
                 <div
                     className = {actualInputClass}
                     onClick = {handleUpdate}
+                    style = {{ ...(disabled && { 
+                        pointerEvents: 'none',
+                        opacity: '50%' 
+                    }) }}
                 >
                     <CheckedIcon/>
                 </div>
             </div>
-            {showTooltip && (
+            {showTooltip && !disabled && (
                 <Tooltip
                     text = {tooltip}
                     parentRef = {labelRef}

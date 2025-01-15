@@ -1,6 +1,25 @@
 import { Wiki } from "./wiki";
 
-export async function translate(textToTranslate: string, debugging: boolean)
+interface ITranslate
+{
+    textToTranslate: string;
+    debugging: boolean;
+    debugSplitted: boolean;
+    debugTemplate: boolean; 
+    debugSuccess: boolean;
+    debugSkipped: boolean; 
+    debugMissing: boolean;
+}
+
+export async function translate({ 
+    textToTranslate, 
+    debugging, 
+    debugSplitted, 
+    debugTemplate,
+    debugSuccess, 
+    debugSkipped, 
+    debugMissing 
+}: ITranslate) 
 {
     function extractInputData(text: string)
     {
@@ -32,7 +51,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
         // Categories will fall here.
         if (text.startsWith('[['))
         {
-            if (debugging) console.log('Category found:',
+            if (debugging && debugSuccess) console.log('Category found:',
                 '\n\ttemplateName: ',
                 templateName,
                 '\n\ttext: ', 
@@ -43,7 +62,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
         // Navboxes will fall here.
         if (!text.includes('|') && text !== '')
         {
-            if (debugging) console.log('Navbox found:',
+            if (debugging && debugSuccess) console.log('Navbox found:',
                 '\n\ttemplateName: ',
                 templateName,
                 '\n\ttext: ', 
@@ -54,7 +73,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
         const translatedParamName = itemsNames[text.split('|')[1]];
         if (translatedParamName)
         {
-            if (debugging) console.log(
+            if (debugging && debugSuccess) console.log(
                 'Unconventional translated:',
                 '\n\ttemplateName: ',
                 templateName,
@@ -63,7 +82,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
             return [`{{${templateName}|${translatedParamName}}}`];
         }
 
-        if (debugging) console.log(
+        if (debugging && debugMissing) console.log(
             'Missing unconventional:',
             '\n\ttemplateName: ',
             templateName,
@@ -124,14 +143,14 @@ export async function translate(textToTranslate: string, debugging: boolean)
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
     const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
     
-    if (debugging) console.log('splitted array: \n\t', splitted);
+    if (debugging && debugSplitted) console.log('splitted array:\n\t', splitted);
 
     return splitted.map((text, index) => 
     {
         // Unsupported and unconventional template.
         if (text.startsWith('GU'))
         {
-            if (debugging) console.log(
+            if (debugging && debugSkipped) console.log(
                 'Skipping GU:', 
                 '\n\t\'splitted\' index: ',
                 index,
@@ -156,7 +175,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
             // Undesireable leftovers are either empty arrays (['']) or brackets from splitting (['}}']).
             if (leftoverText.length === 1 && leftoverText[0].length <= 2)
             {
-                if (debugging) console.log(
+                if (debugging && debugSkipped) console.log(
                     'Skipping UL:', 
                     '\n\t\'splitted\' index: ',
                     index,
@@ -165,7 +184,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
                 return [null];
             }            
 
-            if (debugging) console.log(
+            if (debugging && debugSuccess) console.log(
                 'Leftover found:', 
                 '\n\t\'splitted\' index: ',
                 index,
@@ -185,7 +204,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
         // On occasion, stuff like [[Categories]] may get on odd indexes and making it here.
         if (templateEntries.some(entry => entry.paramValue === undefined))
         {
-            if (debugging) console.log(
+            if (debugging && debugSkipped) console.log(
                 'Skipping empty param values:', 
                 '\n\t\'splitted\' index: ',
                 index,
@@ -196,7 +215,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
 
         const templateData = templatesInfo[templateName];
 
-        if (debugging)
+        if (debugging && debugTemplate)
         {
             console.log(
                 'Template found:',
@@ -217,7 +236,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
             // Some junk gets here when a whole article is thrown at the translator.
             if (text.startsWith('\n') || text.startsWith(''))
             {
-                if (debugging) console.log(
+                if (debugging && debugSkipped) console.log(
                     'Skipping junk on unconventional:', 
                     '\n\t\'splitted\' index: ',
                     index,
@@ -238,7 +257,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
             const translatedParam = templateData.templateParams[name];
             if (!translatedParam) // Wiki .json is lacking a given param.
             {
-                if (debugging) console.log(
+                if (debugging && debugMissing) console.log(
                     'Wiki .json missing: ', 
                     '\n\t\'splitted\' index: ', 
                     index,
@@ -280,7 +299,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
                 }
                 finally
                 {
-                    if (debugging) console.log(
+                    if (debugging && debugSuccess) console.log(
                         'Item name translation:',
                         '\n\tparamName: ',
                         name,
@@ -290,7 +309,7 @@ export async function translate(textToTranslate: string, debugging: boolean)
                 }
             }        
             
-            if (debugging) console.log(
+            if (debugging && debugSkipped) console.log(
                 'Skipping item name translation:',
                 '\n\tparamName: ',
                 name,

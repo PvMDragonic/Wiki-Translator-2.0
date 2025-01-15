@@ -12,6 +12,11 @@ export function Home()
 
     const [retranslate, setRetranslate] = useState<boolean>(false);
     const [debugging, setDebugging] = useState<boolean>(false);
+    const [debugSplitted, setDebugSplitted] = useState<boolean>(false);
+    const [debugTemplate, setDebugTemplate] = useState<boolean>(false);
+    const [debugSuccess, setDebugSuccess] = useState<boolean>(false);
+    const [debugSkipped, setDebugSkipped] = useState<boolean>(false);
+    const [debugMissing, setDebugMissing] = useState<boolean>(false);
     
     useEffect(() => 
     {
@@ -24,7 +29,12 @@ export function Home()
                 <SettingsContext.Provider 
                     value = {{ 
                         retranslate, setRetranslate, 
-                        debugging, setDebugging
+                        debugging, setDebugging,
+                        debugSplitted, setDebugSplitted,
+                        debugTemplate, setDebugTemplate,
+                        debugSuccess, setDebugSuccess,
+                        debugSkipped, setDebugSkipped,
+                        debugMissing, setDebugMissing
                     }}
                 >
                     <OptionsBar/>
