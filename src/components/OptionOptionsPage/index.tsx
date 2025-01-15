@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useContext, useEffect } from "react";
 import { OptionOptionsEntry } from "../OptionOptionsEntry";
+import SettingsContext from "../../pages/Home/settingsContext";
 
 /**
  * Renders the side menu content for the options button.
@@ -9,7 +10,15 @@ import { OptionOptionsEntry } from "../OptionOptionsEntry";
  */
 export function OptionOptionsPage(): JSX.Element
 {
-    const [temp, setTemp] = useState<boolean>(false);
+    const { retranslate, setRetranslate } = useContext(SettingsContext);
+
+    useEffect(() => 
+    {
+        const _retranslate = localStorage.getItem('wikiTranslatorRetranslate');
+
+        if (_retranslate !== null) 
+            setRetranslate(JSON.parse(_retranslate));
+    }, []);
 
     return (
         <div className = "side-page">
@@ -18,31 +27,16 @@ export function OptionOptionsPage(): JSX.Element
             </h1>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    Texto Traduzido
+                    Desenvolvedor
                 </h2>
                 <ul className = "options-entry__list">
                     <li className = "options-entry__item">
                         <OptionOptionsEntry
-                            label = {'Teste testificado'}
-                            tooltip = {'This is a test of the tooltip.'}
-                            state = {temp}
-                            stateUpdate = {setTemp}
-                        />
-                    </li>
-                    <li className = "options-entry__item">
-                        <OptionOptionsEntry
-                            label = {'Teste testificado'}
-                            tooltip = {'This is a test of the tooltip.'}
-                            state = {temp}
-                            stateUpdate = {setTemp}
-                        />
-                    </li>
-                    <li className = "options-entry__item">
-                        <OptionOptionsEntry
-                            label = {'Teste testificado'}
-                            tooltip = {'This is a test of the tooltip.'}
-                            state = {temp}
-                            stateUpdate = {setTemp}
+                            label = {'Botão retraduzir'}
+                            lcKey = {'wikiTranslatorRetranslate'}
+                            tooltip = {'Adiciona um botão à caixa de entrada de texto para reexecutar a tradução.'}
+                            state = {retranslate}
+                            stateUpdate = {setRetranslate}
                         />
                     </li>
                 </ul>

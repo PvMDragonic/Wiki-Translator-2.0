@@ -1,7 +1,9 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { translate } from "./translation";
 import { useHasScrollbar } from "../../hooks/useHasScrollbar";
 import NegativeIcon from "../../assets/NegativeIcon";
+import SettingsContext from "../../pages/Home/settingsContext";
+import TranslateIcon from "../../assets/TranslateIcon";
 
 interface ITextInput
 {
@@ -21,6 +23,8 @@ interface ITextInput
 export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Element
 {
     const textRef = useRef<HTMLTextAreaElement>(null);
+
+    const { retranslate } = useContext(SettingsContext);
     
     const { hasScroll } = useHasScrollbar({ elementRef: textRef })
     
@@ -40,11 +44,19 @@ export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Eleme
         );     
     }
 
+    function handleRetranslation()
+    {
+        translate(textRef.current?.value!).then(
+            translation => setTranslation(translation)
+        );
+    }
+
     return (
         <div className = "textbox">
             {textExists && (
                 <button 
-                    className = "textbox__button"
+                    title = "Apagar texto"
+                    className = "textbox__button textbox__button--clear-input"
                     onClick = {handleTextReset}
                     style = {{
                         left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
@@ -53,7 +65,18 @@ export function TextInput({ textExists, setTranslation }: ITextInput): JSX.Eleme
                     <NegativeIcon/>
                 </button>
             )}
-
+            {textExists && retranslate && (
+                <button 
+                    title = "Retraduzir"
+                    className = "textbox__button textbox__button--retranslate"
+                    onClick = {handleRetranslation}
+                    style = {{
+                        left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
+                    }}
+                >
+                    <TranslateIcon/>
+                </button>
+            )}
             <textarea
                 lang = "pt"
                 ref = {textRef}
