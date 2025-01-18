@@ -95,22 +95,21 @@ export function OptionOptionsPage(): JSX.Element
                 <h2 className = "options-entry__title">
                     Desenvolvedor
                 </h2>
-                <ul className="options-entry__list">
+                <ul className = "options-entry__list">
                     {options.map((option, index) => (
-                        <li key={index} className="options-entry__item">
+                        <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
-                                label={option.label}
-                                lcKey={option.lcKey}
-                                tooltip={option.tooltip}
-                                state={option.state}
-                                stateUpdate={option.stateUpdate}
-                                disabled={option.disabled}
+                                label = {option.label}
+                                lcKey = {option.lcKey}
+                                tooltip = {option.tooltip}
+                                state = {option.state}
+                                stateUpdate = {option.stateUpdate}
+                                disabled = {option.disabled}
                             />
                         </li>
                     ))}
                 </ul>
             </div>
-            
         </div>
     )
 }
