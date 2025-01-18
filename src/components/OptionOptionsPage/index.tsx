@@ -1,6 +1,5 @@
-import { useContext, useEffect } from "react";
 import { OptionOptionsEntry } from "../OptionOptionsEntry";
-import SettingsContext from "../../pages/Home/settingsContext";
+import { useDebugger } from "../../hooks/useDebugger";
 
 /**
  * Renders the side menu content for the options button.
@@ -10,47 +9,24 @@ import SettingsContext from "../../pages/Home/settingsContext";
  */
 export function OptionOptionsPage(): JSX.Element
 {
-    const { 
-        retranslate, setRetranslate,
-        debugging, setDebugging,
-        debugSplitted, setDebugSplitted,
-        debugTemplate, setDebugTemplate,
-        debugSuccess, setDebugSuccess,
-        debugSkipped, setDebugSkipped,
-        debugMissing, setDebugMissing 
-    } = useContext(SettingsContext);
-
-    useEffect(() => 
+    const 
     {
-        const _retranslate = localStorage.getItem('wikiTranslatorRetranslate');
-        if (_retranslate !== null) 
-            setRetranslate(JSON.parse(_retranslate));
+        retranslate,
+        setRetranslate,
+        debugging,
+        setDebugging,
+        debugSplitted,
+        setDebugSplitted,
+        debugTemplate,
+        setDebugTemplate,
+        debugSuccess,
+        setDebugSuccess,
+        debugSkipped,
+        setDebugSkipped,
+        debugMissing,
+        setDebugMissing,
+    } = useDebugger();
 
-        const _debugging = localStorage.getItem('wikiTranslatorDebugger');
-        if (_debugging !== null) 
-            setDebugging(JSON.parse(_debugging));
-
-        const _debugSplitted = localStorage.getItem('wikiTranslatorDebugSplitted');
-        if (_debugSplitted !== null) 
-            setDebugSplitted(JSON.parse(_debugSplitted));
-
-        const _debugTemplate = localStorage.getItem('wikiTranslatorDebugTemplate');
-        if (_debugTemplate !== null) 
-            setDebugTemplate(JSON.parse(_debugTemplate));
-
-        const _debugSuccess = localStorage.getItem('wikiTranslatorDebugSuccess');
-        if (_debugSuccess !== null) 
-            setDebugSuccess(JSON.parse(_debugSuccess));
-
-        const _debugSkipped = localStorage.getItem('wikiTranslatorDebugSkipped');
-        if (_debugSkipped !== null) 
-            setDebugSkipped(JSON.parse(_debugSkipped));
-
-        const _debugMissing = localStorage.getItem('wikiTranslatorDebugMissing');
-        if (_debugMissing !== null) 
-            setDebugMissing(JSON.parse(_debugMissing));
-    }, []);
-    
     const options = [
         {
             label: 'Botão retraduzir',
