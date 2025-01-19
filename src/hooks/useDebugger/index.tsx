@@ -1,5 +1,6 @@
 import { useEffect, useContext } from "react";
 import SettingsContext from "../../pages/Home/settingsContext";
+import { useLocalStorage } from "../useLocalStorage";
 
 export function useDebugger() 
 {
@@ -20,6 +21,8 @@ export function useDebugger()
         debugMissing,
         setDebugMissing,
     } = useContext(SettingsContext);
+
+    const { loadFromStorage } = useLocalStorage<boolean>()
   
     useEffect(() => 
     {
@@ -36,11 +39,10 @@ export function useDebugger()
   
         settings.forEach(({ key, setter }) => 
         {
-            const value = localStorage.getItem(key);
-            if (value !== null) 
-                setter(JSON.parse(value));
+            const value = loadFromStorage(key, true);
+            setter(value);
         });
-    }, [setRetranslate, setDebugging, setDebugSplitted, setDebugTemplate, setDebugSuccess, setDebugSkipped, setDebugMissing]);
+    }, [setRetranslate, setDebugging, setDebugSplitted, setDebugTemplate, setDebugSuccess, setDebugSkipped, setDebugMissing, loadFromStorage]);
   
     return {
         retranslate,
