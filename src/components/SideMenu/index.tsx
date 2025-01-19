@@ -1,5 +1,5 @@
+import { useHasScrollbar } from "@hooks/useHasScrollbar";
 import { useEffect, useRef } from "react";
-import { useHasScrollbar } from "../../hooks/useHasScrollbar";
 
 interface ISideMenu
 {

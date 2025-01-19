@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useHasScrollbar } from "../../hooks/useHasScrollbar";
-import CopyIcon from "../../assets/CopyIcon";
+import CopyIcon from "@assets/CopyIcon";
+import { useHasScrollbar } from "@hooks/useHasScrollbar";
 
 interface ITextOutput
 {

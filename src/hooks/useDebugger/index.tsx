@@ -1,6 +1,6 @@
 import { useEffect, useContext } from "react";
-import SettingsContext from "../../pages/Home/settingsContext";
-import { useLocalStorage } from "../useLocalStorage";
+import { useLocalStorage } from "@hooks/useLocalStorage";
+import SettingsContext from "@pages/Home/settingsContext";
 
 export function useDebugger() 
 {

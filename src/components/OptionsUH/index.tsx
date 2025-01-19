@@ -1,6 +1,6 @@
+import UpdateHistoryIcon from "@assets/UpdateHistoryIcon";
+import { SideMenu } from "@components/SideMenu";
 import { useRef, useState } from "react";
-import { SideMenu } from "../SideMenu";
-import UpdateHistoryIcon from "../../assets/UpdateHistoryIcon";
 
 /**
  * Renders the update history button on the options bar.

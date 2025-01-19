@@ -1,9 +1,9 @@
 import { useContext, useRef } from "react";
 import { translate } from "./translation";
-import { useHasScrollbar } from "../../hooks/useHasScrollbar";
-import NegativeIcon from "../../assets/NegativeIcon";
-import SettingsContext from "../../pages/Home/settingsContext";
-import TranslateIcon from "../../assets/TranslateIcon";
+import SettingsContext from "@pages/Home/settingsContext";
+import { useHasScrollbar } from "@hooks/useHasScrollbar";
+import NegativeIcon from "@assets/NegativeIcon";
+import TranslateIcon from "@assets/TranslateIcon";
 
 interface ITextInput
 {

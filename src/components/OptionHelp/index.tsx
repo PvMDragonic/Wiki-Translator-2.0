@@ -1,4 +1,4 @@
-import HelpIcon from "../../assets/HelpIcon";
+import HelpIcon from "@assets/HelpIcon";
 
 /**
  * Renders the help button on the options bar.
