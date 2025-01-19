@@ -1,7 +1,7 @@
+import OptionsIcon from "@assets/OptionsIcon";
+import { SideMenu } from "@components/SideMenu";
+import { OptionOptionsPage } from "@components/OptionOptionsPage";
 import { useRef, useState } from "react";
-import { SideMenu } from "../SideMenu";
-import { OptionOptionsPage } from "../OptionOptionsPage";
-import OptionsIcon from "../../assets/OptionsIcon";
 
 /**
  * Renders the options button on the options bar.

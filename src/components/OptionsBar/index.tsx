@@ -1,7 +1,7 @@
-import { OptionHU } from "../OptionsUH";
-import { OptionGE } from "../OptionGE";
-import { OptionOptions } from "../OptionOptions";
-import { OptionHelp } from "../OptionHelp";
+import { OptionGE } from "@components/OptionGE";
+import { OptionHelp } from "@components/OptionHelp";
+import { OptionOptions } from "@components/OptionOptions";
+import { OptionHU } from "@components/OptionsUH";
 
 /**
  * Renders the container for the options atop the translator.

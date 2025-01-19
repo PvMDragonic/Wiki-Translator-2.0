@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { Tooltip } from "../Tooltip";
-import CheckedIcon from "../../assets/CheckedIcon";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { Tooltip } from "@components/Tooltip";
+import CheckedIcon from "@assets/CheckedIcon";
+import { useLocalStorage } from "@hooks/useLocalStorage";
 
 interface IOptionOptionsEntry
 {

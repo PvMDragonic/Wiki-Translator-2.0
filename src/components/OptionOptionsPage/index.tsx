@@ -1,5 +1,5 @@
-import { OptionOptionsEntry } from "../OptionOptionsEntry";
-import { useDebugger } from "../../hooks/useDebugger";
+import { OptionOptionsEntry } from "@components/OptionOptionsEntry";
+import { useDebugger } from "@hooks/useDebugger";
 
 /**
  * Renders the side menu content for the options button.
