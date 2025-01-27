@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import { SideMenu } from "../SideMenu";
-import GrandExchangeIcon from "../../assets/GrandExchangeIcon";
+import { SideMenu } from "@components/SideMenu";
+import GrandExchangeIcon from "@assets/GrandExchangeIcon";
 
 /**
  * Renders the Grand Exchange button on the options bar.

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { TextInput } from "../../components/TextInput";
-import { TextOutput } from "../../components/TextOutput";
-import { OptionsBar } from "../../components/OptionsBar";
 import SettingsContext from "./settingsContext";
+import { OptionsBar } from "@components/OptionsBar";
+import { TextInput } from "@components/TextInput";
+import { TextOutput } from "@components/TextOutput";
 
 export function Home()
 {
