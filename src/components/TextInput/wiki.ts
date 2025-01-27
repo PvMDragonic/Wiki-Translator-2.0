@@ -1,4 +1,4 @@
-interface IWikiTemplates
+export interface IWikiTemplates
 {
     [key: string]: 
     {
@@ -16,6 +16,11 @@ interface IWikiTemplates
         }
     }
 }
+
+export interface IWikiItems 
+{
+    [key: string]: string;
+  }
 
 export class Wiki
 {
@@ -54,7 +59,7 @@ export class Wiki
     static async requestItemNames()
     {
         const pages = ["data", "data/2", "data/3"];
-        const items: Record<string, string> = {};
+        const items: IWikiItems = {};
     
         for (const page of pages)
         {
