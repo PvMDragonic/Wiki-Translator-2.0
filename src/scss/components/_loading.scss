@@ -1,0 +1,49 @@
+@use '../utilities/functions' as *;
+
+.loading
+{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    gap: 0.5rem;
+
+    background-color: color-dark(bg-primary);
+
+    & svg
+    {
+        width: 3rem;
+        height: 3rem;
+        fill: color-dark(text-off-white);
+        filter: drop-shadow(2px 2px 3px color-dark(strong-neutral));
+
+        @keyframes loadingIcon
+        {
+            0%, 57.14% 
+            {
+                animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+                transform: translate(0);
+            }
+            28.57% 
+            {
+                animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+                transform: translateY(-6px);
+            }
+            100% 
+            {
+                transform: translate(0);
+            }
+        }
+    }
+
+    &__text
+    {
+        font-size: 1.5rem;
+        font-weight: 600;
+        user-select: none;
+        text-shadow: 0.15rem 0.15rem 0.15rem color-dark(strong-neutral);
+        color: color-dark(text-off-white);
+    }
+}

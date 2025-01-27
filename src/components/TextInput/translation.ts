@@ -1,8 +1,10 @@
-import { Wiki } from "./wiki";
+import { IWikiItems, IWikiTemplates } from "./wiki";
 
 interface ITranslate
 {
     textToTranslate: string;
+    templates: IWikiTemplates;
+    itemNames: IWikiItems;
     debugging: boolean;
     debugSplitted: boolean;
     debugTemplate: boolean; 
@@ -12,7 +14,9 @@ interface ITranslate
 }
 
 export async function translate({ 
-    textToTranslate, 
+    textToTranslate,
+    templates,
+    itemNames, 
     debugging, 
     debugSplitted, 
     debugTemplate,
@@ -70,7 +74,7 @@ export async function translate({
             return [`{{${text}}}`]
         }
 
-        const translatedParamName = itemsNames[text.split('|')[1]];
+        const translatedParamName = itemNames[text.split('|')[1]];
         if (translatedParamName)
         {
             if (debugging && debugSuccess) console.log(
@@ -136,9 +140,6 @@ export async function translate({
         updateHistory[updateHistory.length - 1] = '}}';
         return updateHistory;
     }
-
-    const templatesInfo = await Wiki.requestTemplates();
-    const itemsNames = await Wiki.requestItemNames();
 
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
     const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
@@ -213,7 +214,7 @@ export async function translate({
             return text.split('\n');
         }
 
-        const templateData = templatesInfo[templateName];
+        const templateData = templates[templateName];
 
         if (debugging && debugTemplate)
         {
@@ -283,17 +284,17 @@ export async function translate({
                     if (value.includes('equipped'))
                     {
                         const cleanValue = value.split('equipped')[0].trim();
-                        return `|${correctedParam} = ${itemsNames[cleanValue]} equipado.png`;
+                        return `|${correctedParam} = ${itemNames[cleanValue]} equipado.png`;
                     }
     
                     if (value.includes('.png') || value.includes('.gif'))
                     {
                         const cleanValue = value.split('.');
-                        return `|${correctedParam} = ${itemsNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                        return `|${correctedParam} = ${itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
                     }
     
                     // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-                    const itemName = itemsNames[value];
+                    const itemName = itemNames[value];
                     if (itemName !== undefined)
                         return `|${correctedParam} = ${itemName}`;
                 }
