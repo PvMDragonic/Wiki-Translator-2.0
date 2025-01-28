@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import CopyIcon from "@assets/CopyIcon";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
+import CheckedIcon from "@assets/CheckedIcon";
+import CopyIcon from "@assets/CopyIcon";
 
 interface ITextOutput
 {
@@ -49,16 +50,30 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 tabIndex = {0}
                 ref = {textRef}
             >
-                {textExists && showCopy && (
-                    <button 
-                        className = "textbox__button"
-                        onClick = {handleClipboard}
-                        style = {{
-                            left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
-                        }}
-                    >
-                        <CopyIcon/>
-                    </button>
+                {textExists && (
+                    showCopy ? (
+                        <button 
+                            title = "Copiar texto"
+                            className = "textbox__button"
+                            onClick = {handleClipboard}
+                            style = {{
+                                left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)'
+                            }}
+                        >
+                            <CopyIcon/>
+                        </button>
+                    ) : (
+                        <button 
+                            title = "Texto copiado com sucesso"
+                            className = "textbox__button"
+                            style = {{
+                                left: hasScroll ? 'calc(100% - 4rem)' : 'calc(100% - 3.125rem)',
+                                padding: '0.25rem'
+                            }}
+                        >
+                            <CheckedIcon/>
+                        </button>
+                    )
                 )}
                 {translation.map((line, index) => (
                     <React.Fragment key = {index}>
