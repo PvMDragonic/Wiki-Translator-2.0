@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
+import SettingsContext from "@pages/Home/settingsContext";
 import CheckedIcon from "@assets/CheckedIcon";
 import CopyIcon from "@assets/CopyIcon";
 
@@ -20,11 +21,12 @@ interface ITextOutput
  */
 export function TextOutput({ textExists, translation }: ITextOutput): JSX.Element
 {
-    const [showCopy, setShowCopy] = useState<boolean>(false);
-
     const textRef = useRef<HTMLDivElement>(null);
 
-    const { hasScroll } = useHasScrollbar({ elementRef: textRef })
+    const [showCopy, setShowCopy] = useState<boolean>(false);
+
+    const { hasScroll } = useHasScrollbar({ elementRef: textRef });
+    const { hyperlinks } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
 
@@ -75,12 +77,32 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                         </button>
                     )
                 )}
-                {translation.map((line, index) => (
-                    <React.Fragment key = {index}>
-                        {line}
-                        <br />
-                    </React.Fragment>
-                ))}
+                {translation.map((line, index) => 
+                {
+                    const lineWithoutPrefix = line.startsWith('§') ? line.slice(1) : line;
+                    const splittedLine = lineWithoutPrefix.split('|');
+                    const formattedLine = splittedLine[0].slice(2);
+
+                    return (
+                        <React.Fragment key = {index}>
+                            {hyperlinks && line.startsWith('§') ? (
+                                <span>
+                                    {'{{'}
+                                    <a 
+                                        href = {`https://pt.runescape.wiki/w/Predefinição:${formattedLine}`} 
+                                        target = '_blank'
+                                    >
+                                        {formattedLine}
+                                    </a>
+                                    {splittedLine.length > 1 && splittedLine[1]}
+                                </span>
+                            ) : (
+                                lineWithoutPrefix
+                            )}
+                            <br/>
+                        </React.Fragment>
+                    );
+                })}
             </div>
         </div>
     )

@@ -11,6 +11,7 @@ export function OptionOptionsPage(): JSX.Element
 {
     const 
     {
+        hyperlinks, setHyperlinks,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
@@ -20,7 +21,17 @@ export function OptionOptionsPage(): JSX.Element
         debugMissing, setDebugMissing
     } = useSettings();
 
-    const options = [
+    const textOptions = [
+    {
+        label: 'Adicionar links',
+        lcKey: 'wikiTranslatorHyperlinks',
+        tooltip: 'Adiciona hyperlinks às predefinições encontradas no texto traduzido.',
+        state: hyperlinks,
+        stateUpdate: setHyperlinks,
+        disabled: false
+    }];
+
+    const devOptions = [
     {
         label: 'Botão retraduzir',
         lcKey: 'wikiTranslatorRetranslate',
@@ -85,10 +96,29 @@ export function OptionOptionsPage(): JSX.Element
             </h1>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
+                    Texto Traduzido
+                </h2>
+                <ul className = "options-entry__list">
+                    {textOptions.map((option, index) => (
+                        <li key = {index} className = "options-entry__item">
+                            <OptionOptionsEntry
+                                label = {option.label}
+                                lcKey = {option.lcKey}
+                                tooltip = {option.tooltip}
+                                state = {option.state}
+                                stateUpdate = {option.stateUpdate}
+                                disabled = {option.disabled}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className = "options-entry">
+                <h2 className = "options-entry__title">
                     Desenvolvedor
                 </h2>
                 <ul className = "options-entry__list">
-                    {options.map((option, index) => (
+                    {devOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}

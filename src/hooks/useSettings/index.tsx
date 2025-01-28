@@ -6,6 +6,10 @@ export function useSettings()
 {
     const 
     {
+        // Text options.
+        hyperlinks, setHyperlinks,
+
+        // Developer options.
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
@@ -21,6 +25,7 @@ export function useSettings()
     {
         const settings = 
         [
+            { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
             { key: "wikiTranslatorDebugSplitted", setter: setDebugSplitted, defaultValue: false },
@@ -34,13 +39,13 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setRetranslate, setDebugging, 
-        setDebugSplitted, setDebugTemplate, 
-        setDebugSuccess, setDebugSkipped, 
-        setDebugMissing, loadFromStorage
+        setHyperlinks, setRetranslate, setDebugging, 
+        setDebugSplitted, setDebugTemplate, setDebugSuccess, 
+        setDebugSkipped, setDebugMissing, loadFromStorage
     ]);
   
     return {
+        hyperlinks, setHyperlinks,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,

@@ -83,7 +83,9 @@ export async function translate({
                 templateName,
                 '\n\ttranslatedParamName: ', 
                 translatedParamName);
-            return [`{{${templateName}|${translatedParamName}}}`];
+
+            // § is used to mark templates to have hyperlinks added to them.
+            return [`§{{${templateName}|${translatedParamName}}}`];
         }
 
         if (debugging && debugMissing) console.log(
@@ -321,8 +323,9 @@ export async function translate({
             return `|${correctedParam} = ${correctedValue}`;
         });
 
+        // § is used to mark templates to have hyperlinks added to them.
         return [
-            `{{${templateData.templateName}`, 
+            `§{{${templateData.templateName}`, 
             ...translatedInput, 
             '}}'
         ];
