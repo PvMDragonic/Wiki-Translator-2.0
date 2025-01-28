@@ -12,6 +12,7 @@ export function OptionOptionsPage(): JSX.Element
     const 
     {
         hyperlinks, setHyperlinks,
+        untranslated, setUntranslated,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
@@ -28,6 +29,14 @@ export function OptionOptionsPage(): JSX.Element
         tooltip: 'Adiciona hyperlinks às predefinições encontradas no texto traduzido.',
         state: hyperlinks,
         stateUpdate: setHyperlinks,
+        disabled: false
+    },
+    {
+        label: 'Realçar não-traduzido',
+        lcKey: 'wikiTranslatorUntranslated',
+        tooltip: 'Marca o texto inalterado após a tradução com uma cor diferente.',
+        state: untranslated,
+        stateUpdate: setUntranslated,
         disabled: false
     }];
 

@@ -14,7 +14,8 @@ export function Home()
     const [templates, setTemplates] = useState<IWikiTemplates | null>(null);
     const [itemNames, setItemNames] = useState<IWikiItems | null>(null);
 
-    const [hyperlinks, setHyperlinks] = useState<boolean>(false);
+    const [hyperlinks, setHyperlinks] = useState<boolean>(true);
+    const [untranslated, setUntranslated] = useState<boolean>(true);
     const [retranslate, setRetranslate] = useState<boolean>(false);
     const [debugging, setDebugging] = useState<boolean>(false);
     const [debugSplitted, setDebugSplitted] = useState<boolean>(false);
@@ -44,6 +45,7 @@ export function Home()
                         <SettingsContext.Provider 
                             value = {{ 
                                 hyperlinks, setHyperlinks,
+                                untranslated, setUntranslated,
                                 retranslate, setRetranslate, 
                                 debugging, setDebugging,
                                 debugSplitted, setDebugSplitted,

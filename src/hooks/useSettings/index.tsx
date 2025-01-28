@@ -8,6 +8,7 @@ export function useSettings()
     {
         // Text options.
         hyperlinks, setHyperlinks,
+        untranslated, setUntranslated,
 
         // Developer options.
         retranslate, setRetranslate,
@@ -26,6 +27,7 @@ export function useSettings()
         const settings = 
         [
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
+            { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
             { key: "wikiTranslatorDebugSplitted", setter: setDebugSplitted, defaultValue: false },
@@ -39,13 +41,16 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setRetranslate, setDebugging, 
-        setDebugSplitted, setDebugTemplate, setDebugSuccess, 
-        setDebugSkipped, setDebugMissing, loadFromStorage
+        setHyperlinks, setUntranslated,
+        setRetranslate, setDebugging, 
+        setDebugSplitted, setDebugTemplate, 
+        setDebugSuccess, setDebugSkipped, 
+        setDebugMissing, loadFromStorage
     ]);
   
     return {
         hyperlinks, setHyperlinks,
+        untranslated, setUntranslated,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
