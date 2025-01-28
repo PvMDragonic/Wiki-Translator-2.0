@@ -44,7 +44,7 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
     // Having the <textarea>'s 'value' be 'translation.join('\n')' would both the ctrl-Z and ctrl-Y. 
     function handleTextReset()
     {
-        setTranslation(['']);
+        setTranslation([]);
         
         if (textRef.current)
             textRef.current.value = '';
