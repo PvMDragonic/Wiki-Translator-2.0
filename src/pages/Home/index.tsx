@@ -9,7 +9,7 @@ import SettingsContext from "./settingsContext";
 export function Home()
 {
     // Needs to be a string[] due to how <div contentEditable> handles newlines.
-    const [translation, setTranslation] = useState<string[]>(['']);
+    const [translation, setTranslation] = useState<string[]>([]);
     const [textExists, setTextExists] = useState<boolean>(false);
     const [templates, setTemplates] = useState<IWikiTemplates | null>(null);
     const [itemNames, setItemNames] = useState<IWikiItems | null>(null);
@@ -30,7 +30,7 @@ export function Home()
 
     useEffect(() => 
     {
-        setTextExists(!(translation[0] === '' && translation.length === 1));
+        setTextExists(translation.length > 0);
     }, [translation]);
 
     return (
