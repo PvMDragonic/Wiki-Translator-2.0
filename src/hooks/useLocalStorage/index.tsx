@@ -1,23 +1,21 @@
 import { useCallback } from "react";
 
-interface ILocalStorage<T> 
+interface ILocalStorage
 {
-    loadFromStorage: (key: string, defaultValue: T) => T;
-    saveToStorage: (key: string, value: T) => void;
+    loadFromStorage: (key: string, defaultValue: boolean) => boolean;
+    saveToStorage: (key: string, value: boolean) => void;
 }
 
 /**
- * Provides methods to save and load data from localStorage.
+ * Handles reading and writing to localStorage.
  *
- * @template T - The type of the data being stored.
- * @returns {ILocalStorage<T>} - An object containing:
+ * @returns {ILocalStorage<boolean>} - An object containing:
  * - `loadFromStorage`: Function to load data from localStorage.
  * - `saveToStorage`: Function to save data to localStorage.
  */
-export function useLocalStorage<T>(): ILocalStorage<T>
+export function useLocalStorage(): ILocalStorage
 {
-	// Retrieve data from localStorage
-	function loadFromStorage(key: string, defaultValue: T): T 
+	function loadFromStorage(key: string, defaultValue: boolean): boolean 
 	{
 		try 
 		{
@@ -31,8 +29,7 @@ export function useLocalStorage<T>(): ILocalStorage<T>
 		}
 	}
   
-	// Save data to localStorage
-	function saveToStorage(key: string, value: T): void 
+	function saveToStorage(key: string, value: boolean): void 
 	{
 		try 
 		{
@@ -48,5 +45,8 @@ export function useLocalStorage<T>(): ILocalStorage<T>
 
 	const memoizedSaveToStorage = useCallback(saveToStorage, []);
 	
-	return { loadFromStorage: memoizedLoadFromStorage, saveToStorage: memoizedSaveToStorage };
+	return { 
+		loadFromStorage: memoizedLoadFromStorage, 
+		saveToStorage: memoizedSaveToStorage 
+	};
 }
