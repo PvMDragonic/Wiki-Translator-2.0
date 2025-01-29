@@ -50,66 +50,6 @@ export async function translate({
         };
     }
 
-    function handleUnconventional(text: string, templateName: string)
-    {
-        // Categories will fall here.
-        if (text.startsWith('[['))
-        {
-            if (debugging && debugSuccess) 
-                console.log(
-                    'Category found:',
-                    '\n\ttemplateName: ',
-                    templateName,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return '¬' + text;
-        }
-        
-        // Navboxes will fall here.
-        if (!text.includes('|') && text !== '')
-        {
-            if (debugging && debugSuccess) 
-                console.log(
-                    'Navbox found:',
-                    '\n\ttemplateName: ',
-                    templateName,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return [`{{${text}}}`]
-        }
-
-        const translatedParamName = itemNames[text.split('|')[1]];
-        if (translatedParamName)
-        {
-            if (debugging && debugSuccess) 
-                console.log(
-                    'Unconventional translated:',
-                    '\n\ttemplateName: ',
-                    templateName,
-                    '\n\ttranslatedParamName: ', 
-                    translatedParamName
-                );
-
-            // § is used to mark templates to have hyperlinks added to them.
-            return [`§{{${templateName}|${translatedParamName}}}`];
-        }
-
-        if (debugging && debugMissing) 
-            console.log(
-                'Missing unconventional:',
-                '\n\ttemplateName: ',
-                templateName,
-                '\n\ttext: ', 
-                text
-            );
-
-        return '¬' + text;
-    }
-
     function handleUpdateHistory(textLines: string[])
     {
         function translateUpdateLine(textLine: string)
@@ -294,23 +234,47 @@ export async function translate({
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
         if (templateEntries.length === 0)
         {
-            // Some junk gets here when a whole article is thrown at the translator.
-            if (text.startsWith('\n') || text.startsWith(''))
+            if (text.startsWith('[['))
+                {
+                    if (debugging && debugSuccess) 
+                        console.log(
+                            'Category found:',
+                            '\n\ttemplateName: ',
+                            templateName,
+                            '\n\ttext: ', 
+                            text
+                        );
+        
+                    return '¬' + text;
+                }
+    
+            const translatedParamName = itemNames[text.split('|')[1]];
+            if (translatedParamName)
             {
-                if (debugging && debugSkipped) 
+                if (debugging && debugSuccess) 
                     console.log(
-                        'Skipping junk on unconventional:', 
-                        '\n\t\'splitted\' index: ',
-                        index,
-                        '\n\ttext: ', 
-                        text
+                        'Unconventional translated:',
+                        '\n\ttemplateName: ',
+                        templateName,
+                        '\n\ttranslatedParamName: ', 
+                        translatedParamName
                     );
-                    
-                return '¬' + text;
+    
+                // § is used to mark templates to have hyperlinks added to them.
+                return `{{${templateName}|${translatedParamName}}}`;
             }
+    
+            // Navboxes && empty Templates will fall here.
+            if (debugging && debugSuccess) 
+                console.log(
+                    'Navbox found:',
+                    '\n\ttemplateName: ',
+                    templateName,
+                    '\n\ttext: ', 
+                    text
+                );
 
-            const _templateName = templateData ? templateData.templateName : templateName;
-            return handleUnconventional(text, _templateName);
+            return `¬{{${text}}}`;
         }
 
         const translatedInput = templateEntries.map(entry =>
