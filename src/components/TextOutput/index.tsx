@@ -76,8 +76,35 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         {
             // Splitting gets scuffed because it comes from multiple points in translation.
             const firstHalf = lineSplit[0].startsWith('|&') || lineSplit[0].startsWith('&')
-                ? lineSplit[0].slice(2) 
+                ? lineSplit[0].slice(2)
                 : lineSplit[0].slice(1);
+
+            function renderSpan(text: string) 
+            { 
+                return (
+                    <span style = {{
+                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
+                        fontWeight: 'bold',
+                    }}>
+                        {text}
+                    </span>
+                );
+            }
+
+            if (lineSplit.length === 1) 
+            {
+                if (!untranslated) 
+                    return `|${firstHalf}`;
+
+                return (
+                    <span>
+                        {'|'}
+                        {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
+                    </span>
+                );
+            }
+
+            // Extract the second part of the line
             const secondHalf = lineSplit[1].startsWith('&') 
                 ? lineSplit[1].slice(1) 
                 : lineSplit[1];
@@ -86,33 +113,13 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return `|${firstHalf} = ${secondHalf}`;
 
             return (
-                <span 
-                    style = {{  }}
-                >
+                <span>
                     {'|'}
-                    {`|${firstHalf}` !== lineSplit[0] ? (
-                        <span 
-                            style = {{ 
-                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
-                                fontWeight: 'bold' 
-                            }}
-                        >
-                            {firstHalf}
-                        </span>
-                    ) : firstHalf}
+                    {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
                     {' = '}
-                    {secondHalf !== lineSplit[1] ? (
-                        <span 
-                            style = {{ 
-                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
-                                fontWeight: 'bold' 
-                            }}
-                        >
-                            {secondHalf}
-                        </span>
-                    ) : secondHalf}
+                    {secondHalf !== lineSplit[1] ? renderSpan(secondHalf) : secondHalf}
                 </span>
-            )
+            );
         }
 
         if (line.startsWith('§'))
