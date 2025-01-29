@@ -55,45 +55,58 @@ export async function translate({
         // Categories will fall here.
         if (text.startsWith('[['))
         {
-            if (debugging && debugSuccess) console.log('Category found:',
-                '\n\ttemplateName: ',
-                templateName,
-                '\n\ttext: ', 
-                text);
+            if (debugging && debugSuccess) 
+                console.log(
+                    'Category found:',
+                    '\n\ttemplateName: ',
+                    templateName,
+                    '\n\ttext: ', 
+                    text
+                );
+
             return '&' + text.split('\n');
         }
         
         // Navboxes will fall here.
         if (!text.includes('|') && text !== '')
         {
-            if (debugging && debugSuccess) console.log('Navbox found:',
-                '\n\ttemplateName: ',
-                templateName,
-                '\n\ttext: ', 
-                text);
+            if (debugging && debugSuccess) 
+                console.log(
+                    'Navbox found:',
+                    '\n\ttemplateName: ',
+                    templateName,
+                    '\n\ttext: ', 
+                    text
+                );
+
             return [`{{${text}}}`]
         }
 
         const translatedParamName = itemNames[text.split('|')[1]];
         if (translatedParamName)
         {
-            if (debugging && debugSuccess) console.log(
-                'Unconventional translated:',
-                '\n\ttemplateName: ',
-                templateName,
-                '\n\ttranslatedParamName: ', 
-                translatedParamName);
+            if (debugging && debugSuccess) 
+                console.log(
+                    'Unconventional translated:',
+                    '\n\ttemplateName: ',
+                    templateName,
+                    '\n\ttranslatedParamName: ', 
+                    translatedParamName
+                );
 
             // § is used to mark templates to have hyperlinks added to them.
             return [`§{{${templateName}|${translatedParamName}}}`];
         }
 
-        if (debugging && debugMissing) console.log(
-            'Missing unconventional:',
-            '\n\ttemplateName: ',
-            templateName,
-            '\n\ttext: ', 
-            text);
+        if (debugging && debugMissing) 
+            console.log(
+                'Missing unconventional:',
+                '\n\ttemplateName: ',
+                templateName,
+                '\n\ttext: ', 
+                text
+            );
+
         return '&' + text.split('\n');
     }
 
@@ -146,19 +159,22 @@ export async function translate({
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
     const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
     
-    if (debugging && debugSplitted) console.log('splitted array:\n\t', splitted);
+    if (debugging && debugSplitted) 
+        console.log('splitted array:\n\t', splitted);
 
     return splitted.map((text, index) => 
     {
         // Unsupported and unconventional template.
         if (text.startsWith('GU'))
         {
-            if (debugging && debugSkipped) console.log(
-                'Skipping GU:', 
-                '\n\t\'splitted\' index: ',
-                index,
-                '\n\ttext: ', 
-                text);
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping GU:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
             return [null];
         }
 
@@ -178,21 +194,27 @@ export async function translate({
             // Undesireable leftovers are either empty arrays (['']) or brackets from splitting (['}}']).
             if (leftoverText.length === 1 && leftoverText[0].length <= 2)
             {
-                if (debugging && debugSkipped) console.log(
-                    'Skipping UL:', 
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text);
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping UL:', 
+                        '\n\t\'splitted\' index: ',
+                        index,
+                        '\n\ttext: ', 
+                        text
+                    );
+
                 return [null];
             }            
 
-            if (debugging && debugSuccess) console.log(
-                'Leftover found:', 
-                '\n\t\'splitted\' index: ',
-                index,
-                '\n\ttext: ', 
-                text);
+            if (debugging && debugSuccess) 
+                console.log(
+                    'Leftover found:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
             return leftoverText;
         }
 
@@ -207,12 +229,15 @@ export async function translate({
         // On occasion, stuff like [[Categories]] may get on odd indexes and making it here.
         if (templateEntries.some(entry => entry.paramValue === undefined))
         {
-            if (debugging && debugSkipped) console.log(
-                'Skipping empty param values:', 
-                '\n\t\'splitted\' index: ',
-                index,
-                '\n\ttext: ', 
-                text);
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping empty param values:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
             return '&' + text.split('\n');
         }
 
@@ -239,12 +264,15 @@ export async function translate({
             // Some junk gets here when a whole article is thrown at the translator.
             if (text.startsWith('\n') || text.startsWith(''))
             {
-                if (debugging && debugSkipped) console.log(
-                    'Skipping junk on unconventional:', 
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text);
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping junk on unconventional:', 
+                        '\n\t\'splitted\' index: ',
+                        index,
+                        '\n\ttext: ', 
+                        text
+                    );
+                    
                 return '&' + text.split('\n');
             }
 
@@ -328,23 +356,25 @@ export async function translate({
                 }
                 finally
                 {
-                    if (debugging && debugSuccess) console.log(
-                        'Item name translation:',
-                        '\n\tparamName: ',
-                        name,
-                        '\n\tcorrectedValue: ',
-                        correctedValue
-                    )
+                    if (debugging && debugSuccess) 
+                        console.log(
+                            'Item name translation:',
+                            '\n\tparamName: ',
+                            name,
+                            '\n\tcorrectedValue: ',
+                            correctedValue
+                        );
                 }
             }        
             
-            if (debugging && debugSkipped) console.log(
-                'Skipping item name translation:',
-                '\n\tparamName: ',
-                name,
-                '\n\tcorrectedValue: ',
-                correctedValue
-            )
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping item name translation:',
+                    '\n\tparamName: ',
+                    name,
+                    '\n\tcorrectedValue: ',
+                    correctedValue
+                );
 
             return `|${correctedParam} = ${correctedValue}`;
         });
