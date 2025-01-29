@@ -10,6 +10,7 @@ export function useSettings()
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        aggressive, setAggressive,
 
         // Developer options.
         retranslate, setRetranslate,
@@ -30,6 +31,7 @@ export function useSettings()
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
+            { key: "wikiTranslatorAggressive", setter: setAggressive, defaultValue: false },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
             { key: "wikiTranslatorDebugSplitted", setter: setDebugSplitted, defaultValue: false },
@@ -43,9 +45,11 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setUntranslated, setDiffExamine,
-        setRetranslate, setDebugging, setDebugSplitted, 
-        setDebugTemplate, setDebugSuccess, setDebugSkipped, 
+        setHyperlinks, setUntranslated, 
+        setDiffExamine, setAggressive,
+        setRetranslate, setDebugging, 
+        setDebugSplitted, setDebugTemplate, 
+        setDebugSuccess, setDebugSkipped, 
         setDebugMissing, loadFromStorage
     ]);
   
@@ -53,6 +57,7 @@ export function useSettings()
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,

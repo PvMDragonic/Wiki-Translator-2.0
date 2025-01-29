@@ -26,7 +26,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
     const [showCopy, setShowCopy] = useState<boolean>(false);
 
     const { hasScroll } = useHasScrollbar({ elementRef: textRef });
-    const { hyperlinks, untranslated, diffExamine } = useContext(SettingsContext);
+    const { hyperlinks, untranslated, diffExamine, aggressive } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
 
@@ -58,7 +58,13 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             return (
                 <span>
                     {`${splittedLine[0]} = `}
-                    <span style = {{ color: untranslated && diffExamine ? '#ffce00' : '#ff5a5a', fontWeight: 'bold' }}>
+                    <span 
+                        style = {{ 
+                            ...(aggressive && { background: '#ca4c4c' }),
+                            color: diffExamine ? '#ffce00' : !aggressive ? '#ff5a5a' : undefined,
+                            fontWeight: 'bold' 
+                        }}
+                    >
                         {splittedLine[1]}
                     </span>
                 </span>
@@ -80,16 +86,28 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return `|${firstHalf} = ${secondHalf}`;
 
             return (
-                <span>
+                <span 
+                    style = {{  }}
+                >
                     {'|'}
                     {`|${firstHalf}` !== lineSplit[0] ? (
-                        <span style = {{ color: '#ff5a5a', fontWeight: 'bold' }}>
+                        <span 
+                            style = {{ 
+                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
+                                fontWeight: 'bold' 
+                            }}
+                        >
                             {firstHalf}
                         </span>
                     ) : firstHalf}
                     {' = '}
                     {secondHalf !== lineSplit[1] ? (
-                        <span style = {{ color: '#ff5a5a', fontWeight: 'bold' }}>
+                        <span 
+                            style = {{ 
+                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
+                                fontWeight: 'bold' 
+                            }}
+                        >
                             {secondHalf}
                         </span>
                     ) : secondHalf}

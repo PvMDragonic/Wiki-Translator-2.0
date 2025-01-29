@@ -65,6 +65,9 @@ export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
         <div 
             ref = {tooltipRef}
             className = "tooltip"
+            style = {{
+                ...(text.startsWith('😡') && { fontSize: '2rem' })
+            }}
         >
             {text}
         </div>

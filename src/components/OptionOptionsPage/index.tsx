@@ -14,6 +14,7 @@ export function OptionOptionsPage(): JSX.Element
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
@@ -46,6 +47,14 @@ export function OptionOptionsPage(): JSX.Element
         tooltip: 'Diferencia o examinar não-traduzido das outras partes não-traduzidas.',
         state: diffExamine,
         stateUpdate: setDiffExamine,
+        disabled: !untranslated
+    },
+    {
+        label: 'Marcação agressiva',
+        lcKey: 'wikiTranslatorAggressive',
+        tooltip: '😡 😡 😡 😡',
+        state: aggressive,
+        stateUpdate: setAggressive,
         disabled: !untranslated
     }];
 

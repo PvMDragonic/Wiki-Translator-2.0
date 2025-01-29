@@ -9,6 +9,8 @@ interface UserContextType
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
     diffExamine: boolean;
     setDiffExamine: React.Dispatch<React.SetStateAction<boolean>>;
+    aggressive: boolean;
+    setAggressive: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Developer options.
     retranslate: boolean;

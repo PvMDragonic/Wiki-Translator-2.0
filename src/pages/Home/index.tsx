@@ -17,6 +17,7 @@ export function Home()
     const [hyperlinks, setHyperlinks] = useState<boolean>(true);
     const [untranslated, setUntranslated] = useState<boolean>(true);
     const [diffExamine, setDiffExamine] = useState<boolean>(true);
+    const [aggressive, setAggressive] = useState<boolean>(false);
     const [retranslate, setRetranslate] = useState<boolean>(false);
     const [debugging, setDebugging] = useState<boolean>(false);
     const [debugSplitted, setDebugSplitted] = useState<boolean>(false);
@@ -47,8 +48,9 @@ export function Home()
                             value = {{ 
                                 hyperlinks, setHyperlinks,
                                 untranslated, setUntranslated,
-                                retranslate, setRetranslate, 
                                 diffExamine, setDiffExamine,
+                                aggressive, setAggressive,
+                                retranslate, setRetranslate, 
                                 debugging, setDebugging,
                                 debugSplitted, setDebugSplitted,
                                 debugTemplate, setDebugTemplate,
