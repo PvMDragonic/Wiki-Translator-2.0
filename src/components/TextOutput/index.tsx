@@ -71,48 +71,102 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
+        if (line.startsWith('¬'))
+        {
+            return line.slice(1).split('\n').map(thisLine => (
+                <span 
+                    key = {thisLine}
+                    style = {{
+                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
+                        fontWeight: 'bold'
+                    }}
+                >
+                    {thisLine}
+                    <br/>
+                </span>
+            ));
+        }
+
         const lineSplit = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
         {
-            // Splitting gets scuffed because it comes from multiple points in translation.
-            const firstHalf = lineSplit[0].startsWith('|&') || lineSplit[0].startsWith('&')
-                ? lineSplit[0].slice(2) 
+            const condition = 
+                lineSplit[0].startsWith('|&') || 
+                lineSplit[0].startsWith('&') && 
+                !lineSplit[0].startsWith('&{');
+
+            const firstHalf = condition
+                ? lineSplit[0].slice(2)
                 : lineSplit[0].slice(1);
+
+            function renderSpan(text: string) 
+            { 
+                return (
+                    <span style = {{
+                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
+                        fontWeight: 'bold'
+                    }}>
+                        {text}
+                    </span>
+                );
+            }
+
+            if (lineSplit.length === 1) 
+            {
+                if (!untranslated) 
+                    return !firstHalf.startsWith('{') ? `|${firstHalf}` : firstHalf;
+
+                return (
+                    <span>
+                        {firstHalf.startsWith('{') ? '' : '|'}
+                        {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
+                    </span>
+                );
+            }
+
+            // Missing Template in the wiki json.
+            if (lineSplit.length > 2)
+            {
+                const newFirstHalf = firstHalf.split('\n');
+                const secondHalf = lineSplit.slice(1).join(' = ').split('\n');
+
+                return (
+                    <span>
+                        {!untranslated ? newFirstHalf[0] : renderSpan(newFirstHalf[0])}
+                        <br/>
+                        {!untranslated ? newFirstHalf[1] : renderSpan(newFirstHalf[1])}
+                        {' = '}
+                        {secondHalf.map(thisLine => 
+                        {
+                            const thisLineSplit = thisLine.split(' = ');
+                            return (
+                                <span key = {thisLine}>
+                                    {!untranslated ? thisLineSplit[0] : renderSpan(thisLineSplit[0])}
+                                    {thisLineSplit.length === 2 && (' = ')}
+                                    {thisLineSplit.length === 2 && (!untranslated ? thisLineSplit[1] : renderSpan(thisLineSplit[1]))}
+                                    <br/>
+                                </span>
+                            )
+                        })}
+                    </span>
+                )
+            }
+
             const secondHalf = lineSplit[1].startsWith('&') 
                 ? lineSplit[1].slice(1) 
                 : lineSplit[1];
 
             if (!untranslated) 
                 return `|${firstHalf} = ${secondHalf}`;
-
+            
             return (
-                <span 
-                    style = {{  }}
-                >
-                    {'|'}
-                    {`|${firstHalf}` !== lineSplit[0] ? (
-                        <span 
-                            style = {{ 
-                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
-                                fontWeight: 'bold' 
-                            }}
-                        >
-                            {firstHalf}
-                        </span>
-                    ) : firstHalf}
+                <span>
+                    {firstHalf.startsWith('{') ? '' : '|'}
+                    {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
                     {' = '}
-                    {secondHalf !== lineSplit[1] ? (
-                        <span 
-                            style = {{ 
-                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
-                                fontWeight: 'bold' 
-                            }}
-                        >
-                            {secondHalf}
-                        </span>
-                    ) : secondHalf}
+                    {secondHalf !== lineSplit[1] ? renderSpan(secondHalf) : secondHalf}
                 </span>
-            )
+            );
         }
 
         if (line.startsWith('§'))
