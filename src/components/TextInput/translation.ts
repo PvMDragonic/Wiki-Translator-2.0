@@ -257,19 +257,37 @@ export async function translate({
             const name = entry.paramName;
             const value = entry.paramValue;
 
-            const translatedParam = templateData.templateParams[name];
-            if (!translatedParam) // Wiki .json is lacking a given param.
+            const translatedParam = (() => 
             {
-                if (debugging && debugMissing) console.log(
-                    'Wiki .json missing: ', 
-                    '\n\t\'splitted\' index: ', 
-                    index,
-                    '\n\ttemplateName: ',
-                    templateName,
-                    '\n\tparamName: ',
-                    name,
-                    '\n\tparamValue: ',
-                    value);
+                try
+                {
+                    const translatedParam = templateData.templateParams[name];
+                    if (!translatedParam) // Wiki .json is lacking a given param.
+                        return false;
+                    
+                    return templateData.templateParams[name];
+                }
+                catch(error)
+                {
+                    // Wiki .json is also lacking a given param.
+                    return false;
+                }
+            })();
+
+            if (!translatedParam)
+            {
+                if (debugging && debugMissing) 
+                    console.log(
+                        'Wiki .json missing: ', 
+                        '\n\t\'splitted\' index: ', 
+                        index,
+                        '\n\ttemplateName: ',
+                        templateName,
+                        '\n\tparamName: ',
+                        name,
+                        '\n\tparamValue: ',
+                        value
+                    );
 
                 // & marks stuff left untranslated, unless it's solely a number.
                 return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
