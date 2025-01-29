@@ -1,3 +1,5 @@
+@use '../utilities/functions' as *;
+
 .side-page
 {
     width: 100%;
@@ -12,5 +14,11 @@
         font-size: 1.5rem;
         font-family: monospace;
         padding-bottom: 2rem;
+    }
+
+    & > div:not(:last-of-type)
+    {
+        border-bottom: 0.065rem solid color-dark(text-off-white);
+        margin-bottom: 1rem;
     }
 }

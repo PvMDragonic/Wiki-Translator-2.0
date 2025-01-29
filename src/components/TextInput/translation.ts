@@ -60,7 +60,7 @@ export async function translate({
                 templateName,
                 '\n\ttext: ', 
                 text);
-            return text.split('\n');
+            return '&' + text.split('\n');
         }
         
         // Navboxes will fall here.
@@ -83,7 +83,9 @@ export async function translate({
                 templateName,
                 '\n\ttranslatedParamName: ', 
                 translatedParamName);
-            return [`{{${templateName}|${translatedParamName}}}`];
+
+            // § is used to mark templates to have hyperlinks added to them.
+            return [`§{{${templateName}|${translatedParamName}}}`];
         }
 
         if (debugging && debugMissing) console.log(
@@ -92,7 +94,7 @@ export async function translate({
             templateName,
             '\n\ttext: ', 
             text);
-        return text.split('\n');
+        return '&' + text.split('\n');
     }
 
     function handleUpdateHistory(textLines: string[])
@@ -197,7 +199,7 @@ export async function translate({
         // 'splitted' will have only one element when a single, clean template is inputted.
         // This is also why trailing newlines need to be removed, to properly detect a single template.
         if (index % 2 === 0 && splitted.length > 1) 
-            return text.split('\n');
+            return '&' + text.split('\n');
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
@@ -211,7 +213,7 @@ export async function translate({
                 index,
                 '\n\ttext: ', 
                 text);
-            return text.split('\n');
+            return '&' + text.split('\n');
         }
 
         const templateData = templates[templateName];
@@ -243,7 +245,7 @@ export async function translate({
                     index,
                     '\n\ttext: ', 
                     text);
-                return text.split('\n');
+                return '&' + text.split('\n');
             }
 
             const _templateName = templateData ? templateData.templateName : templateName;
@@ -268,16 +270,24 @@ export async function translate({
                     name,
                     '\n\tparamValue: ',
                     value);
-                return `|${name} = ${value}`;
+
+                // & marks stuff left untranslated, unless it's solely a number.
+                return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
             }
 
-            const correctedParam = translatedParam ? translatedParam : name; 
-        
-            // Templates with untranslatable values (numbers), like {{Disassembly}}, may not have 'templateValues'.
-            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || value;
+            const correctedParam = translatedParam ? translatedParam : `&${name}`; 
+
+            // Needs to be an exception to paint it a different color.
+            if (correctedParam.startsWith('exam'))
+                return `$|${correctedParam} = ${value}`;
+
+            // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
+            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || 
+                // Marks values that aren't solely numbers with an '&' to be properly formatted on <TextOutput>.
+                (!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value);
 
             // Brute force translation since hash tables are O(1).
-            if (correctedValue === value)
+            if (correctedValue === `&${value}`)
             { 
                 try
                 {
@@ -321,8 +331,9 @@ export async function translate({
             return `|${correctedParam} = ${correctedValue}`;
         });
 
+        // § is used to mark templates to have hyperlinks added to them.
         return [
-            `{{${templateData.templateName}`, 
+            `§{{${templateData.templateName}`, 
             ...translatedInput, 
             '}}'
         ];

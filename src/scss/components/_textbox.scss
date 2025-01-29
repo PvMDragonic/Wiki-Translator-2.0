@@ -11,6 +11,7 @@
         resize: none;
         width: 39vw;
         height: 51vh;
+        font-family: monospace;
         font-size: 1rem;
         line-height: 1.6;
         padding: 0.5rem;
@@ -25,7 +26,13 @@
         & a 
         {
             color: color-dark(text-primary);
+            font-family: monospace;
             cursor: pointer;
+        }
+
+        & span
+        {
+            font-family: monospace;
         }
 
         &::placeholder

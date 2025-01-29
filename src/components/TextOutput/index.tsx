@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
+import SettingsContext from "@pages/Home/settingsContext";
 import CheckedIcon from "@assets/CheckedIcon";
 import CopyIcon from "@assets/CopyIcon";
 
@@ -20,11 +21,12 @@ interface ITextOutput
  */
 export function TextOutput({ textExists, translation }: ITextOutput): JSX.Element
 {
-    const [showCopy, setShowCopy] = useState<boolean>(false);
-
     const textRef = useRef<HTMLDivElement>(null);
 
-    const { hasScroll } = useHasScrollbar({ elementRef: textRef })
+    const [showCopy, setShowCopy] = useState<boolean>(false);
+
+    const { hasScroll } = useHasScrollbar({ elementRef: textRef });
+    const { hyperlinks, untranslated, diffExamine, aggressive } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
 
@@ -40,6 +42,104 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             .catch((error) => {
                 console.error('Failed to copy text: ', error);
             });
+    }
+
+    function formatLine(line: string)
+    {
+        if (line.startsWith('$'))
+        {
+            const lineWithoutPrefix = line.slice(1);
+
+            if (!untranslated)
+                return lineWithoutPrefix;
+
+            const splittedLine = lineWithoutPrefix.split(' = ');
+
+            return (
+                <span>
+                    {`${splittedLine[0]} = `}
+                    <span 
+                        style = {{ 
+                            ...(aggressive && { background: '#ca4c4c' }),
+                            color: diffExamine ? '#ffce00' : !aggressive ? '#ff5a5a' : undefined,
+                            fontWeight: 'bold' 
+                        }}
+                    >
+                        {splittedLine[1]}
+                    </span>
+                </span>
+            );
+        }
+
+        const lineSplit = line.split(' = ');
+        if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
+        {
+            // Splitting gets scuffed because it comes from multiple points in translation.
+            const firstHalf = lineSplit[0].startsWith('|&') || lineSplit[0].startsWith('&')
+                ? lineSplit[0].slice(2) 
+                : lineSplit[0].slice(1);
+            const secondHalf = lineSplit[1].startsWith('&') 
+                ? lineSplit[1].slice(1) 
+                : lineSplit[1];
+
+            if (!untranslated) 
+                return `|${firstHalf} = ${secondHalf}`;
+
+            return (
+                <span 
+                    style = {{  }}
+                >
+                    {'|'}
+                    {`|${firstHalf}` !== lineSplit[0] ? (
+                        <span 
+                            style = {{ 
+                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
+                                fontWeight: 'bold' 
+                            }}
+                        >
+                            {firstHalf}
+                        </span>
+                    ) : firstHalf}
+                    {' = '}
+                    {secondHalf !== lineSplit[1] ? (
+                        <span 
+                            style = {{ 
+                                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }), 
+                                fontWeight: 'bold' 
+                            }}
+                        >
+                            {secondHalf}
+                        </span>
+                    ) : secondHalf}
+                </span>
+            )
+        }
+
+        if (line.startsWith('§'))
+        {
+            const lineWithoutPrefix = line.slice(1);
+
+            if (!hyperlinks)
+                return lineWithoutPrefix;
+
+            const splittedLine = lineWithoutPrefix.split('|');
+            const formattedLine = splittedLine[0].slice(2);
+
+            return (
+                <span>
+                    {'{{'}
+                    <a 
+                        href = {`https://pt.runescape.wiki/w/Predefinição:${formattedLine}`} 
+                        target = '_blank'
+                    >
+                        {formattedLine}
+                    </a>
+                    {splittedLine.length > 1 && splittedLine[1]}
+                </span>
+            );   
+        }
+
+        return line;
     }
 
     return (
@@ -77,8 +177,8 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 )}
                 {translation.map((line, index) => (
                     <React.Fragment key = {index}>
-                        {line}
-                        <br />
+                        {formatLine(line)}
+                        <br/>
                     </React.Fragment>
                 ))}
             </div>

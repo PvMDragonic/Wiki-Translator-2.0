@@ -2,6 +2,17 @@ import { createContext } from "react";
 
 interface UserContextType 
 {
+    // Text options.
+    hyperlinks: boolean;
+    setHyperlinks: React.Dispatch<React.SetStateAction<boolean>>;
+    untranslated: boolean;
+    setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
+    diffExamine: boolean;
+    setDiffExamine: React.Dispatch<React.SetStateAction<boolean>>;
+    aggressive: boolean;
+    setAggressive: React.Dispatch<React.SetStateAction<boolean>>;
+
+    // Developer options.
     retranslate: boolean;
     setRetranslate: React.Dispatch<React.SetStateAction<boolean>>;
     debugging: boolean;

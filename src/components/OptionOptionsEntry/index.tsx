@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
+import { useLocalStorage } from "@hooks/useLocalStorage";
 import { Tooltip } from "@components/Tooltip";
 import CheckedIcon from "@assets/CheckedIcon";
-import { useLocalStorage } from "@hooks/useLocalStorage";
 
 interface IOptionOptionsEntry
 {
@@ -30,7 +30,7 @@ export function OptionOptionsEntry({ label, lcKey, tooltip, disabled = false, st
 {
     const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
-    const { saveToStorage } = useLocalStorage<boolean>();
+    const { saveToStorage } = useLocalStorage();
 
     const labelRef = useRef<HTMLLabelElement>(null);
 
