@@ -159,11 +159,28 @@ export async function translate({
     // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
     const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
     
+    // Fixes imperfect split via the regex above.
+    // Fixing the regex isn't viable because fixing it
+    // for one scenario breaks splitting for another,
+    // due to how wildy different the inputs can be.
+    for (let i = 0; i < splitted.length; i++) 
+    {
+        if (splitted[i].startsWith('{{')) 
+        {
+            splitted[i] = splitted[i].slice(2);
+            splitted.splice(i, 0, 'null'); // Insert null before the element that starts with '{{'
+            i++; // Skip the next element because it was just added
+        }
+    }
+
     if (debugging && debugSplitted) 
         console.log('splitted array:\n\t', splitted);
 
     return splitted.map((text, index) => 
     {
+        if (text === 'null')
+            return [null] // Skipping placeholders.
+
         // Unsupported and unconventional template.
         if (text.startsWith('GU'))
         {
@@ -223,7 +240,6 @@ export async function translate({
         if (index % 2 === 0 && splitted.length > 1) 
             return '&' + text.split('\n');
             
-
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
 
@@ -254,9 +270,7 @@ export async function translate({
                     templateName
                 );
 
-            if (text.startsWith('{'))              
-                return ('&' + text + '}}');
-            else if (text.startsWith('[') && text.endsWith(']'))
+            if (text.startsWith('[') && text.endsWith(']'))
                 return ('&' + text);
             else
                 return ('&{{' + text + '}}');
