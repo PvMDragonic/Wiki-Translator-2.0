@@ -74,8 +74,12 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         const lineSplit = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
         {
-            // Splitting gets scuffed because it comes from multiple points in translation.
-            const firstHalf = lineSplit[0].startsWith('|&') || lineSplit[0].startsWith('&')
+            const condition = 
+                lineSplit[0].startsWith('|&') || 
+                lineSplit[0].startsWith('&') && 
+                !lineSplit[0].startsWith('&{');
+
+            const firstHalf = condition
                 ? lineSplit[0].slice(2)
                 : lineSplit[0].slice(1);
 
@@ -84,7 +88,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return (
                     <span style = {{
                         ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
-                        fontWeight: 'bold',
+                        fontWeight: 'bold'
                     }}>
                         {text}
                     </span>
@@ -94,27 +98,54 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             if (lineSplit.length === 1) 
             {
                 if (!untranslated) 
-                    return `|${firstHalf}`;
+                    return !firstHalf.startsWith('{') ? `|${firstHalf}` : firstHalf;
 
                 return (
                     <span>
-                        {'|'}
+                        {firstHalf.startsWith('{') ? '' : '|'}
                         {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
                     </span>
                 );
             }
 
-            // Extract the second part of the line
+            // Missing Template in the wiki json.
+            if (lineSplit.length > 2)
+            {
+                const newFirstHalf = firstHalf.split('\n');
+                const secondHalf = lineSplit.slice(1).join(' = ').split('\n');
+
+                return (
+                    <span>
+                        {!untranslated ? newFirstHalf[0] : renderSpan(newFirstHalf[0])}
+                        <br/>
+                        {!untranslated ? newFirstHalf[1] : renderSpan(newFirstHalf[1])}
+                        {' = '}
+                        {secondHalf.map(thisLine => 
+                        {
+                            const thisLineSplit = thisLine.split(' = ');
+                            return (
+                                <span key = {thisLine}>
+                                    {!untranslated ? thisLineSplit[0] : renderSpan(thisLineSplit[0])}
+                                    {thisLineSplit.length === 2 && (' = ')}
+                                    {thisLineSplit.length === 2 && (!untranslated ? thisLineSplit[1] : renderSpan(thisLineSplit[1]))}
+                                    <br/>
+                                </span>
+                            )
+                        })}
+                    </span>
+                )
+            }
+
             const secondHalf = lineSplit[1].startsWith('&') 
                 ? lineSplit[1].slice(1) 
                 : lineSplit[1];
 
             if (!untranslated) 
                 return `|${firstHalf} = ${secondHalf}`;
-
+            
             return (
                 <span>
-                    {'|'}
+                    {firstHalf.startsWith('{') ? '' : '|'}
                     {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
                     {' = '}
                     {secondHalf !== lineSplit[1] ? renderSpan(secondHalf) : secondHalf}

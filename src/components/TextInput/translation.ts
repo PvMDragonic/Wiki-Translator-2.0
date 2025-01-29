@@ -222,6 +222,7 @@ export async function translate({
         // This is also why trailing newlines need to be removed, to properly detect a single template.
         if (index % 2 === 0 && splitted.length > 1) 
             return '&' + text.split('\n');
+            
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
@@ -242,20 +243,38 @@ export async function translate({
         }
 
         const templateData = templates[templateName];
-
-        if (debugging && debugTemplate)
+        if (!templateData)
         {
-            console.log(
-                'Template found:',
-                '\n\t\'splitted\' index: ', 
-                index, 
-                '\n\ttemplateName: ', 
-                templateName, 
-                '\n\ttemplateEntries: ', 
-                templateEntries, 
-                '\n\ttemplateData: ', 
-                templateData
-            );
+            if (debugging && debugMissing) 
+                console.log(
+                    'Wiki .json missing Template: ', 
+                    '\n\t\'splitted\' index: ', 
+                    index,
+                    '\n\ttemplateName: ',
+                    templateName
+                );
+
+            if (text.startsWith('{'))              
+                return ('&' + text + '}}');
+            else if (text.startsWith('[') && text.endsWith(']'))
+                return ('&' + text);
+            else
+                return ('&{{' + text + '}}');
+        }
+        else
+        {
+            if (debugging && debugTemplate)
+                console.log(
+                    'Template found:',
+                    '\n\t\'splitted\' index: ', 
+                    index, 
+                    '\n\ttemplateName: ', 
+                    templateName, 
+                    '\n\ttemplateEntries: ', 
+                    templateEntries, 
+                    '\n\ttemplateData: ', 
+                    templateData
+                );
         }
 
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
@@ -306,7 +325,7 @@ export async function translate({
             {
                 if (debugging && debugMissing) 
                     console.log(
-                        'Wiki .json missing: ', 
+                        'Wiki .json missing param: ', 
                         '\n\t\'splitted\' index: ', 
                         index,
                         '\n\ttemplateName: ',
