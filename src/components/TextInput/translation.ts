@@ -64,7 +64,7 @@ export async function translate({
                     text
                 );
 
-            return '&' + text.split('\n');
+            return '¬' + text;
         }
         
         // Navboxes will fall here.
@@ -107,7 +107,7 @@ export async function translate({
                 text
             );
 
-        return '&' + text.split('\n');
+        return '¬' + text;
     }
 
     function handleUpdateHistory(textLines: string[])
@@ -238,7 +238,7 @@ export async function translate({
         // 'splitted' will have only one element when a single, clean template is inputted.
         // This is also why trailing newlines need to be removed, to properly detect a single template.
         if (index % 2 === 0 && splitted.length > 1) 
-            return '&' + text.split('\n');
+            return '¬' + text;
             
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
@@ -255,7 +255,7 @@ export async function translate({
                     text
                 );
 
-            return '&' + text.split('\n');
+            return '¬' + text;
         }
 
         const templateData = templates[templateName];
@@ -306,7 +306,7 @@ export async function translate({
                         text
                     );
                     
-                return '&' + text.split('\n');
+                return '¬' + text;
             }
 
             const _templateName = templateData ? templateData.templateName : templateName;

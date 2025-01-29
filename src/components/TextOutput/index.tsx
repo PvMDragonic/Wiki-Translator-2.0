@@ -71,6 +71,22 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
+        if (line.startsWith('¬'))
+        {
+            return line.slice(1).split('\n').map(thisLine => (
+                <span 
+                    key = {thisLine}
+                    style = {{
+                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
+                        fontWeight: 'bold'
+                    }}
+                >
+                    {thisLine}
+                    <br/>
+                </span>
+            ));
+        }
+
         const lineSplit = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
         {
