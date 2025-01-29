@@ -7,6 +7,8 @@ interface UserContextType
     setHyperlinks: React.Dispatch<React.SetStateAction<boolean>>;
     untranslated: boolean;
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
+    diffExamine: boolean;
+    setDiffExamine: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Developer options.
     retranslate: boolean;

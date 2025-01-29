@@ -9,6 +9,7 @@ export function useSettings()
         // Text options.
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
+        diffExamine, setDiffExamine,
 
         // Developer options.
         retranslate, setRetranslate,
@@ -28,6 +29,7 @@ export function useSettings()
         [
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
+            { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
             { key: "wikiTranslatorDebugSplitted", setter: setDebugSplitted, defaultValue: false },
@@ -41,16 +43,16 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setUntranslated,
-        setRetranslate, setDebugging, 
-        setDebugSplitted, setDebugTemplate, 
-        setDebugSuccess, setDebugSkipped, 
+        setHyperlinks, setUntranslated, setDiffExamine,
+        setRetranslate, setDebugging, setDebugSplitted, 
+        setDebugTemplate, setDebugSuccess, setDebugSkipped, 
         setDebugMissing, loadFromStorage
     ]);
   
     return {
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
+        diffExamine, setDiffExamine,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,

@@ -26,7 +26,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
     const [showCopy, setShowCopy] = useState<boolean>(false);
 
     const { hasScroll } = useHasScrollbar({ elementRef: textRef });
-    const { hyperlinks, untranslated } = useContext(SettingsContext);
+    const { hyperlinks, untranslated, diffExamine } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
 
@@ -46,9 +46,29 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function formatLine(line: string)
     {
+        if (line.startsWith('$'))
+        {
+            const lineWithoutPrefix = line.slice(1);
+
+            if (!untranslated)
+                return lineWithoutPrefix;
+
+            const splittedLine = lineWithoutPrefix.split(' = ');
+
+            return (
+                <span>
+                    {`${splittedLine[0]} = `}
+                    <span style = {{ color: untranslated && diffExamine ? '#ffce00' : '#ff5a5a', fontWeight: 'bold' }}>
+                        {splittedLine[1]}
+                    </span>
+                </span>
+            );
+        }
+
         const lineSplit = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
         {
+            // Splitting gets scuffed because it comes from multiple points in translation.
             const firstHalf = lineSplit[0].startsWith('|&') || lineSplit[0].startsWith('&')
                 ? lineSplit[0].slice(2) 
                 : lineSplit[0].slice(1);

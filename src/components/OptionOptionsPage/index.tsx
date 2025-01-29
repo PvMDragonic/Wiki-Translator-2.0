@@ -13,6 +13,7 @@ export function OptionOptionsPage(): JSX.Element
     {
         hyperlinks, setHyperlinks,
         untranslated, setUntranslated,
+        diffExamine, setDiffExamine,
         retranslate, setRetranslate,
         debugging, setDebugging,
         debugSplitted, setDebugSplitted,
@@ -38,6 +39,14 @@ export function OptionOptionsPage(): JSX.Element
         state: untranslated,
         stateUpdate: setUntranslated,
         disabled: false
+    },
+    {
+        label: 'Diferenciar examinar',
+        lcKey: 'wikiTranslatorDiffExamine',
+        tooltip: 'Diferencia o examinar não-traduzido das outras partes não-traduzidas.',
+        state: diffExamine,
+        stateUpdate: setDiffExamine,
+        disabled: !untranslated
     }];
 
     const devOptions = [

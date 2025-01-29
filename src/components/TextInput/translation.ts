@@ -277,6 +277,10 @@ export async function translate({
 
             const correctedParam = translatedParam ? translatedParam : `&${name}`; 
 
+            // Needs to be an exception to paint it a different color.
+            if (correctedParam.startsWith('exam'))
+                return `$|${correctedParam} = ${value}`;
+
             // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
             const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || 
                 // Marks values that aren't solely numbers with an '&' to be properly formatted on <TextOutput>.
