@@ -71,20 +71,28 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
-        if (line.startsWith('¬'))
+        if (line.startsWith('¬')) 
         {
-            return line.slice(1).split('\n').map(thisLine => (
-                <span 
-                    key = {thisLine}
-                    style = {{
-                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
-                        fontWeight: 'bold'
-                    }}
-                >
-                    {thisLine}
-                    <br/>
-                </span>
-            ));
+            return line.slice(1).split('\n').map(thisLine => 
+            {
+                const style = {
+                    fontWeight: 'bold', 
+                    ...(aggressive 
+                        ? { background: '#ca4c4c' } 
+                        : { color: '#ff5a5a' }
+                    )
+                };
+        
+                return (
+                    <span 
+                        key = {thisLine} 
+                        style = {untranslated ? style : undefined}
+                    >
+                        {thisLine}
+                        <br />
+                    </span>
+                );
+            });
         }
 
         const lineSplit = line.split(' = ');
