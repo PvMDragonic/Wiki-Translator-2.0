@@ -332,50 +332,56 @@ export async function translate({
                 // Marks values that aren't solely numbers with an '&' to be properly formatted on <TextOutput>.
                 (!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value);
 
-            // Brute force translation since hash tables are O(1).
-            if (correctedValue === `&${value}`)
-            { 
-                try
+            const translatedNameLine = (() => 
+            {
+                if (correctedValue !== `&${value}`)
+                    return false;
+                
+                if (value.includes('equipped'))
                 {
-                    if (value.includes('equipped'))
-                    {
-                        const cleanValue = value.split('equipped')[0].trim();
-                        return `|${correctedParam} = ${itemNames[cleanValue]} equipado.png`;
-                    }
-    
-                    if (value.includes('.png') || value.includes('.gif'))
-                    {
-                        const cleanValue = value.split('.');
-                        return `|${correctedParam} = ${itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
-                    }
-    
-                    // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-                    const itemName = itemNames[value];
-                    if (itemName !== undefined)
-                        return `|${correctedParam} = ${itemName}`;
+                    const cleanValue = value.split('equipped')[0].trim();
+                    return `|${correctedParam} = ${itemNames[cleanValue]} equipado.png`;
                 }
-                finally
-                {
-                    if (debugging && debugSuccess) 
-                        console.log(
-                            'Item name translation:',
-                            '\n\tparamName: ',
-                            name,
-                            '\n\tcorrectedValue: ',
-                            correctedValue
-                        );
-                }
-            }        
-            
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping item name translation:',
-                    '\n\tparamName: ',
-                    name,
-                    '\n\tcorrectedValue: ',
-                    correctedValue
-                );
 
+                if (value.includes('.png') || value.includes('.gif'))
+                {
+                    const cleanValue = value.split('.');
+                    return `|${correctedParam} = ${itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                }
+
+                // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
+                const itemName = itemNames[value];
+                if (itemName !== undefined)
+                    return `|${correctedParam} = ${itemName}`; 
+
+                return false;
+            })();
+
+            if (translatedNameLine)
+            {
+                if (debugging && debugSuccess) 
+                    console.log(
+                        'Item name translation:',
+                        '\n\tparamName: ',
+                        name,
+                        '\n\tcorrectedValue: ',
+                        correctedValue
+                    );
+                    
+                return translatedNameLine;
+            }
+            else
+            {
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping item name translation:',
+                        '\n\tparamName: ',
+                        name,
+                        '\n\tcorrectedValue: ',
+                        correctedValue
+                    );
+            }     
+            
             return `|${correctedParam} = ${correctedValue}`;
         });
 
