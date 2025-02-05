@@ -142,14 +142,23 @@ export async function translate({
                     text
                 );
 
-            return text
-                .replace('UH', 'HA')
-                .replace('UL', 'LA')
-                .replace('type=', 'tipo=')
-                .replace('update=', 'atualização=')
-                .replace('date=', 'data=')
-                .replace('=patch', '=correção')
-                .replace('=update', '=atualização');
+            const replacements: Record<string, string> = 
+            {
+                'UH': 'HA',
+                'UL': 'LA',
+                'type=': 'tipo=',
+                'update=': 'atualização=',
+                'date=': 'data=',
+                '=patch': '=correção',
+                '=update': '=atualização'
+            };
+        
+            const temp = text.replace(
+                new RegExp(Object.keys(replacements).join('|'), 'g'),
+                match => replacements[match]
+            );
+
+            return temp.split('\n');
         }
             
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
