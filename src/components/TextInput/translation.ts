@@ -53,6 +53,8 @@ export async function translate({
     {
         const splitted = textToTranslate.split('\n');
 
+        console.log(textToTranslate.split('\n'))
+
         for (let i = 0; i < splitted.length; i++)
         {
             // Article body; headers; categories; etc.
@@ -66,14 +68,30 @@ export async function translate({
             const baseString = splitted[i];
             const collected: string[] = [];
             const startingIndex = i + 1;
+            let spliceLen = 0;
 
             for (let j = startingIndex; j < splitted.length; j++)
             {    
                 const curr = splitted[j];
+
                 if (curr.startsWith('|') || curr.startsWith('*') || curr === '')
-                    collected.push(curr);
-                else
-                    break; 
+                {
+                    // Can't use 'collected.lenght' because of paramValuesAmount.
+                    spliceLen++;
+
+                    const paramValuesAmount = curr
+                        .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
+                        .slice(1); // First elem after the split is always an empty string.
+
+                    if (paramValuesAmount.length > 1 && !curr.startsWith('*')) // Needs to ignore {{UL}}.
+                    {
+                        paramValuesAmount.forEach(
+                            paramValue => collected.push(`|${paramValue}`)
+                        );
+                    }
+                    else collected.push(curr);
+                }
+                else break;
             }
 
             const len = collected.length;
@@ -89,7 +107,7 @@ export async function translate({
 
             splitted.splice(
                 startingIndex,
-                closingSameLine ? len : len + 1
+                closingSameLine ? spliceLen : spliceLen + 1
             );
         }
 
