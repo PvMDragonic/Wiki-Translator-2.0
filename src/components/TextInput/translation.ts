@@ -27,7 +27,6 @@ export async function translate({
 {
     function extractInputData(text: string)
     {
-        // Some get here starting with '{{' and some do not.
         const templateName = text.split('|')[0].replace(/^{{/, '').trim();
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
@@ -50,79 +49,76 @@ export async function translate({
         };
     }
 
-    function handleUpdateHistory(textLines: string[])
+    function splitRawInput()
     {
-        function translateUpdateLine(textLine: string)
-        {
-            return `${textLine
-                .replace('UL', 'LA')
-                .replace('type=', 'tipo=')
-                .replace('update=', 'atualização=')
-                .replace('date=', 'data=')
-                .replace('=patch', '=correção')
-                .replace('=update', '=atualização')
-            }}}`; // All {{UL}} lose their closing brackets after the 'textToTranslate' split.
-        }
+        const splitted = textToTranslate.split('\n');
 
-        const updateHistory = textLines.flatMap((textLine, i) => 
+        for (let i = 0; i < splitted.length; i++)
         {
-            if (i === 0) 
-            {
-                const [firstLine, secondLine] = textLine.split('\n');
+            // Article body; headers; categories; etc.
+            if (!splitted[i].startsWith('{{'))
+                continue;
 
-                return [
-                    firstLine.startsWith('{') 
-                        // A single, clean {{UH}} input will already have brackets; else, it won't.
-                        ? firstLine.replace('UH', 'HA') 
-                        : `{{${firstLine.replace('UH', 'HA')}`, 
-                    translateUpdateLine(secondLine)
-                ];
+            // One-line Templates, like {{Clear}} or {{Price per dose}}.
+            if (splitted[i].endsWith('}}'))
+                continue;
+
+            const baseString = splitted[i];
+            const collected: string[] = [];
+            const startingIndex = i + 1;
+
+            for (let j = startingIndex; j < splitted.length; j++)
+            {    
+                const curr = splitted[j];
+                if (curr.startsWith('|') || curr.startsWith('*') || curr === '')
+                    collected.push(curr);
+                else
+                    break; 
             }
 
-            if (textLine.startsWith('*')) 
-            {
-                return textLine.split('\n').map(line => 
-                    line.startsWith('* {') 
-                        ? translateUpdateLine(line) 
-                        : line
-                );
-            }
+            const len = collected.length;
 
-            return []; // Effectively stops processing for any other cases.
-        });
+            // Closing brackets on the same line as last param leaves a blank last elem.
+            const closingSameLine = collected[len - 1] === '';
+            
+            if (!closingSameLine)
+                collected.push('}}');
 
-        // Need to add back the bracket removed from splitting 'textToTranslate'.
-        updateHistory[updateHistory.length - 1] = '}}';
-        return updateHistory;
-    }
+            if (len > 0)
+                splitted[i] = baseString + '\n' + collected.join('\n');
 
-    // Removes trailing newlines, then splits by newline double bracket ending with double bracket newline not followed by a pipe.
-    const splitted = textToTranslate.replace(/\n+$/, '').split(/\n{{|}}\n(?!\|)/).filter(text => text !== '');
-    
-    // Fixes imperfect split via the regex above.
-    // Fixing the regex isn't viable because fixing it
-    // for one scenario breaks splitting for another,
-    // due to how wildy different the inputs can be.
-    for (let i = 0; i < splitted.length; i++) 
-    {
-        if (splitted[i].startsWith('{{')) 
-        {
-            splitted[i] = splitted[i].slice(2);
-            splitted.splice(i, 0, 'null'); // Insert null before the element that starts with '{{'
-            i++; // Skip the next element because it was just added
+            splitted.splice(
+                startingIndex,
+                closingSameLine ? len : len + 1
+            );
         }
+
+        return splitted;
     }
+
+    const splitted = splitRawInput();
 
     if (debugging && debugSplitted) 
         console.log('splitted array:\n\t', splitted);
 
     return splitted.map((text, index) => 
     {
-        if (text === 'null')
-            return [null] // Skipping placeholders.
+        if (!text.startsWith('{{'))
+        {
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping article body:', 
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+                
+            return text.split('\n').map(line => '¬' + line);
+        }
 
         // Unsupported and unconventional template.
-        if (text.startsWith('GU'))
+        if (text.startsWith('{{GU'))
         {
             if (debugging && debugSkipped) 
                 console.log(
@@ -132,71 +128,32 @@ export async function translate({
                     '\n\ttext: ', 
                     text
                 );
-            return [null];
+            return '';
         }
 
-        if (text.startsWith('{{UH') || text.startsWith('UH'))
-            return handleUpdateHistory(splitted.slice(index));
-
-        // Handles rogue {{UL}}, since they're already dealt with alongside {{UH}}.
-        if (text.startsWith('*'))
+        if (text.startsWith('{{UH'))
         {
-            // If there's relevant stuff past the {{UH}} that's not a 
-            // template, it may get stuck together with the last {{UL}}.
-            const leftoverText = text
-                .split('\n')
-                .filter(textLine => !textLine.startsWith('*'))
-                .map(line => line.startsWith('=') || line.startsWith('[') || line === '' ? line : `{{${line}}}`);
-
-            // Undesireable leftovers are either empty arrays (['']) or brackets from splitting (['}}']).
-            if (leftoverText.length === 1 && leftoverText[0].length <= 2)
-            {
-                if (debugging && debugSkipped) 
-                    console.log(
-                        'Skipping UL:', 
-                        '\n\t\'splitted\' index: ',
-                        index,
-                        '\n\ttext: ', 
-                        text
-                    );
-
-                return [null];
-            }            
-
             if (debugging && debugSuccess) 
                 console.log(
-                    'Leftover found:', 
+                    'UH found:',
                     '\n\t\'splitted\' index: ',
                     index,
                     '\n\ttext: ', 
                     text
                 );
 
-            return leftoverText;
+            return text
+                .replace('UH', 'HA')
+                .replace('UL', 'LA')
+                .replace('type=', 'tipo=')
+                .replace('update=', 'atualização=')
+                .replace('date=', 'data=')
+                .replace('=patch', '=correção')
+                .replace('=update', '=atualização');
         }
-
-        // 'splitted' will have only one element when a single, clean template is inputted.
-        // This is also why trailing newlines need to be removed, to properly detect a single template.
-        if (index % 2 === 0 && splitted.length > 1) 
-            return '¬' + text;
             
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
-
-        // On occasion, stuff like [[Categories]] may get on odd indexes and making it here.
-        if (templateEntries.some(entry => entry.paramValue === undefined))
-        {
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping empty param values:', 
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return '¬' + text;
-        }
 
         const templateData = templates[templateName];
         if (!templateData)
@@ -210,10 +167,7 @@ export async function translate({
                     templateName
                 );
 
-            if (text.startsWith('[') && text.endsWith(']'))
-                return ('&' + text);
-            else
-                return ('&{{' + text + '}}');
+            return text.split('\n').map(line => '¬' + line);;
         }
         else
         {
@@ -233,22 +187,10 @@ export async function translate({
 
         // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
         if (templateEntries.length === 0)
-        {
-            if (text.startsWith('[['))
-                {
-                    if (debugging && debugSuccess) 
-                        console.log(
-                            'Category found:',
-                            '\n\ttemplateName: ',
-                            templateName,
-                            '\n\ttext: ', 
-                            text
-                        );
-        
-                    return '¬' + text;
-                }
-    
-            const translatedParamName = itemNames[text.split('|')[1]];
+        {    
+            const itemName = text.split('|')[1];
+            const translatedParamName = itemNames[itemName.slice(0, itemName.length - 2)];
+            
             if (translatedParamName)
             {
                 if (debugging && debugSuccess) 
@@ -261,20 +203,19 @@ export async function translate({
                     );
     
                 // § is used to mark templates to have hyperlinks added to them.
-                return `{{${templateName}|${translatedParamName}}}`;
+                return `§{{${templateName}|${translatedParamName}}}`;
             }
     
-            // Navboxes && empty Templates will fall here.
             if (debugging && debugSuccess) 
                 console.log(
-                    'Navbox found:',
+                    'Empty template found:',
                     '\n\ttemplateName: ',
                     templateName,
                     '\n\ttext: ', 
                     text
                 );
 
-            return `¬{{${text}}}`;
+            return text.split('\n').map(line => '¬' + line);
         }
 
         const translatedInput = templateEntries.map(entry =>
@@ -388,5 +329,5 @@ export async function translate({
             ...translatedInput, 
             '}}'
         ];
-    }).flat().filter(line => line !== null);
+    }).flat();
 }

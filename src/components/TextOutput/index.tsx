@@ -73,26 +73,21 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
         if (line.startsWith('¬')) 
         {
-            return line.slice(1).split('\n').map(thisLine => 
-            {
-                const style = {
-                    fontWeight: 'bold', 
-                    ...(aggressive 
-                        ? { background: '#ca4c4c' } 
-                        : { color: '#ff5a5a' }
-                    )
-                };
-        
-                return (
-                    <span 
-                        key = {thisLine} 
-                        style = {untranslated ? style : undefined}
-                    >
-                        {thisLine}
-                        <br />
-                    </span>
-                );
-            });
+            const style = {
+                fontWeight: 'bold', 
+                ...(aggressive 
+                    ? { background: '#ca4c4c' } 
+                    : { color: '#ff5a5a' }
+                )
+            };
+    
+            return (
+                <span 
+                    style = {untranslated ? style : undefined}
+                >
+                    {line.slice(1)}
+                </span>
+            );
         }
 
         const lineSplit = line.split(' = ');
@@ -130,34 +125,6 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                         {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
                     </span>
                 );
-            }
-
-            // Missing Template in the wiki json.
-            if (lineSplit.length > 2)
-            {
-                const newFirstHalf = firstHalf.split('\n');
-                const secondHalf = lineSplit.slice(1).join(' = ').split('\n');
-
-                return (
-                    <span>
-                        {!untranslated ? newFirstHalf[0] : renderSpan(newFirstHalf[0])}
-                        <br/>
-                        {!untranslated ? newFirstHalf[1] : renderSpan(newFirstHalf[1])}
-                        {' = '}
-                        {secondHalf.map(thisLine => 
-                        {
-                            const thisLineSplit = thisLine.split(' = ');
-                            return (
-                                <span key = {thisLine}>
-                                    {!untranslated ? thisLineSplit[0] : renderSpan(thisLineSplit[0])}
-                                    {thisLineSplit.length === 2 && (' = ')}
-                                    {thisLineSplit.length === 2 && (!untranslated ? thisLineSplit[1] : renderSpan(thisLineSplit[1]))}
-                                    <br/>
-                                </span>
-                            )
-                        })}
-                    </span>
-                )
             }
 
             const secondHalf = lineSplit[1].startsWith('&') 
