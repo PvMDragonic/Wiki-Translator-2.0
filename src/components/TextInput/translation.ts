@@ -301,6 +301,14 @@ export async function translate({
             {
                 if (correctedValue !== `&${value}`)
                     return false;
+
+                if (value.startsWith('[[File'))
+                {
+                    const finalPartIndex = value.length - 6;
+                    const finalPart = value.slice(finalPartIndex);
+                    const itemName = value.slice(7, finalPartIndex);
+                    return `|${correctedParam} = [[Arquivo|${itemNames[itemName]}${finalPart}`;
+                }
                 
                 if (value.includes('equipped'))
                 {
