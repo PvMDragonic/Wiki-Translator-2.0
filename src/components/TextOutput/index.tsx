@@ -46,6 +46,50 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function formatLine(line: string)
     {
+        if (line.startsWith('*') && !line.startsWith('**'))
+        {
+            const [firstPart, dataPlusRest] = line.split('data=');
+            const [day, month, year] = dataPlusRest.split(' ');
+            const cleanYear = year.slice(0, 4);
+            const restFromYear = year.slice(4);
+
+            const monthNumber = new Intl.DateTimeFormat(
+                'en-US', { month: 'numeric' }
+            ).format(
+                new Date(`${month} 1, 2000`)
+            );
+
+            const months: Record<string, string> = {
+                'january': 'Janeiro',
+                'february': 'Fevereiro',
+                'march': 'Março',
+                'april': 'Abril',
+                'may': 'Maio',
+                'june': 'Junho',
+                'july': 'Julho',
+                'august': 'Agosto',
+                'september': 'Setembro',
+                'october': 'Outubro',
+                'november': 'Novembro',
+                'december': 'Dezembro'
+            }
+
+            return (
+                <span>
+                    {firstPart}
+                    {'data={{'}
+                    <a 
+                        href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${cleanYear}&month=${monthNumber}&filter=Filtrar`} 
+                        target = '_blank'
+                    >
+                        {`Data|${day}|${months[month.toLowerCase()]}|${cleanYear}`}
+                    </a>
+                    {'}}'}
+                    {`${restFromYear}`}
+                </span>
+            )
+        }
+
         if (line.startsWith('%'))
         {
             const lineWithoutPrefix = line.slice(1);
