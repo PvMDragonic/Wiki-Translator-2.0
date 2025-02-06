@@ -46,6 +46,27 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function formatLine(line: string)
     {
+        if (line.startsWith('%'))
+        {
+            const lineWithoutPrefix = line.slice(1);
+            const [paramName, day, month, year] = lineWithoutPrefix.split(' = ');
+            const monthNumber = new Intl.DateTimeFormat('pt-BR', { month: 'numeric' }).format(new Date(`${month} 1, 2000`));
+
+            return (
+                <span>
+                    {paramName}
+                    {' = {{'}
+                    <a 
+                        href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${year}&month=${monthNumber}&filter=Filtrar`} 
+                        target = '_blank'
+                    >
+                        {`Data|${day}|${month}|${year}`}
+                    </a>
+                    {'}}'}
+                </span>
+            )
+        }
+
         if (line.startsWith('$'))
         {
             const lineWithoutPrefix = line.slice(1);

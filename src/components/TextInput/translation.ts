@@ -53,8 +53,6 @@ export async function translate({
     {
         const splitted = textToTranslate.split('\n');
 
-        console.log(textToTranslate.split('\n'))
-
         for (let i = 0; i < splitted.length; i++)
         {
             // Article body; headers; categories; etc.
@@ -301,6 +299,31 @@ export async function translate({
             {
                 if (correctedValue !== `&${value}`)
                     return false;
+
+                // Starts with [[ followed by one or two numbers and a space.
+                if (/^\[\[\d{1,2}/.test(value))
+                {
+                    const months: Record<string, string> = {
+                        'january': 'Janeiro',
+                        'february': 'Fevereiro',
+                        'march': 'Março',
+                        'april': 'Abril',
+                        'may': 'Maio',
+                        'june': 'Junho',
+                        'july': 'Julho',
+                        'august': 'Agosto',
+                        'september': 'Setembro',
+                        'october': 'Outubro',
+                        'november': 'Novembro',
+                        'december': 'Dezembro'
+                    }
+
+                    // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
+                    const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
+
+                    // Scuffed return because it gets formatted on <TextOutput>.
+                    return `%|${correctedParam} = ${day} = ${months[month.toLowerCase()]} = ${year}`;
+                }
 
                 if (value.startsWith('[[File'))
                 {
