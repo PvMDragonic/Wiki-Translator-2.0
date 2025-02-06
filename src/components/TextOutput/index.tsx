@@ -46,6 +46,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function formatLine(line: string)
     {
+        // {{Data}} formatting inside {{UL}}.
         if (line.startsWith('*') && !line.startsWith('**'))
         {
             const [firstPart, dataPlusRest] = line.split('data=');
@@ -90,6 +91,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             )
         }
 
+        // {{Data}} formatting.
         if (line.startsWith('%'))
         {
             const lineWithoutPrefix = line.slice(1);
@@ -111,6 +113,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             )
         }
 
+        // Examine coloring inside {{Infobox Item}}.
         if (line.startsWith('$'))
         {
             const lineWithoutPrefix = line.slice(1);
@@ -118,11 +121,11 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             if (!untranslated)
                 return lineWithoutPrefix;
 
-            const splittedLine = lineWithoutPrefix.split(' = ');
+            const [examineParam, examineText] = lineWithoutPrefix.split(' = ');
 
             return (
                 <span>
-                    {`${splittedLine[0]} = `}
+                    {`${examineParam} = `}
                     <span 
                         style = {{ 
                             ...(aggressive && { background: '#ca4c4c' }),
@@ -130,12 +133,13 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                             fontWeight: 'bold' 
                         }}
                     >
-                        {splittedLine[1]}
+                        {examineText}
                     </span>
                 </span>
             );
         }
 
+        // Article body.
         if (line.startsWith('¬')) 
         {
             const style = {
@@ -155,17 +159,18 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
-        const lineSplit = line.split(' = ');
-        if (line.startsWith('|&') || line.startsWith('&') || (lineSplit.length > 1 && lineSplit[1].startsWith('&')))
+        // Untranslated param and/or value in any Template.
+        const [paramName, paramValue] = line.split(' = ');
+        if (line.startsWith('|&') || line.startsWith('&') || (paramValue && paramValue.startsWith('&')))
         {
             const condition = 
-                lineSplit[0].startsWith('|&') || 
-                lineSplit[0].startsWith('&') && 
-                !lineSplit[0].startsWith('&{');
+                paramName.startsWith('|&') || 
+                paramName.startsWith('&') && 
+                !paramName.startsWith('&{');
 
             const firstHalf = condition
-                ? lineSplit[0].slice(2)
-                : lineSplit[0].slice(1);
+                ? paramName.slice(2)
+                : paramName.slice(1);
 
             function renderSpan(text: string) 
             { 
@@ -179,7 +184,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 );
             }
 
-            if (lineSplit.length === 1) 
+            if (!paramValue) 
             {
                 if (!untranslated) 
                     return !firstHalf.startsWith('{') ? `|${firstHalf}` : firstHalf;
@@ -187,14 +192,14 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return (
                     <span>
                         {firstHalf.startsWith('{') ? '' : '|'}
-                        {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
+                        {`|${firstHalf}` !== paramName ? renderSpan(firstHalf) : firstHalf}
                     </span>
                 );
             }
 
-            const secondHalf = lineSplit[1].startsWith('&') 
-                ? lineSplit[1].slice(1) 
-                : lineSplit[1];
+            const secondHalf = paramValue.startsWith('&') 
+                ? paramValue.slice(1) 
+                : paramValue;
 
             if (!untranslated) 
                 return `|${firstHalf} = ${secondHalf}`;
@@ -202,13 +207,14 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             return (
                 <span>
                     {firstHalf.startsWith('{') ? '' : '|'}
-                    {`|${firstHalf}` !== lineSplit[0] ? renderSpan(firstHalf) : firstHalf}
+                    {`|${firstHalf}` !== paramName ? renderSpan(firstHalf) : firstHalf}
                     {' = '}
-                    {secondHalf !== lineSplit[1] ? renderSpan(secondHalf) : secondHalf}
+                    {secondHalf !== paramValue ? renderSpan(secondHalf) : secondHalf}
                 </span>
             );
         }
 
+        // Template name hyperlink.
         if (line.startsWith('§'))
         {
             const lineWithoutPrefix = line.slice(1);
