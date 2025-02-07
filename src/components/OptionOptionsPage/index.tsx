@@ -12,6 +12,7 @@ export function OptionOptionsPage(): JSX.Element
     const 
     {
         hyperlinks, setHyperlinks,
+        splitData, setSplitData,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -32,6 +33,14 @@ export function OptionOptionsPage(): JSX.Element
         state: hyperlinks,
         stateUpdate: setHyperlinks,
         disabled: false
+    },
+    {
+        label: 'Separar Datas',
+        lcKey: 'wikiTranslatorSplitData',
+        tooltip: 'Adiciona links tanto para a página da Predefinição quanto para a data em si em {{Data}}.',
+        state: splitData,
+        stateUpdate: setSplitData,
+        disabled: !hyperlinks
     },
     {
         label: 'Realçar não-traduzido',

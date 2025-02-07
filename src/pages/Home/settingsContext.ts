@@ -5,6 +5,8 @@ interface UserContextType
     // Text options.
     hyperlinks: boolean;
     setHyperlinks: React.Dispatch<React.SetStateAction<boolean>>;
+    splitData: boolean;
+    setSplitData: React.Dispatch<React.SetStateAction<boolean>>;
     untranslated: boolean;
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
     diffExamine: boolean;

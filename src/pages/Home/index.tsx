@@ -15,6 +15,7 @@ export function Home()
     const [itemNames, setItemNames] = useState<IWikiItems | null>(null);
 
     const [hyperlinks, setHyperlinks] = useState<boolean>(true);
+    const [splitData, setSplitData] = useState<boolean>(false);
     const [untranslated, setUntranslated] = useState<boolean>(true);
     const [diffExamine, setDiffExamine] = useState<boolean>(true);
     const [aggressive, setAggressive] = useState<boolean>(false);
@@ -47,6 +48,7 @@ export function Home()
                         <SettingsContext.Provider 
                             value = {{ 
                                 hyperlinks, setHyperlinks,
+                                splitData, setSplitData,
                                 untranslated, setUntranslated,
                                 diffExamine, setDiffExamine,
                                 aggressive, setAggressive,

@@ -26,7 +26,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
     const [showCopy, setShowCopy] = useState<boolean>(false);
 
     const { hasScroll } = useHasScrollbar({ elementRef: textRef });
-    const { hyperlinks, untranslated, diffExamine, aggressive } = useContext(SettingsContext);
+    const { hyperlinks, splitData, untranslated, diffExamine, aggressive } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
 
@@ -75,12 +75,21 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 'december': 'Dezembro'
             }
 
-            const formattedDate = `Data|${day}|${months[month.toLowerCase()]}|${cleanYear}`;
+            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${months[month.toLowerCase()]}|${cleanYear}`;
 
             return (
                 <span>
                     {firstPart}
                     {'data={{'}
+                    {splitData && hyperlinks && (
+                        <a 
+                            target = '_blank'
+                            href = {'https://pt.runescape.wiki/w/Predefinição:Data'} 
+                            style = {{ color: '#ff7700' }}
+                        >
+                            Data
+                        </a>
+                    )}
                     {hyperlinks ? (
                         <a 
                             href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${cleanYear}&month=${monthNumber}&filter=Filtrar`} 
@@ -103,12 +112,21 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             const lineWithoutPrefix = line.slice(1);
             const [paramName, day, month, year] = lineWithoutPrefix.split(' = ');
             const monthNumber = new Intl.DateTimeFormat('pt-BR', { month: 'numeric' }).format(new Date(`${month} 1, 2000`));
-            const formattedDate = `Data|${day}|${month}|${year}`
+            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${month}|${year}`;
 
             return (
                 <span>
                     {paramName}
                     {' = {{'}
+                    {splitData && hyperlinks && (
+                        <a 
+                            target = '_blank'
+                            href = {'https://pt.runescape.wiki/w/Predefinição:Data'} 
+                            style = {{ color: '#ff7700' }}
+                        >
+                            Data
+                        </a>
+                    )}
                     {hyperlinks ? (
                         <a 
                             href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${year}&month=${monthNumber}&filter=Filtrar`} 
