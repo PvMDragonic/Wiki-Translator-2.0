@@ -6,9 +6,11 @@ export function useSettings()
 {
     const 
     {
-        // Text options.
+        // Hyperlink options.
         hyperlinks, setHyperlinks,
         splitData, setSplitData,
+
+        // Highlight options.
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,

@@ -25,7 +25,7 @@ export function OptionOptionsPage(): JSX.Element
         debugMissing, setDebugMissing
     } = useSettings();
 
-    const textOptions = [
+    const hyperlinkOptions = [
     {
         label: 'Adicionar links',
         lcKey: 'wikiTranslatorHyperlinks',
@@ -35,13 +35,15 @@ export function OptionOptionsPage(): JSX.Element
         disabled: false
     },
     {
-        label: 'Separar Datas',
+        label: 'Separar predef. Data',
         lcKey: 'wikiTranslatorSplitData',
         tooltip: 'Adiciona links tanto para a página da Predefinição quanto para a data em si em {{Data}}.',
         state: splitData,
         stateUpdate: setSplitData,
         disabled: !hyperlinks
-    },
+    }];
+
+    const highlightOptions = [
     {
         label: 'Realçar não-traduzido',
         lcKey: 'wikiTranslatorUntranslated',
@@ -132,10 +134,29 @@ export function OptionOptionsPage(): JSX.Element
             </h1>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    Texto Traduzido
+                    Hyperlinks
                 </h2>
                 <ul className = "options-entry__list">
-                    {textOptions.map((option, index) => (
+                    {hyperlinkOptions.map((option, index) => (
+                        <li key = {index} className = "options-entry__item">
+                            <OptionOptionsEntry
+                                label = {option.label}
+                                lcKey = {option.lcKey}
+                                tooltip = {option.tooltip}
+                                state = {option.state}
+                                stateUpdate = {option.stateUpdate}
+                                disabled = {option.disabled}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className = "options-entry">
+                <h2 className = "options-entry__title">
+                    Texto Não-traduzido
+                </h2>
+                <ul className = "options-entry__list">
+                    {highlightOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}
