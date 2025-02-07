@@ -163,7 +163,7 @@ export async function translate({
                 'UH': 'HA',
                 'UL': 'LA',
                 'type=': 'tipo=',
-                'update=': 'atualização=',
+                'update=': 'atualização=&',
                 'date=': 'data=',
                 '=patch': '=correção',
                 '=update': '=atualização'

@@ -47,8 +47,30 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             });
     }
 
+    function renderUntranslatedSpan(text: string) 
+    { 
+        return (
+            <span style = {{
+                ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
+                fontWeight: 'bold'
+            }}>
+                {text}
+            </span>
+        );
+    }
+
     function formatLine(line: string)
     {
+        // Update description about {{UL}}.
+        if (line.startsWith('**'))
+        {
+            return (
+                <span>
+                    ** {renderUntranslatedSpan(line.slice(3))}
+                </span>
+            )
+        }
+
         // {{Data}} formatting inside {{UL}}.
         if (line.startsWith('*') && !line.startsWith('**'))
         {
@@ -56,6 +78,22 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             const [day, month, year] = dataPlusRest.split(' ');
             const cleanYear = year.slice(0, 4);
             const restFromYear = year.slice(4);
+
+            function formattedFirstPart()
+            {
+                const [beginning, updateText] = firstPart.split('=&');
+                const [cleanUpdText, restPastUpdate] = updateText.split('|');
+                
+                return (
+                    <span>
+                        {beginning}
+                        =
+                        {renderUntranslatedSpan(cleanUpdText)}
+                        |
+                        {restPastUpdate}
+                    </span>
+                )
+            }
 
             const monthNumber = new Intl.DateTimeFormat(
                 'en-US', { month: 'numeric' }
@@ -98,7 +136,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
             return (
                 <span>
-                    {firstPart}
+                    {formattedFirstPart()}
                     {'data={{'}
                     {splitData && hyperlinks && (
                         <a 
@@ -230,18 +268,6 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 ? paramName.slice(2)
                 : paramName.slice(1);
 
-            function renderSpan(text: string) 
-            { 
-                return (
-                    <span style = {{
-                        ...(aggressive ? { background: '#ca4c4c' } : { color: '#ff5a5a' }),
-                        fontWeight: 'bold'
-                    }}>
-                        {text}
-                    </span>
-                );
-            }
-
             if (!paramValue) 
             {
                 if (!untranslated) 
@@ -250,7 +276,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return (
                     <span>
                         {firstHalf.startsWith('{') ? '' : '|'}
-                        {`|${firstHalf}` !== paramName ? renderSpan(firstHalf) : firstHalf}
+                        {`|${firstHalf}` !== paramName ? renderUntranslatedSpan(firstHalf) : firstHalf}
                     </span>
                 );
             }
@@ -265,9 +291,9 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             return (
                 <span>
                     {firstHalf.startsWith('{') ? '' : '|'}
-                    {`|${firstHalf}` !== paramName ? renderSpan(firstHalf) : firstHalf}
+                    {`|${firstHalf}` !== paramName ? renderUntranslatedSpan(firstHalf) : firstHalf}
                     {' = '}
-                    {secondHalf !== paramValue ? renderSpan(secondHalf) : secondHalf}
+                    {secondHalf !== paramValue ? renderUntranslatedSpan(secondHalf) : secondHalf}
                 </span>
             );
         }
