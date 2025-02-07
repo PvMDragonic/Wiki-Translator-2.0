@@ -17,4 +17,13 @@
     box-shadow: .25rem .15rem .25rem 0 rgba(0, 0, 0, 0.5);
     background-color: color-dark(bg-secondary);
     color: color-dark(text-off-white);
+
+    &__addendum
+    {
+        display: inline-block;
+        padding-top: 0.5rem;
+        font-size: 0.8rem;
+        font-style: italic;
+        opacity: 75%;
+    }
 }

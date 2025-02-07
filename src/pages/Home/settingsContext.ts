@@ -7,6 +7,8 @@ interface UserContextType
     setHyperlinks: React.Dispatch<React.SetStateAction<boolean>>;
     splitData: boolean;
     setSplitData: React.Dispatch<React.SetStateAction<boolean>>;
+    rswData: boolean;
+    setRswData: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Highlight options.
     untranslated: boolean;

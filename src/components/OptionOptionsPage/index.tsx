@@ -13,6 +13,7 @@ export function OptionOptionsPage(): JSX.Element
     {
         hyperlinks, setHyperlinks,
         splitData, setSplitData,
+        rswData, setRswData,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -40,6 +41,14 @@ export function OptionOptionsPage(): JSX.Element
         tooltip: 'Adiciona links tanto para a página da Predefinição quanto para a data em si em {{Data}}.',
         state: splitData,
         stateUpdate: setSplitData,
+        disabled: !hyperlinks
+    },
+    {
+        label: 'Data RuneScape Wiki',
+        lcKey: 'wikiTranslatorRSWData',
+        tooltip: 'Clicar em uma {{Data}} também abre a página da Wiki PT-BR correspondente.¬¬Precisa que janelas em pop-up estejam permitidas no navegador.',
+        state: rswData,
+        stateUpdate: setRswData,
         disabled: !hyperlinks
     }];
 

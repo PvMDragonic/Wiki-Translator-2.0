@@ -61,6 +61,8 @@ export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
         return () => parent.removeEventListener('mousemove', handleMouseMove);
     }, [parentRef.current]);
 
+    const [mainText, addendum] = text.split('¬¬');
+
     return (
         <div 
             ref = {tooltipRef}
@@ -69,7 +71,15 @@ export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
                 ...(text.startsWith('😡') && { fontSize: '2rem' })
             }}
         >
-            {text}
+            {mainText}
+            {addendum && (
+                <>
+                    <br/>
+                    <span className = "tooltip__addendum">
+                        {addendum}
+                    </span>
+                </>
+            )}
         </div>
     )
 }
