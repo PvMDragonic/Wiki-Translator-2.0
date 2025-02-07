@@ -6,8 +6,12 @@ export function useSettings()
 {
     const 
     {
-        // Text options.
+        // Hyperlink options.
         hyperlinks, setHyperlinks,
+        splitData, setSplitData,
+        rswData, setRswData,
+
+        // Highlight options.
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -29,6 +33,8 @@ export function useSettings()
         const settings = 
         [
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
+            { key: "wikiTranslatorSplitData", setter: setSplitData, defaultValue: false },
+            { key: "wikiTranslatorRSWData", setter: setRswData, defaultValue: false },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
             { key: "wikiTranslatorAggressive", setter: setAggressive, defaultValue: false },
@@ -45,8 +51,9 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setUntranslated, 
-        setDiffExamine, setAggressive,
+        setHyperlinks, setSplitData, 
+        setRswData, setUntranslated, 
+        setDiffExamine, setAggressive, 
         setRetranslate, setDebugging, 
         setDebugSplitted, setDebugTemplate, 
         setDebugSuccess, setDebugSkipped, 
@@ -55,6 +62,8 @@ export function useSettings()
   
     return {
         hyperlinks, setHyperlinks,
+        splitData, setSplitData,
+        rswData, setRswData,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,

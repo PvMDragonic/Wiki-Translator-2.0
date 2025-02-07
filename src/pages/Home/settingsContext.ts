@@ -2,9 +2,15 @@ import { createContext } from "react";
 
 interface UserContextType 
 {
-    // Text options.
+    // Hyperlink options.
     hyperlinks: boolean;
     setHyperlinks: React.Dispatch<React.SetStateAction<boolean>>;
+    splitData: boolean;
+    setSplitData: React.Dispatch<React.SetStateAction<boolean>>;
+    rswData: boolean;
+    setRswData: React.Dispatch<React.SetStateAction<boolean>>;
+
+    // Highlight options.
     untranslated: boolean;
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
     diffExamine: boolean;
