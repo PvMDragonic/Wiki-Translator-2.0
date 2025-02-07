@@ -75,16 +75,22 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 'december': 'Dezembro'
             }
 
+            const formattedDate = `Data|${day}|${months[month.toLowerCase()]}|${cleanYear}`;
+
             return (
                 <span>
                     {firstPart}
                     {'data={{'}
-                    <a 
-                        href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${cleanYear}&month=${monthNumber}&filter=Filtrar`} 
-                        target = '_blank'
-                    >
-                        {`Data|${day}|${months[month.toLowerCase()]}|${cleanYear}`}
-                    </a>
+                    {hyperlinks ? (
+                        <a 
+                            href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${cleanYear}&month=${monthNumber}&filter=Filtrar`} 
+                            target = '_blank'
+                        >
+                            {formattedDate}
+                        </a>
+                    ) : (
+                        formattedDate
+                    )}
                     {'}}'}
                     {`${restFromYear}`}
                 </span>
@@ -97,17 +103,22 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             const lineWithoutPrefix = line.slice(1);
             const [paramName, day, month, year] = lineWithoutPrefix.split(' = ');
             const monthNumber = new Intl.DateTimeFormat('pt-BR', { month: 'numeric' }).format(new Date(`${month} 1, 2000`));
+            const formattedDate = `Data|${day}|${month}|${year}`
 
             return (
                 <span>
                     {paramName}
                     {' = {{'}
-                    <a 
-                        href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${year}&month=${monthNumber}&filter=Filtrar`} 
-                        target = '_blank'
-                    >
-                        {`Data|${day}|${month}|${year}`}
-                    </a>
+                    {hyperlinks ? (
+                        <a 
+                            href = {`https://secure.runescape.com/m=news/l=3/a=9/archive?year=${year}&month=${monthNumber}&filter=Filtrar`} 
+                            target = '_blank'
+                        >
+                            {formattedDate}
+                        </a>
+                    ) : (
+                        formattedDate
+                    )}
                     {'}}'}
                 </span>
             )
