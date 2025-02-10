@@ -130,7 +130,9 @@ export async function translate({
                     text
                 );
                 
-            return text.split('\n').map(line => '¬¬' + line);
+            return text.startsWith('[[')
+                ? text.split('\n').map(line => '¬' + line)
+                : text.split('\n').map(line => '¬¬' + line);
         }
 
         // Unsupported and unconventional template.
