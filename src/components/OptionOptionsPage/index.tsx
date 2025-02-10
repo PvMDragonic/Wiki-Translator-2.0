@@ -14,6 +14,7 @@ export function OptionOptionsPage(): JSX.Element
         hyperlinks, setHyperlinks,
         splitData, setSplitData,
         rswData, setRswData,
+        removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -55,7 +56,16 @@ export function OptionOptionsPage(): JSX.Element
         disabled: !hyperlinks
     }];
 
-    const highlightOptions = [
+    const untranslatedOptions = [
+    {
+        label: 'Remover textos',
+        lcKey: 'wikiTranslatorRemoveBody',
+        tooltip: 'Remove partes do corpo do artigo que ficaram sem traduzir.',
+        addendum: 'Não inclui predefinições ou seus parâmetros e valores não-traduzidos.',
+        state: removeBody,
+        stateUpdate: setRemoveBody,
+        disabled: false
+    },
     {
         label: 'Realçar não-traduzido',
         lcKey: 'wikiTranslatorUntranslated',
@@ -179,7 +189,7 @@ export function OptionOptionsPage(): JSX.Element
                     Texto Não-traduzido
                 </h2>
                 <ul className = "options-entry__list">
-                    {highlightOptions.map((option, index) => (
+                    {untranslatedOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}

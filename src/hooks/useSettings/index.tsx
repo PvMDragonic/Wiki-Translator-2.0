@@ -11,7 +11,8 @@ export function useSettings()
         splitData, setSplitData,
         rswData, setRswData,
 
-        // Highlight options.
+        // Untranslated options.
+        removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -35,6 +36,7 @@ export function useSettings()
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorSplitData", setter: setSplitData, defaultValue: false },
             { key: "wikiTranslatorRSWData", setter: setRswData, defaultValue: false },
+            { key: "wikiTranslatorRemoveBody", setter: setAggressive, defaultValue: false },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
             { key: "wikiTranslatorAggressive", setter: setAggressive, defaultValue: false },
@@ -51,19 +53,18 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setSplitData, 
-        setRswData, setUntranslated, 
-        setDiffExamine, setAggressive, 
-        setRetranslate, setDebugging, 
-        setDebugSplitted, setDebugTemplate, 
-        setDebugSuccess, setDebugSkipped, 
-        setDebugMissing, loadFromStorage
+        setHyperlinks, setSplitData, setRswData, 
+        setRemoveBody, setUntranslated, setDiffExamine, 
+        setAggressive, setRetranslate, setDebugging, 
+        setDebugSplitted, setDebugTemplate, setDebugSuccess, 
+        setDebugSkipped, setDebugMissing, loadFromStorage
     ]);
   
     return {
         hyperlinks, setHyperlinks,
         splitData, setSplitData,
         rswData, setRswData,
+        removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
