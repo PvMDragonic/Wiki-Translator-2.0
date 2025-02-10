@@ -64,6 +64,15 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // Update description about {{UL}}.
         if (line.startsWith('**'))
         {
+            // A little bit more optimized than adding another entry
+            // to the 'replacements' dictionary in 'translation()'.
+            if (line === '** Added to game.')
+                return (
+                    <span>
+                        ** Adicionado ao jogo.
+                    </span>
+                )
+
             return (
                 <span>
                     ** {renderUntranslatedSpan(line.slice(3))}
