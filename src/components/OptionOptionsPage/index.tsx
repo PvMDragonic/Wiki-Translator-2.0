@@ -14,6 +14,7 @@ export function OptionOptionsPage(): JSX.Element
         hyperlinks, setHyperlinks,
         splitData, setSplitData,
         rswData, setRswData,
+        removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         aggressive, setAggressive,
@@ -31,6 +32,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Adicionar links',
         lcKey: 'wikiTranslatorHyperlinks',
         tooltip: 'Adiciona hyperlinks às predefinições encontradas no texto traduzido.',
+        addendum: undefined,
         state: hyperlinks,
         stateUpdate: setHyperlinks,
         disabled: false
@@ -39,6 +41,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Separar predef. Data',
         lcKey: 'wikiTranslatorSplitData',
         tooltip: 'Adiciona links tanto para a página da Predefinição quanto para a data em si em {{Data}}.',
+        addendum: undefined,
         state: splitData,
         stateUpdate: setSplitData,
         disabled: !hyperlinks
@@ -46,17 +49,28 @@ export function OptionOptionsPage(): JSX.Element
     {
         label: 'Data RuneScape Wiki',
         lcKey: 'wikiTranslatorRSWData',
-        tooltip: 'Clicar em uma {{Data}} também abre a página da Wiki PT-BR correspondente.¬¬Precisa que janelas em pop-up estejam permitidas no navegador.',
+        tooltip: 'Clicar em uma {{Data}} também abre a página da Wiki PT-BR correspondente.',
+        addendum: 'Precisa que janelas em pop-up estejam permitidas no navegador.',
         state: rswData,
         stateUpdate: setRswData,
         disabled: !hyperlinks
     }];
 
-    const highlightOptions = [
+    const untranslatedOptions = [
+    {
+        label: 'Remover textos',
+        lcKey: 'wikiTranslatorRemoveBody',
+        tooltip: 'Remove partes do corpo do artigo que ficaram sem traduzir.',
+        addendum: 'Não inclui predefinições ou seus parâmetros e valores não-traduzidos.',
+        state: removeBody,
+        stateUpdate: setRemoveBody,
+        disabled: false
+    },
     {
         label: 'Realçar não-traduzido',
         lcKey: 'wikiTranslatorUntranslated',
         tooltip: 'Marca o texto inalterado após a tradução com uma cor diferente.',
+        addendum: undefined,
         state: untranslated,
         stateUpdate: setUntranslated,
         disabled: false
@@ -65,6 +79,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Diferenciar examinar',
         lcKey: 'wikiTranslatorDiffExamine',
         tooltip: 'Diferencia o examinar não-traduzido das outras partes não-traduzidas.',
+        addendum: undefined,
         state: diffExamine,
         stateUpdate: setDiffExamine,
         disabled: !untranslated
@@ -73,6 +88,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Marcação agressiva',
         lcKey: 'wikiTranslatorAggressive',
         tooltip: '😡 😡 😡 😡',
+        addendum: undefined,
         state: aggressive,
         stateUpdate: setAggressive,
         disabled: !untranslated
@@ -83,6 +99,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Botão retraduzir',
         lcKey: 'wikiTranslatorRetranslate',
         tooltip: 'Adiciona um botão à caixa de entrada de texto para reexecutar a tradução.',
+        addendum: undefined,
         state: retranslate,
         stateUpdate: setRetranslate,
         disabled: false
@@ -91,6 +108,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Ativar debugger',
         lcKey: 'wikiTranslatorDebugger',
         tooltip: 'Ativa a exibição de todas as variáveis no console do navegador durante a tradução.',
+        addendum: undefined,
         state: debugging,
         stateUpdate: setDebugging,
         disabled: false
@@ -99,6 +117,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Debugger "splitted"',
         lcKey: 'wikiTranslatorDebugSplitted',
         tooltip: 'Exibe a variável \'splitted\' no debugger durante a tradução.',
+        addendum: undefined,
         state: debugSplitted,
         stateUpdate: setDebugSplitted,
         disabled: !debugging
@@ -107,6 +126,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Debugger Template',
         lcKey: 'wikiTranslatorDebugTemplate',
         tooltip: 'Exibe as informações no debugger de cada Template encontrado durante a tradução.',
+        addendum: undefined,
         state: debugTemplate,
         stateUpdate: setDebugTemplate,
         disabled: !debugging
@@ -115,6 +135,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Debugger sucessos',
         lcKey: 'wikiTranslatorDebugSuccess',
         tooltip: 'Exibe no debugger as linhas irregulares de texto traduzidas com sucesso.',
+        addendum: undefined,
         state: debugSuccess,
         stateUpdate: setDebugSuccess,
         disabled: !debugging
@@ -123,6 +144,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Debugger ignorados',
         lcKey: 'wikiTranslatorDebugSkipped',
         tooltip: 'Exibe no debugger as linhas de texto ignoradas durante a tradução.',
+        addendum: undefined,
         state: debugSkipped,
         stateUpdate: setDebugSkipped,
         disabled: !debugging
@@ -131,6 +153,7 @@ export function OptionOptionsPage(): JSX.Element
         label: 'Debugger erros',
         lcKey: 'wikiTranslatorDebugMissing',
         tooltip: 'Exibe no debugger as linhas de texto que são ignoradas por falta e/ou não-existência de dados.',
+        addendum: undefined,
         state: debugMissing,
         stateUpdate: setDebugMissing,
         disabled: !debugging
@@ -152,6 +175,7 @@ export function OptionOptionsPage(): JSX.Element
                                 label = {option.label}
                                 lcKey = {option.lcKey}
                                 tooltip = {option.tooltip}
+                                addendum = {option.addendum}
                                 state = {option.state}
                                 stateUpdate = {option.stateUpdate}
                                 disabled = {option.disabled}
@@ -165,12 +189,13 @@ export function OptionOptionsPage(): JSX.Element
                     Texto Não-traduzido
                 </h2>
                 <ul className = "options-entry__list">
-                    {highlightOptions.map((option, index) => (
+                    {untranslatedOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}
                                 lcKey = {option.lcKey}
                                 tooltip = {option.tooltip}
+                                addendum = {option.addendum}
                                 state = {option.state}
                                 stateUpdate = {option.stateUpdate}
                                 disabled = {option.disabled}
@@ -190,6 +215,7 @@ export function OptionOptionsPage(): JSX.Element
                                 label = {option.label}
                                 lcKey = {option.lcKey}
                                 tooltip = {option.tooltip}
+                                
                                 state = {option.state}
                                 stateUpdate = {option.stateUpdate}
                                 disabled = {option.disabled}

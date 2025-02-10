@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 interface ITooltip
 {
     text: string;
+    addendum?: string;
     parentRef: React.RefObject<HTMLElement>;
 }
 
@@ -12,10 +13,11 @@ interface ITooltip
  * @component
  * @param {ITooltip} props - The properties object for the component.
  * @param {string} props.text - The text to be displayed on the tooltip.
+ * @param {string} props.addendum - (Optional) additional text to be displayed about the tooltip.
  * @param {React.RefObject<HTMLElement>} props.parentRef - A useRef reference to the direct parent of the tooltip target.
  * @returns {JSX.Element} The rendered tooltip.
  */
-export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
+export function Tooltip({ text, addendum, parentRef }: ITooltip): JSX.Element
 {
     const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -61,8 +63,6 @@ export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
         return () => parent.removeEventListener('mousemove', handleMouseMove);
     }, [parentRef.current]);
 
-    const [mainText, addendum] = text.split('¬¬');
-
     return (
         <div 
             ref = {tooltipRef}
@@ -71,7 +71,7 @@ export function Tooltip({ text, parentRef }: ITooltip): JSX.Element
                 ...(text.startsWith('😡') && { fontSize: '2rem' })
             }}
         >
-            {mainText}
+            {text}
             {addendum && (
                 <>
                     <br/>

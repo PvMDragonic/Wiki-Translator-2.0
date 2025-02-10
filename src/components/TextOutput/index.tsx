@@ -27,7 +27,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     const { hasScroll } = useHasScrollbar({ elementRef: textRef });
     const { 
-        hyperlinks, splitData, rswData,
+        hyperlinks, splitData, rswData, removeBody,
         untranslated, diffExamine, aggressive 
     } = useContext(SettingsContext);
 
@@ -64,6 +64,15 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // Update description about {{UL}}.
         if (line.startsWith('**'))
         {
+            // A little bit more optimized than adding another entry
+            // to the 'replacements' dictionary in 'translation()'.
+            if (line === '** Added to game.')
+                return (
+                    <span>
+                        ** Adicionado ao jogo.
+                    </span>
+                )
+
             return (
                 <span>
                     ** {renderUntranslatedSpan(line.slice(3))}
@@ -238,6 +247,16 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // Article body.
         if (line.startsWith('¬')) 
         {
+            let text = line.slice(1);
+
+            if (line.startsWith('¬¬'))
+            {
+                if (removeBody)
+                    return undefined;
+                else
+                    text = text.slice(1);
+            }
+
             const style = {
                 fontWeight: 'bold', 
                 ...(aggressive 
@@ -250,7 +269,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 <span 
                     style = {untranslated ? style : undefined}
                 >
-                    {line.slice(1)}
+                    {text}
                 </span>
             );
         }
@@ -359,12 +378,20 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                         </button>
                     )
                 )}
-                {translation.map((line, index) => (
-                    <React.Fragment key = {index}>
-                        {formatLine(line)}
-                        <br/>
-                    </React.Fragment>
-                ))}
+                {translation.map((line, index) => {
+                    // No <br/> would be added because those 
+                    // two will return as falsy from formatLine().
+                    if (line === '¬¬' || line === '') 
+                        return <br/>;
+                    
+                    const formattedLine = formatLine(line);
+                    return (
+                        <React.Fragment key = {index}>
+                            {formattedLine}
+                            {formattedLine && <br/>}
+                        </React.Fragment>
+                    );
+                })}
             </div>
         </div>
     )

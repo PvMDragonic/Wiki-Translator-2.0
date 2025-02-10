@@ -8,6 +8,7 @@ interface IOptionOptionsEntry
     label: string;
     lcKey: string;
     tooltip: string;
+    addendum?: string;
     disabled?: boolean;
     state: boolean;
     stateUpdate: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,12 +22,13 @@ interface IOptionOptionsEntry
  * @param {string} props.label - Text for the setting's label.
  * @param {string} props.lcKey - String key to access the correct localStorage.
  * @param {string} props.tooltip - Text for the setting's tooltip.
+ * @param {string} props.addendum - (Optional) Additional information about the tooltip.
  * @param {boolean} props.disabled - (Optional) Whether or not the setting is available.
  * @param {boolean} props.state - Whether or not the setting is active.
  * @param {React.Dispatch<React.SetStateAction<boolean>>} props.stateUpdate - A function to update the setting state.
  * @returns {JSX.Element} The rendered label and input.
  */
-export function OptionOptionsEntry({ label, lcKey, tooltip, disabled = false, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
+export function OptionOptionsEntry({ label, lcKey, tooltip, addendum = undefined, disabled = false, state, stateUpdate }: IOptionOptionsEntry): JSX.Element
 {
     const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
@@ -85,6 +87,7 @@ export function OptionOptionsEntry({ label, lcKey, tooltip, disabled = false, st
             {showTooltip && !disabled && (
                 <Tooltip
                     text = {tooltip}
+                    addendum = {addendum}
                     parentRef = {labelRef}
                 />
             )}

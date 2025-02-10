@@ -119,6 +119,32 @@ export async function translate({
 
     return splitted.map((text, index) => 
     {
+        if (text.startsWith('='))
+        {
+            const headers: Record<string, string> = {
+                '==creation==': '==Criação==',
+                '==combat stats==': '==Estatísticas de Combate==',
+                '==special attack==': '==Ataque Especial==',
+                '==price per dose==': '==Preço por dose==',
+                '==products==': '==Utilização==',
+                '==repair==': '==Reparo==',
+                '==history==': '==História==',
+                '==drops==': '==Objetos Largados==',
+                '==update history==': '==Histórico de Atualizações==',
+                '==achievements==': '==Conquistas==',
+                '==drop sources==': '==Obtenção==',
+                '==disassembly==': '==Desmontar==',
+                '==shop locations': '==Locais de lojas==',
+                '==dialogue==': '==Diálogo==',
+                '==gallery==': '==Galeria==',
+                '==trivia==': 'Curiosidades\n',
+                '==references==': '==Referências=='
+            }; 
+
+            const translatedHeader = headers[text.toLowerCase()];
+            return translatedHeader ? [translatedHeader] : ['¬' + text];
+        }
+        
         if (!text.startsWith('{{'))
         {
             if (debugging && debugSkipped) 
@@ -130,7 +156,9 @@ export async function translate({
                     text
                 );
                 
-            return text.split('\n').map(line => '¬' + line);
+            return text.startsWith('[[')
+                ? text.split('\n').map(line => '¬' + line)
+                : text.split('\n').map(line => '¬¬' + line);
         }
 
         // Unsupported and unconventional template.
