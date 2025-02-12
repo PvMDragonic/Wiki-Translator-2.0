@@ -340,10 +340,15 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const finalPartIndex = value.length - 6;
-                    const finalPart = value.slice(finalPartIndex);
-                    const itemName = value.slice(7, finalPartIndex);
-                    return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                    const match = value.match(/\.(?:gif|png)\|/);
+
+                    if (match)
+                    {
+                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 4; // 4 is to rip the file ext aswell.
+                        const finalPart = value.slice(finalPartIndex);
+                        const itemName = value.slice(7, finalPartIndex);  
+                        return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                    }
                 }
                 
                 if (value.includes('equipped'))
