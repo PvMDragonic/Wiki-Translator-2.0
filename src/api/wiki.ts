@@ -20,22 +20,24 @@ export interface IWikiTemplates
 export interface IWikiItems 
 {
     [key: string]: string;
-  }
+}
 
 export class Wiki
 {
     static API = "https://pt.runescape.wiki/api.php";
 
+    static URL = new URLSearchParams({
+        prop: "revisions",
+        rvprop: "content",
+        action: "query",
+        format: "json"
+    });
+
     static async requestTemplates(): Promise<IWikiTemplates>
     {
-        const params = new URLSearchParams({
-            titles: "Usuário:PvM Dragonic/WikiTranslator.json",
-            prop: "revisions",
-            rvprop: "content",
-            action: "query",
-            format: "json"
-        });
-    
+        const params = new URLSearchParams(Wiki.URL);
+        params.set('titles', 'Usuário:PvM Dragonic/WikiTranslator.json');
+
         return fetch(`${Wiki.API}?${params}`)
             .then(response => 
             {
@@ -56,21 +58,16 @@ export class Wiki
             });
     }
     
-    static async requestItemNames()
+    static async requestItemNames(): Promise<IWikiItems>
     {
         const pages = ["data", "data/2", "data/3"];
         const items: IWikiItems = {};
     
         for (const page of pages)
         {
-            const params = new URLSearchParams({
-                titles: `Módulo:Traduções/${page}`,
-                prop: "revisions",
-                rvprop: "content",
-                action: "query",
-                format: "json"
-            });
-        
+            const params = new URLSearchParams(Wiki.URL);
+            params.set('titles', `Módulo:Traduções/${page}`);
+
             await fetch(`${Wiki.API}?${params}`)
                 .then(response => 
                 {

@@ -1,4 +1,4 @@
-import { IWikiItems, IWikiTemplates } from "./wiki";
+import { IWikiItems, IWikiTemplates } from "../../api/wiki";
 
 interface ITranslate
 {
@@ -220,7 +220,7 @@ export async function translate({
                     templateName
                 );
 
-            return text.split('\n').map(line => '¬' + line);;
+            return text.split('\n').map(line => '¬' + line);
         }
         else
         {
