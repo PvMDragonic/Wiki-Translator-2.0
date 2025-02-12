@@ -174,8 +174,29 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         {
             const lineWithoutPrefix = line.slice(1);
             const [paramName, day, month, year] = lineWithoutPrefix.split(' = ');
-            const monthNumber = new Intl.DateTimeFormat('pt-BR', { month: 'numeric' }).format(new Date(`${month} 1, 2000`));
-            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${month}|${year}`;
+        
+            const monthNumber = new Intl.DateTimeFormat(
+                'en-US', { month: 'numeric' }
+            ).format(
+                new Date(`${month} 1, 2000`)
+            );
+
+            const translatedMonth = {
+                'january': 'Janeiro',
+                'february': 'Fevereiro',
+                'march': 'Março',
+                'april': 'Abril',
+                'may': 'Maio',
+                'june': 'Junho',
+                'july': 'Julho',
+                'august': 'Agosto',
+                'september': 'Setembro',
+                'october': 'Outubro',
+                'november': 'Novembro',
+                'december': 'Dezembro'
+            }[month.toLowerCase()];
+
+            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${year}`;
 
             function openPages(event: React.MouseEvent)
             {
@@ -188,7 +209,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
                 if (rswData)
                     window.open(
-                        `https://pt.runescape.wiki/w/${day}_de_${month.toLowerCase()}`, 
+                        `https://pt.runescape.wiki/w/${day}_de_${translatedMonth?.toLowerCase()}`, 
                         '_new'
                     );
             }

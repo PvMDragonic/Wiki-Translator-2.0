@@ -331,34 +331,24 @@ export async function translate({
                 // Starts with [[ followed by one or two numbers and a space.
                 if (/^\[\[\d{1,2}/.test(value))
                 {
-                    const months: Record<string, string> = {
-                        'january': 'Janeiro',
-                        'february': 'Fevereiro',
-                        'march': 'Março',
-                        'april': 'Abril',
-                        'may': 'Maio',
-                        'june': 'Junho',
-                        'july': 'Julho',
-                        'august': 'Agosto',
-                        'september': 'Setembro',
-                        'october': 'Outubro',
-                        'november': 'Novembro',
-                        'december': 'Dezembro'
-                    }
-
                     // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
                     const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
 
                     // Scuffed return because it gets formatted on <TextOutput>.
-                    return `%|${correctedParam} = ${day} = ${months[month.toLowerCase()]} = ${year}`;
+                    return `%|${correctedParam} = ${day} = ${month} = ${year}`;
                 }
 
                 if (value.startsWith('[[File'))
                 {
-                    const finalPartIndex = value.length - 6;
-                    const finalPart = value.slice(finalPartIndex);
-                    const itemName = value.slice(7, finalPartIndex);
-                    return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                    const match = value.match(/\.(?:gif|png)\|/);
+
+                    if (match)
+                    {
+                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 4; // 4 is to rip the file ext aswell.
+                        const finalPart = value.slice(finalPartIndex);
+                        const itemName = value.slice(7, finalPartIndex);  
+                        return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                    }
                 }
                 
                 if (value.includes('equipped'))
