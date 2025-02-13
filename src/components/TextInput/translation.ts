@@ -196,13 +196,15 @@ export async function translate({
                 '=patch': '=correção',
                 '=update': '=atualização'
             };
-        
-            const temp = text.replace(
-                new RegExp(Object.keys(replacements).join('|'), 'g'),
-                match => replacements[match]
-            );
 
-            return temp.split('\n');
+            let translation = text;
+            for (const [search, replace] of Object.entries(replacements)) 
+            {
+                const regex = new RegExp(search, 'g');
+                translation = translation.replace(regex, replace);
+            }
+
+            return translation.split('\n');
         }
             
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
