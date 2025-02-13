@@ -144,7 +144,30 @@ export async function translate({
             }; 
 
             const translatedHeader = headers[text.toLowerCase()];
-            return translatedHeader ? [translatedHeader] : ['¬' + text];
+            if (translatedHeader)
+            {
+                if (debugging && debugSuccess) 
+                    console.log(
+                        'Header successfully translated:',
+                        '\n\t\'splitted\' index: ',
+                        index,
+                        '\n\ttext: ', 
+                        text
+                    );
+
+                return [translatedHeader];
+            }
+
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Unknown header skipped:',
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
+            return ['¬' + text];
         }
         
         if (!text.startsWith('{{'))
