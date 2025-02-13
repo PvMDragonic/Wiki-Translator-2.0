@@ -35,8 +35,30 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function handleClipboard()
     {
+        const charsToRemove = ['&', '§', '$', '¬', '¬¬', '%'];
+  
+        // Needs to remove the markings used to highlight untranslated text.
+        const cleanStrings = translation.map(str => 
+        {
+            let modifiedStr = str;
+            
+            while (charsToRemove.some(char => modifiedStr.startsWith(char))) 
+            {
+                const match = charsToRemove.find(char => modifiedStr.startsWith(char));
+                modifiedStr = match ? modifiedStr.slice(match.length) : modifiedStr;
+            }
+            
+            // Very unoptimized, but this whole 
+            // function isn't called ofter so w/e.
+            modifiedStr = modifiedStr
+                .replace('=&', '=')
+                .replace(' = &', ' = ');
+
+            return modifiedStr;
+        });
+
         navigator.clipboard
-            .writeText(translation.join('\n'))
+            .writeText(cleanStrings.join('\n'))
             .then(() => 
             {
                 setShowCopy(false);
@@ -403,7 +425,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     // No <br/> would be added because those 
                     // two will return as falsy from formatLine().
                     if (line === '¬¬' || line === '') 
-                        return <br/>;
+                        return <br key = {index}/>;
                     
                     const formattedLine = formatLine(line);
                     return (

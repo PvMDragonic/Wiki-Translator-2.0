@@ -27,7 +27,9 @@ export async function translate({
 {
     function extractInputData(text: string)
     {
-        const templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        let templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        templateName = templateName[0].toUpperCase() + templateName.slice(1);
+
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
             const [key, value] = entry.split('=').map(
@@ -196,13 +198,15 @@ export async function translate({
                 '=patch': '=correção',
                 '=update': '=atualização'
             };
-        
-            const temp = text.replace(
-                new RegExp(Object.keys(replacements).join('|'), 'g'),
-                match => replacements[match]
-            );
 
-            return temp.split('\n');
+            let translation = text;
+            for (const [search, replace] of Object.entries(replacements)) 
+            {
+                const regex = new RegExp(search, 'g');
+                translation = translation.replace(regex, replace);
+            }
+
+            return translation.split('\n');
         }
             
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
@@ -349,13 +353,17 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const match = value.match(/\.(?:gif|png)\|/);
+                    const match = value.match(/\.(?:gif|png)/);
 
                     if (match)
                     {
-                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 4; // 4 is to rip the file ext aswell.
+                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 3; // 4 is to rip the file ext aswell.
                         const finalPart = value.slice(finalPartIndex);
                         const itemName = value.slice(7, finalPartIndex);  
+
+                        if (itemName.endsWith('detail'))
+                            return `|${correctedParam} = [[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`;
+                        
                         return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
                     }
                 }
