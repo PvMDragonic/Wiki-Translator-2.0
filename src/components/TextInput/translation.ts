@@ -354,16 +354,27 @@ export async function translate({
                 return `$|${correctedParam} = ${value}`;
             }
 
-            // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
-            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || 
-                // Marks values that aren't solely numbers with an '&' to be properly formatted on <TextOutput>.
-                (!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value);
-
-            const translatedNameLine = (() => 
+            if (/^[(),.\d]+$/.test(value))
             {
-                if (correctedValue !== `&${value}`)
-                    return false;
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping numeric param value:',
+                        '\n\tparamName: ',
+                        name,
+                        '\n\tparamValue: ',
+                        value
+                    );
 
+                return `|${correctedParam} = ${value}`;
+            }
+
+            // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
+            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
+            if (correctedValue) 
+                return `|${correctedParam} = ${correctedValue}`; 
+
+            const translatedParamValue = (() => 
+            {
                 // Starts with [[ followed by one or two numbers and a space.
                 if (/^\[\[\d{1,2}/.test(value))
                 {
@@ -411,32 +422,42 @@ export async function translate({
                 return false;
             })();
 
-            if (translatedNameLine)
+            if (translatedParamValue)
             {
                 if (debugging && debugSuccess) 
                     console.log(
-                        'Item name translation:',
+                        'Successful param value translation:',
                         '\n\tparamName: ',
                         name,
-                        '\n\tcorrectedValue: ',
+                        '\n\tparamValue: ',
                         correctedValue
                     );
                     
-                return translatedNameLine;
+                return translatedParamValue;
             }
-            else
+
+            if (!value)
             {
                 if (debugging && debugSkipped) 
                     console.log(
-                        'Skipping item name translation:',
+                        'Skipping param left blank:',
                         '\n\tparamName: ',
-                        name,
-                        '\n\tcorrectedValue: ',
-                        correctedValue
+                        name
                     );
-            }     
+
+                return `|${correctedParam} = `;
+            }
+
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping param value translation:',
+                    '\n\tparamName: ',
+                    name,
+                    '\n\tparamValue: ',
+                    value
+                );
             
-            return `|${correctedParam} = ${correctedValue}`;
+            return `|${correctedParam} = &${value}`;
         }));
 
         // § is used to mark templates to have hyperlinks added to them.
