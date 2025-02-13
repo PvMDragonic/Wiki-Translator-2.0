@@ -20,22 +20,65 @@ export interface IWikiTemplates
 export interface IWikiItems 
 {
     [key: string]: string;
-  }
+}
 
 export class Wiki
 {
     static API = "https://pt.runescape.wiki/api.php";
 
+    static URL = new URLSearchParams({
+        prop: "revisions",
+        rvprop: "content",
+        action: "query",
+        format: "json"
+    });
+
+    static async requestItemExamine(itemName: string): Promise<string>
+    {
+        const params = new URLSearchParams(Wiki.URL);
+        params.set('titles', `Módulo:Mercado/${itemName.replace(/ /g, '_')}`);
+
+        return fetch(`${Wiki.API}?${params}`)
+            .then(response => 
+            {
+                if (!response.ok) 
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+    
+                return response.json();
+            })
+            .then(data => 
+            {
+                const queryPages = data.query.pages;
+                const page = queryPages[Object.keys(queryPages)[0]];
+                const content = page.revisions[0]['*'];
+
+                if (content && content.startsWith('return'))
+                {
+                    const clean = content
+                        .replace('return ', '')
+                        // Replaces `=` with `:` for key-value pairs.
+                        .replace(/(\w+)\s*=/g, '"$1":') 
+                        // Encloses all string values in double quotes.
+                        .replace(/:\s*([a-zA-Z\u00C0-\u00FF][\w\s\(\)áéíóúãõç]*)/g, ': "$1"')
+                        // Removes trailing commas before closing brace.
+                        .replace(/,(\s*})/g, '$1');
+
+                    return JSON.parse(clean).examine;
+                }
+
+                return undefined;
+            })
+            .catch((_) => 
+            {
+                return undefined;
+            });
+    }
+
     static async requestTemplates(): Promise<IWikiTemplates>
     {
-        const params = new URLSearchParams({
-            titles: "Usuário:PvM Dragonic/WikiTranslator.json",
-            prop: "revisions",
-            rvprop: "content",
-            action: "query",
-            format: "json"
-        });
-    
+        const params = new URLSearchParams(Wiki.URL);
+        params.set('titles', 'Usuário:PvM Dragonic/WikiTranslator.json');
+
         return fetch(`${Wiki.API}?${params}`)
             .then(response => 
             {
@@ -56,21 +99,16 @@ export class Wiki
             });
     }
     
-    static async requestItemNames()
+    static async requestItemNames(): Promise<IWikiItems>
     {
         const pages = ["data", "data/2", "data/3"];
         const items: IWikiItems = {};
     
         for (const page of pages)
         {
-            const params = new URLSearchParams({
-                titles: `Módulo:Traduções/${page}`,
-                prop: "revisions",
-                rvprop: "content",
-                action: "query",
-                format: "json"
-            });
-        
+            const params = new URLSearchParams(Wiki.URL);
+            params.set('titles', `Módulo:Traduções/${page}`);
+
             await fetch(`${Wiki.API}?${params}`)
                 .then(response => 
                 {

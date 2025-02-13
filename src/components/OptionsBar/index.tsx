@@ -1,6 +1,5 @@
-import { OptionGE } from "@components/OptionGE";
-import { OptionHelp } from "@components/OptionHelp";
 import { OptionOptions } from "@components/OptionOptions";
+import { OptionHelp } from "@components/OptionHelp";
 
 /**
  * Renders the container for the options atop the translator.
@@ -13,7 +12,6 @@ export function OptionsBar(): JSX.Element
     return (
         <div className = "options-bar">
             <div className = "options-bar__container">
-                <OptionGE/>
                 <OptionOptions/>
                 <OptionHelp/>
             </div>

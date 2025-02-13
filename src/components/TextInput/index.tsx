@@ -1,6 +1,6 @@
 import { useContext, useRef } from "react";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
-import { IWikiTemplates, IWikiItems } from "./wiki";
+import { IWikiTemplates, IWikiItems } from "../../api/wiki";
 import { translate } from "./translation";
 import SettingsContext from "@pages/Home/settingsContext";
 import TranslateIcon from "@assets/TranslateIcon";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IWikiItems, IWikiTemplates, Wiki } from "@components/TextInput/wiki";
+import { IWikiItems, IWikiTemplates, Wiki } from "src/api/wiki";
 import { OptionsBar } from "@components/OptionsBar";
 import { TextInput } from "@components/TextInput";
 import { TextOutput } from "@components/TextOutput";
