@@ -1,4 +1,4 @@
-import { IWikiItems, IWikiTemplates } from "../../api/wiki";
+import { IWikiItems, IWikiTemplates, Wiki } from "../../api/wiki";
 
 interface ITranslate
 {
@@ -117,7 +117,7 @@ export async function translate({
     if (debugging && debugSplitted) 
         console.log('splitted array:\n\t', splitted);
 
-    return splitted.map((text, index) => 
+    return await Promise.all(splitted.map(async (text, index) => 
     {
         if (text.startsWith('='))
         {
@@ -271,7 +271,7 @@ export async function translate({
             return text.split('\n').map(line => '¬' + line);
         }
 
-        const translatedInput = templateEntries.map(entry =>
+        const translatedInput = await Promise.all(templateEntries.map(async entry =>
         {
             const name = entry.paramName;
             const value = entry.paramValue;
@@ -316,7 +316,16 @@ export async function translate({
 
             // Needs to be an exception to paint it a different color.
             if (correctedParam.startsWith('exam'))
+            {
+                const currNumber = correctedParam.charAt(correctedParam.length - 1);
+                const targetParam = !isNaN(Number(currNumber)) ? `name${currNumber}` : 'name';
+                const itemName = templateEntries.find(obj => obj.paramName === targetParam)?.paramValue;
+                const examine = await Wiki.requestItemExamine(itemNames[itemName!]);
+                if (examine)
+                    return `|${correctedParam} = ${examine}`;
+
                 return `$|${correctedParam} = ${value}`;
+            }
 
             // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
             const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()] || 
@@ -397,7 +406,7 @@ export async function translate({
             }     
             
             return `|${correctedParam} = ${correctedValue}`;
-        });
+        }));
 
         // § is used to mark templates to have hyperlinks added to them.
         return [
@@ -405,5 +414,5 @@ export async function translate({
             ...translatedInput, 
             '}}'
         ];
-    }).flat();
+    })).then(value => value.flat());
 }
