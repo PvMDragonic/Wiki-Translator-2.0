@@ -351,13 +351,17 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const match = value.match(/\.(?:gif|png)\|/);
+                    const match = value.match(/\.(?:gif|png)/);
 
                     if (match)
                     {
-                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 4; // 4 is to rip the file ext aswell.
+                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 3; // 4 is to rip the file ext aswell.
                         const finalPart = value.slice(finalPartIndex);
                         const itemName = value.slice(7, finalPartIndex);  
+
+                        if (itemName.endsWith('detail'))
+                            return `|${correctedParam} = [[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`;
+                        
                         return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
                     }
                 }
