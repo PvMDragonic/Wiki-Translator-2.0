@@ -263,7 +263,7 @@ export async function translate({
                 return `§{{${templateName}|${translatedParamName}}}`;
             }
     
-            if (debugging && debugSuccess) 
+            if (debugging && debugSkipped) 
                 console.log(
                     'Empty template found:',
                     '\n\ttemplateName: ',
