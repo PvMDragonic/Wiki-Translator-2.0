@@ -403,7 +403,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     // No <br/> would be added because those 
                     // two will return as falsy from formatLine().
                     if (line === '¬¬' || line === '') 
-                        return <br/>;
+                        return <br key = {index}/>;
                     
                     const formattedLine = formatLine(line);
                     return (
