@@ -27,7 +27,9 @@ export async function translate({
 {
     function extractInputData(text: string)
     {
-        const templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        let templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        templateName = templateName[0].toUpperCase() + templateName.slice(1);
+
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
             const [key, value] = entry.split('=').map(
