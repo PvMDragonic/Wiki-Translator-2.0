@@ -96,9 +96,11 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     </span>
                 )
 
+            const cleanLine = line.slice(3);
+
             return (
                 <span>
-                    ** {renderUntranslatedSpan(line.slice(3))}
+                    ** {untranslated ? renderUntranslatedSpan(cleanLine) : cleanLine}
                 </span>
             )
         }
@@ -120,7 +122,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     <span>
                         {beginning}
                         =
-                        {renderUntranslatedSpan(cleanUpdText)}
+                        {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
                         |
                         {restPastUpdate}
                     </span>
