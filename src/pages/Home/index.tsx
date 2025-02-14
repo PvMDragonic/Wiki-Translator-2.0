@@ -20,6 +20,7 @@ export function Home()
     const [removeBody, setRemoveBody] = useState<boolean>(false);
     const [untranslated, setUntranslated] = useState<boolean>(true);
     const [diffExamine, setDiffExamine] = useState<boolean>(true);
+    const [diffNavboxes, setDiffNavboxes] = useState<boolean>(true);
     const [aggressive, setAggressive] = useState<boolean>(false);
     const [retranslate, setRetranslate] = useState<boolean>(false);
     const [debugging, setDebugging] = useState<boolean>(false);
@@ -55,6 +56,7 @@ export function Home()
                                 removeBody, setRemoveBody,
                                 untranslated, setUntranslated,
                                 diffExamine, setDiffExamine,
+                                diffNavboxes, setDiffNavboxes,
                                 aggressive, setAggressive,
                                 retranslate, setRetranslate, 
                                 debugging, setDebugging,

@@ -17,6 +17,7 @@ export function OptionOptionsPage(): JSX.Element
         removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        diffNavboxes, setDiffNavboxes,
         aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,
@@ -82,6 +83,15 @@ export function OptionOptionsPage(): JSX.Element
         addendum: undefined,
         state: diffExamine,
         stateUpdate: setDiffExamine,
+        disabled: !untranslated
+    },
+    {
+        label: 'Diferenciar navboxes',
+        lcKey: 'wikiTranslatorDiffNavboxes',
+        tooltip: 'Diferencia navboxes não-traduzidas das outras partes não-traduzidas.',
+        addendum: undefined,
+        state: diffNavboxes,
+        stateUpdate: setDiffNavboxes,
         disabled: !untranslated
     },
     {

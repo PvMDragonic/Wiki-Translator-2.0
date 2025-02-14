@@ -232,6 +232,20 @@ export async function translate({
             return translation.split('\n');
         }
             
+        if (!text.includes('|'))
+        {
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping navbox:',
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
+            return ['¬' + text];
+        }
+
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
 
