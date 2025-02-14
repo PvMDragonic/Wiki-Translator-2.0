@@ -16,6 +16,7 @@ export function useSettings()
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,
+        diffCategories, setDiffCategories,
         aggressive, setAggressive,
 
         // Developer options.
@@ -41,6 +42,7 @@ export function useSettings()
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
             { key: "wikiTranslatorDiffNavboxes", setter: setDiffNavboxes, defaultValue: true },
+            { key: "wikiTranslatorDiffCategories", setter: setDiffCategories, defaultValue: true },
             { key: "wikiTranslatorAggressive", setter: setAggressive, defaultValue: false },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
@@ -58,7 +60,7 @@ export function useSettings()
         setHyperlinks, setSplitData, 
         setRswData, setRemoveBody, 
         setUntranslated, setDiffExamine, 
-        setDiffNavboxes,
+        setDiffNavboxes, setDiffCategories,
         setAggressive, setRetranslate, 
         setDebugging, setDebugSplitted, 
         setDebugTemplate, setDebugSuccess, 
@@ -74,6 +76,7 @@ export function useSettings()
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,
+        diffCategories, setDiffCategories,
         aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,

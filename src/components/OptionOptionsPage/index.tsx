@@ -18,6 +18,7 @@ export function OptionOptionsPage(): JSX.Element
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,
+        diffCategories, setDiffCategories,
         aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,
@@ -92,6 +93,15 @@ export function OptionOptionsPage(): JSX.Element
         addendum: undefined,
         state: diffNavboxes,
         stateUpdate: setDiffNavboxes,
+        disabled: !untranslated
+    },
+    {
+        label: 'Diferenciar categorias',
+        lcKey: 'wikiTranslatorDiffCategories',
+        tooltip: 'Diferencia categorias não-traduzidas das outras partes não-traduzidas.',
+        addendum: undefined,
+        state: diffCategories,
+        stateUpdate: setDiffCategories,
         disabled: !untranslated
     },
     {
