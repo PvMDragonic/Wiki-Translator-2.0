@@ -51,6 +51,22 @@ export async function translate({
         };
     }
 
+    function translateFileName(textLine: string): string[]
+    {
+        const match = textLine.match(/\.(?:gif|png)/);
+
+        if (match)
+        {
+            const finalPartIndex = (textLine.indexOf(match[0]) + match[0].length - 1) - 3; // 4 is to rip the file ext aswell.
+            const finalPart = textLine.slice(finalPartIndex);
+            const itemName = textLine.slice(7, finalPartIndex); 
+            
+            return [itemName, finalPart];
+        }
+
+        return [];
+    }
+
     function splitRawInput()
     {
         const splitted = textToTranslate.split('\n');
@@ -172,6 +188,19 @@ export async function translate({
         
         if (!text.startsWith('{{'))
         {
+            if (text.startsWith('[[File:'))
+            {
+                const [itemName, finalPart] = translateFileName(text);
+
+                if (itemName && finalPart)
+                {
+                    if (itemName.endsWith('detail'))
+                        return [`[[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`];
+                    
+                    return [`[[Arquivo:${itemNames[itemName]}${finalPart}`];
+                }
+            }
+
             if (debugging && debugSkipped) 
                 console.log(
                     'Skipping article body:', 
@@ -232,6 +261,20 @@ export async function translate({
             return translation.split('\n');
         }
             
+        if (!text.includes('|'))
+        {
+            if (debugging && debugSkipped) 
+                console.log(
+                    'Skipping navbox:',
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
+            return ['¬' + text];
+        }
+
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
 
@@ -387,14 +430,10 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const match = value.match(/\.(?:gif|png)/);
+                    const [itemName, finalPart] = translateFileName(value);
 
-                    if (match)
+                    if (itemName && finalPart)
                     {
-                        const finalPartIndex = (value.indexOf(match[0]) + match[0].length - 1) - 3; // 4 is to rip the file ext aswell.
-                        const finalPart = value.slice(finalPartIndex);
-                        const itemName = value.slice(7, finalPartIndex);  
-
                         if (itemName.endsWith('detail'))
                             return `|${correctedParam} = [[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`;
                         

@@ -27,8 +27,9 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     const { hasScroll } = useHasScrollbar({ elementRef: textRef });
     const { 
-        hyperlinks, splitData, rswData, removeBody,
-        untranslated, diffExamine, aggressive 
+        hyperlinks, splitData, rswData, 
+        removeBody, untranslated, diffExamine, 
+        diffNavboxes, diffCategories, aggressive 
     } = useContext(SettingsContext);
 
     useEffect(() => setShowCopy(textExists), [textExists]);
@@ -95,9 +96,11 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     </span>
                 )
 
+            const cleanLine = line.slice(3);
+
             return (
                 <span>
-                    ** {renderUntranslatedSpan(line.slice(3))}
+                    ** {untranslated ? renderUntranslatedSpan(cleanLine) : cleanLine}
                 </span>
             )
         }
@@ -119,7 +122,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     <span>
                         {beginning}
                         =
-                        {renderUntranslatedSpan(cleanUpdText)}
+                        {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
                         |
                         {restPastUpdate}
                     </span>
@@ -290,22 +293,25 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // Article body.
         if (line.startsWith('¬')) 
         {
-            let text = line.slice(1);
+            const isArticleBody = line.startsWith('¬¬');
 
-            if (line.startsWith('¬¬'))
-            {
-                if (removeBody)
-                    return undefined;
-                else
-                    text = text.slice(1);
-            }
+            if (isArticleBody && removeBody)
+                return undefined;
+
+            const text = line.slice(isArticleBody ? 2 : 1);
+
+            const isNavbox = !text.includes('|') && text.startsWith('{{');
+            const isCategory = !text.startsWith('[[File:') && text.startsWith('[[');
+
+            const color = (isNavbox && diffNavboxes) ? '#7b8eff' 
+                        : (isCategory && diffCategories) ? '#ff8ebe' 
+                        : (!aggressive) ? '#ff5a5a' 
+                        : undefined;
 
             const style = {
+                ...(aggressive && { background: '#ca4c4c' }),
                 fontWeight: 'bold', 
-                ...(aggressive 
-                    ? { background: '#ca4c4c' } 
-                    : { color: '#ff5a5a' }
-                )
+                color: color
             };
     
             return (

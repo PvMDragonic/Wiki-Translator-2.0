@@ -17,6 +17,10 @@ interface UserContextType
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
     diffExamine: boolean;
     setDiffExamine: React.Dispatch<React.SetStateAction<boolean>>;
+    diffNavboxes: boolean;
+    setDiffNavboxes: React.Dispatch<React.SetStateAction<boolean>>;
+    diffCategories: boolean;
+    setDiffCategories: React.Dispatch<React.SetStateAction<boolean>>;
     aggressive: boolean;
     setAggressive: React.Dispatch<React.SetStateAction<boolean>>;
 

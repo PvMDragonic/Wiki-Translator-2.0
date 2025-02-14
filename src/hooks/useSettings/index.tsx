@@ -15,6 +15,8 @@ export function useSettings()
         removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        diffNavboxes, setDiffNavboxes,
+        diffCategories, setDiffCategories,
         aggressive, setAggressive,
 
         // Developer options.
@@ -39,6 +41,8 @@ export function useSettings()
             { key: "wikiTranslatorRemoveBody", setter: setAggressive, defaultValue: false },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
+            { key: "wikiTranslatorDiffNavboxes", setter: setDiffNavboxes, defaultValue: true },
+            { key: "wikiTranslatorDiffCategories", setter: setDiffCategories, defaultValue: true },
             { key: "wikiTranslatorAggressive", setter: setAggressive, defaultValue: false },
             { key: "wikiTranslatorRetranslate", setter: setRetranslate, defaultValue: false },
             { key: "wikiTranslatorDebugger", setter: setDebugging, defaultValue: false },
@@ -53,11 +57,15 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setSplitData, setRswData, 
-        setRemoveBody, setUntranslated, setDiffExamine, 
-        setAggressive, setRetranslate, setDebugging, 
-        setDebugSplitted, setDebugTemplate, setDebugSuccess, 
-        setDebugSkipped, setDebugMissing, loadFromStorage
+        setHyperlinks, setSplitData, 
+        setRswData, setRemoveBody, 
+        setUntranslated, setDiffExamine, 
+        setDiffNavboxes, setDiffCategories,
+        setAggressive, setRetranslate, 
+        setDebugging, setDebugSplitted, 
+        setDebugTemplate, setDebugSuccess, 
+        setDebugSkipped, setDebugMissing, 
+        loadFromStorage
     ]);
   
     return {
@@ -67,6 +75,8 @@ export function useSettings()
         removeBody, setRemoveBody,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
+        diffNavboxes, setDiffNavboxes,
+        diffCategories, setDiffCategories,
         aggressive, setAggressive,
         retranslate, setRetranslate,
         debugging, setDebugging,
