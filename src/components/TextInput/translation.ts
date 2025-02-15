@@ -308,10 +308,13 @@ export async function translate({
                     const sliceLimit = line.indexOf('{');
                     const stringStart = line.slice(0, sliceLimit);
 
-                    const splittedLine = line.split(/\n\|text[0-9]/);
+                    const splittedLine = line.split(/\n\|text[0-9] = /);
                     const isntLastItem = splittedLine.length === 2;
+                    
+                    const translatedTextName = itemNames[splittedLine[1]] || `&${splittedLine[1]}`;
+
                     const stringEnd = isntLastItem 
-                        ? `\n|text${index + 1} ${splittedLine[1]}` 
+                        ? `\n|text${index + 1} = ${translatedTextName}` 
                         : '';
 
                     const toTranslate = isntLastItem 
@@ -333,8 +336,9 @@ export async function translate({
                     translated[0] = stringStart + translated[0];
                     return translated.join('\n') + stringEnd;
                 }
-                
-                return line;
+
+                const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
+                return `${templateHeader}\n|text1 = ${itemNames[textOneName] || `&${textOneName}`}`;
             }));
 
             return ('§' + result.join('\n|item') + '\n}}').split('\n');
