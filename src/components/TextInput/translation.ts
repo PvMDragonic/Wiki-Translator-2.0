@@ -182,7 +182,7 @@ export async function translate({
                 '==shop locations': '==Locais de lojas==',
                 '==dialogue==': '==Diálogo==',
                 '==gallery==': '==Galeria==',
-                '==trivia==': 'Curiosidades\n',
+                '==trivia==': '==Curiosidades==\n',
                 '==references==': '==Referências=='
             }; 
 
