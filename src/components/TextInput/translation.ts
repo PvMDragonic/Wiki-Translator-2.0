@@ -334,7 +334,7 @@ export async function translate({
                     return translated.join('\n') + stringEnd;
                 }
                 
-                return line;
+                return line.replace('Switch infobox', 'Alterar Infobox');
             }));
 
             return ('§' + result.join('\n|item') + '\n}}').split('\n');
