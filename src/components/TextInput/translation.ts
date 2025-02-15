@@ -81,6 +81,7 @@ export async function translate({
             if (splitted[i].endsWith('}}'))
                 continue;
 
+            const isSwitch = splitted[i].startsWith('{{Switch infobox');
             const baseString = splitted[i];
             const collected: string[] = [];
             const startingIndex = i + 1;
@@ -107,7 +108,21 @@ export async function translate({
                     }
                     else collected.push(curr);
                 }
-                else break;
+                else 
+                {
+                    if (isSwitch)
+                    {
+                        if (curr !== '}}' || splitted[j + 1] !== '}}')
+                        {
+                            // Needs to account for each }} at the end of each '|item'.
+                            collected.push('}}');
+                            spliceLen++;
+                            continue;
+                        }
+                    }
+                        
+                    break;
+                }
             }
 
             const len = collected.length;
@@ -115,16 +130,28 @@ export async function translate({
             // Closing brackets on the same line as last param leaves a blank last elem.
             const closingSameLine = collected[len - 1] === '';
             
-            if (!closingSameLine)
+            if (!closingSameLine && !isSwitch)
                 collected.push('}}');
+
+            if (isSwitch)
+            {
+                collected.push('}}');
+                collected.push('}}');
+            }
 
             if (len > 0)
                 splitted[i] = baseString + '\n' + collected.join('\n');
-
-            splitted.splice(
-                startingIndex,
-                closingSameLine ? spliceLen : spliceLen + 1
-            );
+            
+            if (isSwitch)
+                splitted.splice(
+                    startingIndex,
+                    spliceLen + 2
+                )
+            else
+                splitted.splice(
+                    startingIndex,
+                    closingSameLine ? spliceLen : spliceLen + 1
+                );
         }
 
         return splitted;
@@ -259,6 +286,58 @@ export async function translate({
             }
 
             return translation.split('\n');
+        }
+
+        if (text.startsWith('{{Switch infobox'))
+        {
+            if (debugging && debugSuccess) 
+                console.log(
+                    '{{Switch infobox}} found:',
+                    '\n\t\'splitted\' index: ',
+                    index,
+                    '\n\ttext: ', 
+                    text
+                );
+
+            const splitted = text.split('\n|item');
+
+            const result: string[] = await Promise.all(splitted.map(async (line, index) =>
+            {
+                if (!line.startsWith('{{Switch infobox')) 
+                {
+                    const sliceLimit = line.indexOf('{');
+                    const stringStart = line.slice(0, sliceLimit);
+
+                    const splittedLine = line.split(/\n\|text[0-9]/);
+                    const isntLastItem = splittedLine.length === 2;
+                    const stringEnd = isntLastItem 
+                        ? `\n|text${index + 1} ${splittedLine[1]}` 
+                        : '';
+
+                    const toTranslate = isntLastItem 
+                        ? splittedLine[0].slice(sliceLimit)
+                        : splittedLine[0].slice(sliceLimit, splittedLine[0].length - 6);
+
+                    const translated = await translate({ 
+                        textToTranslate: toTranslate,
+                        templates,
+                        itemNames, 
+                        debugging, 
+                        debugSplitted, 
+                        debugTemplate,
+                        debugSuccess, 
+                        debugSkipped, 
+                        debugMissing  
+                    });
+
+                    translated[0] = stringStart + translated[0];
+                    return translated.join('\n') + stringEnd;
+                }
+                
+                return line;
+            }));
+
+            return ('§' + result.join('\n|item') + '\n}}').split('\n');
         }
             
         if (!text.includes('|'))

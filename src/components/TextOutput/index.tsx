@@ -367,9 +367,10 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         }
 
         // Template name hyperlink.
-        if (line.startsWith('§'))
+        const isSwitch = /^\|item[1-9] = §/.test(line);
+        if (line.startsWith('§') || isSwitch)
         {
-            const lineWithoutPrefix = line.slice(1);
+            const lineWithoutPrefix = isSwitch ? line.slice(10) : line.slice(1);
 
             if (!hyperlinks)
                 return lineWithoutPrefix;
@@ -379,6 +380,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
             return (
                 <span>
+                    {isSwitch && line.slice(0, 9)}
                     {'{{'}
                     <a 
                         href = {`https://pt.runescape.wiki/w/Predefinição:${formattedLine}`} 
