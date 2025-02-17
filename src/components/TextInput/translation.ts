@@ -51,7 +51,7 @@ export async function translate({
         };
     }
 
-    function translateFileName(textLine: string): string[]
+    function extractFileName(textLine: string): string[]
     {
         const match = textLine.match(/\.(?:gif|png)/);
 
@@ -217,7 +217,7 @@ export async function translate({
         {
             if (text.startsWith('[[File:'))
             {
-                const [itemName, finalPart] = translateFileName(text);
+                const [itemName, finalPart] = extractFileName(text);
 
                 if (itemName && finalPart)
                 {
@@ -531,7 +531,7 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const [itemName, finalPart] = translateFileName(value);
+                    const [itemName, finalPart] = extractFileName(value);
 
                     if (itemName && finalPart)
                     {
