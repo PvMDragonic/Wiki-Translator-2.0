@@ -475,9 +475,14 @@ export async function translate({
                 const currNumber = correctedParam.charAt(correctedParam.length - 1);
                 const targetParam = !isNaN(Number(currNumber)) ? `name${currNumber}` : 'name';
                 const itemName = templateEntries.find(obj => obj.paramName === targetParam)?.paramValue;
-                const examine = await Wiki.requestItemExamine(itemNames[itemName!]);
-                if (examine)
-                    return `|${correctedParam} = ${examine}`;
+                const ptbrItemName = itemNames[itemName!];
+
+                if (ptbrItemName)
+                {
+                    const examine = await Wiki.requestItemExamine(ptbrItemName);
+                    if (examine)
+                        return `|${correctedParam} = ${examine}`;
+                }
 
                 return `$|${correctedParam} = ${value}`;
             }
