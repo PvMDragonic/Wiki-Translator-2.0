@@ -469,7 +469,6 @@ export async function translate({
 
             const correctedParam = translatedParam ? translatedParam : `&${name}`; 
 
-            // Needs to be an exception to paint it a different color.
             if (correctedParam.startsWith('exam'))
             {
                 const currNumber = correctedParam.charAt(correctedParam.length - 1);
