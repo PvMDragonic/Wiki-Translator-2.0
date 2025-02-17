@@ -32,16 +32,17 @@ export async function translate({
 
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
-            const [key, value] = entry.split('=').map(
+            // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
+            const [key, ...value] = entry.split('=').map(
                 splitted => (splitted.startsWith('|') 
                     ? splitted.slice(1) 
                     : splitted
-                ).trim()
+                ).trim() // Needs to trim because 'param = value' leaves trailing and leading spaces.
             );
 
             return { 
                 paramName: key,
-                paramValue: value
+                paramValue: value.join('=')
             };
         });
 
@@ -96,17 +97,25 @@ export async function translate({
                     // Can't use 'collected.lenght' because of paramValuesAmount.
                     spliceLen++;
 
-                    const paramValuesAmount = curr
-                        .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
-                        .slice(1); // First elem after the split is always an empty string.
-
-                    if (paramValuesAmount.length > 1 && !curr.startsWith('*')) // Needs to ignore {{UL}}.
+                    // Ignores {{UL}} or cases where the param value is a Template itself.
+                    if (!curr.startsWith('*') && !curr.includes(' = {{') && !curr.includes('={{'))
                     {
-                        paramValuesAmount.forEach(
-                            paramValue => collected.push(`|${paramValue}`)
-                        );
+                        const paramValuesAmount = curr
+                            .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
+                            .slice(1); // First elem after the split is always an empty string.
+    
+                        // Catches poorly-formatted Templates with more than one paramValue per line.
+                        if (paramValuesAmount.length > 1 && !curr.startsWith('*'))
+                        {
+                            paramValuesAmount.forEach(
+                                paramValue => collected.push(`|${paramValue}`)
+                            );
+    
+                            continue;
+                        } 
                     }
-                    else collected.push(curr);
+
+                    collected.push(curr);
                 }
                 else 
                 {
@@ -511,6 +520,9 @@ export async function translate({
 
                 return `|${correctedParam} = ${value}`;
             }
+
+            if (value.startsWith('{{'))
+                console.log(value);
 
             // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
             const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
