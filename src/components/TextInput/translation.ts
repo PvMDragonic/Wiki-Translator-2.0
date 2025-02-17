@@ -32,16 +32,17 @@ export async function translate({
 
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
-            const [key, value] = entry.split('=').map(
+            // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
+            const [key, ...value] = entry.split('=').map(
                 splitted => (splitted.startsWith('|') 
                     ? splitted.slice(1) 
                     : splitted
-                ).trim()
+                ).trim() // Needs to trim because 'param = value' leaves trailing and leading spaces.
             );
 
             return { 
                 paramName: key,
-                paramValue: value
+                paramValue: value.join('=')
             };
         });
 
@@ -51,7 +52,7 @@ export async function translate({
         };
     }
 
-    function translateFileName(textLine: string): string[]
+    function extractFileName(textLine: string): string[]
     {
         const match = textLine.match(/\.(?:gif|png)/);
 
@@ -96,17 +97,25 @@ export async function translate({
                     // Can't use 'collected.lenght' because of paramValuesAmount.
                     spliceLen++;
 
-                    const paramValuesAmount = curr
-                        .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
-                        .slice(1); // First elem after the split is always an empty string.
-
-                    if (paramValuesAmount.length > 1 && !curr.startsWith('*')) // Needs to ignore {{UL}}.
+                    // Ignores {{UL}} or cases where the param value is a Template itself.
+                    if (!curr.startsWith('*') && !curr.includes(' = {{') && !curr.includes('={{'))
                     {
-                        paramValuesAmount.forEach(
-                            paramValue => collected.push(`|${paramValue}`)
-                        );
+                        const paramValuesAmount = curr
+                            .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
+                            .slice(1); // First elem after the split is always an empty string.
+    
+                        // Catches poorly-formatted Templates with more than one paramValue per line.
+                        if (paramValuesAmount.length > 1 && !curr.startsWith('*'))
+                        {
+                            paramValuesAmount.forEach(
+                                paramValue => collected.push(`|${paramValue}`)
+                            );
+    
+                            continue;
+                        } 
                     }
-                    else collected.push(curr);
+
+                    collected.push(curr);
                 }
                 else 
                 {
@@ -217,15 +226,27 @@ export async function translate({
         {
             if (text.startsWith('[[File:'))
             {
-                const [itemName, finalPart] = translateFileName(text);
+                const [itemName, finalPart] = extractFileName(text);
 
                 if (itemName && finalPart)
                 {
                     if (itemName.endsWith('detail'))
-                        return [`[[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`];
+                    {
+                        const ptbrItemName = itemNames[itemName.slice(0, itemName.length - 7)];
+                        if (ptbrItemName)
+                            return [`[[Arquivo:${ptbrItemName} detalhe${finalPart}`];
+                    } 
                     
-                    return [`[[Arquivo:${itemNames[itemName]}${finalPart}`];
+                    const ptbrItemName = itemNames[itemName];
+                    if (ptbrItemName)
+                        return [`[[Arquivo:${ptbrItemName}${finalPart}`];
+
+                    // Non-item stuff.
+                    return [`[[Arquivo:${itemName}${finalPart}`];
                 }
+
+                // Unlikely to ever make it here, but I'm not taking chances at this point.
+                return [text];
             }
 
             if (debugging && debugSkipped) 
@@ -469,15 +490,19 @@ export async function translate({
 
             const correctedParam = translatedParam ? translatedParam : `&${name}`; 
 
-            // Needs to be an exception to paint it a different color.
             if (correctedParam.startsWith('exam'))
             {
                 const currNumber = correctedParam.charAt(correctedParam.length - 1);
                 const targetParam = !isNaN(Number(currNumber)) ? `name${currNumber}` : 'name';
                 const itemName = templateEntries.find(obj => obj.paramName === targetParam)?.paramValue;
-                const examine = await Wiki.requestItemExamine(itemNames[itemName!]);
-                if (examine)
-                    return `|${correctedParam} = ${examine}`;
+                const ptbrItemName = itemNames[itemName!];
+
+                if (ptbrItemName)
+                {
+                    const examine = await Wiki.requestItemExamine(ptbrItemName);
+                    if (examine)
+                        return `|${correctedParam} = ${examine}`;
+                }
 
                 return `$|${correctedParam} = ${value}`;
             }
@@ -495,6 +520,9 @@ export async function translate({
 
                 return `|${correctedParam} = ${value}`;
             }
+
+            if (value.startsWith('{{'))
+                console.log(value);
 
             // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
             const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
@@ -515,15 +543,27 @@ export async function translate({
 
                 if (value.startsWith('[[File'))
                 {
-                    const [itemName, finalPart] = translateFileName(value);
+                    const [itemName, finalPart] = extractFileName(value);
 
                     if (itemName && finalPart)
                     {
                         if (itemName.endsWith('detail'))
-                            return `|${correctedParam} = [[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`;
+                        {
+                            const ptbrItemName = itemNames[itemName.slice(0, itemName.length - 7)];
+                            if (ptbrItemName)
+                                return `|${correctedParam} = [[Arquivo:${ptbrItemName} detalhe${finalPart}`;
+                        } 
                         
-                        return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                        const ptbrItemName = itemNames[itemName];
+                        if (ptbrItemName)
+                            return `|${correctedParam} = [[Arquivo:${ptbrItemName}${finalPart}`;
+
+                        // Non-item stuff.
+                        return `|${correctedParam} = [[Arquivo:${itemName}${finalPart}`;
                     }
+
+                    // Unlikely to ever make it here, but I'm not taking chances at this point.
+                    return `|${correctedParam} = ${value}`;
                 }
                 
                 if (value.includes('equipped'))
