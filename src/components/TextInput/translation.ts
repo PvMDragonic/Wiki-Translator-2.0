@@ -222,10 +222,22 @@ export async function translate({
                 if (itemName && finalPart)
                 {
                     if (itemName.endsWith('detail'))
-                        return [`[[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`];
+                    {
+                        const ptbrItemName = itemNames[itemName.slice(0, itemName.length - 7)];
+                        if (ptbrItemName)
+                            return [`[[Arquivo:${ptbrItemName} detalhe${finalPart}`];
+                    } 
                     
-                    return [`[[Arquivo:${itemNames[itemName]}${finalPart}`];
+                    const ptbrItemName = itemNames[itemName];
+                    if (ptbrItemName)
+                        return [`[[Arquivo:${ptbrItemName}${finalPart}`];
+
+                    // Non-item stuff.
+                    return [`[[Arquivo:${itemName}${finalPart}`];
                 }
+
+                // Unlikely to ever make it here, but I'm not taking chances at this point.
+                return [text];
             }
 
             if (debugging && debugSkipped) 
@@ -524,10 +536,22 @@ export async function translate({
                     if (itemName && finalPart)
                     {
                         if (itemName.endsWith('detail'))
-                            return `|${correctedParam} = [[Arquivo:${itemNames[itemName.slice(0, itemName.length - 7)]} detalhe${finalPart}`;
+                        {
+                            const ptbrItemName = itemNames[itemName.slice(0, itemName.length - 7)];
+                            if (ptbrItemName)
+                                return `|${correctedParam} = [[Arquivo:${ptbrItemName} detalhe${finalPart}`;
+                        } 
                         
-                        return `|${correctedParam} = [[Arquivo:${itemNames[itemName]}${finalPart}`;
+                        const ptbrItemName = itemNames[itemName];
+                        if (ptbrItemName)
+                            return `|${correctedParam} = [[Arquivo:${ptbrItemName}${finalPart}`;
+
+                        // Non-item stuff.
+                        return `|${correctedParam} = [[Arquivo:${itemName}${finalPart}`;
                     }
+
+                    // Unlikely to ever make it here, but I'm not taking chances at this point.
+                    return `|${correctedParam} = ${value}`;
                 }
                 
                 if (value.includes('equipped'))
