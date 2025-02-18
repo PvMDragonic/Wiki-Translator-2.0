@@ -236,6 +236,9 @@ export async function translate({
                         if (ptbrItemName)
                             return [`[[Arquivo:${ptbrItemName} detalhe${finalPart}`];
                     } 
+
+                    if (itemName.endsWith('chathead'))
+                        return [`[[Arquivo:${itemName.slice(0, itemName.length - 9)} cabeça${finalPart}`];
                     
                     const ptbrItemName = itemNames[itemName];
                     if (ptbrItemName)
