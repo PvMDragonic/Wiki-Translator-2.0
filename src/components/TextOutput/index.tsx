@@ -301,7 +301,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             const text = line.slice(isArticleBody ? 2 : 1);
 
             const isNavbox = !text.includes('|') && text.startsWith('{{');
-            const isCategory = !text.startsWith('[[File:') && text.startsWith('[[');
+            const isCategory = !text.startsWith('[[File:') && text.startsWith('[[') && text.endsWith(']]');
 
             const color = (isNavbox && diffNavboxes) ? '#7b8eff' 
                         : (isCategory && diffCategories) ? '#ff8ebe' 

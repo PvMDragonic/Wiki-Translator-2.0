@@ -260,8 +260,8 @@ export async function translate({
                     '\n\ttext: ', 
                     text
                 );
-                
-            return text.startsWith('[[')
+
+            return text.startsWith('[[') && text.endsWith(']]')
                 ? text.split('\n').map(line => '¬' + line)
                 : text.split('\n').map(line => '¬¬' + line);
         }
