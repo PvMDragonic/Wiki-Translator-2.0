@@ -521,9 +521,6 @@ export async function translate({
                 return `|${correctedParam} = ${value}`;
             }
 
-            if (value.startsWith('{{'))
-                console.log(value);
-
             // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
             const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
             if (correctedValue) 
