@@ -53,7 +53,8 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             // function isn't called ofter so w/e.
             modifiedStr = modifiedStr
                 .replace('=&', '=')
-                .replace(' = &', ' = ');
+                .replace(' = &', ' = ')
+                .replace(/¢/g, '');
 
             return modifiedStr;
         });
@@ -321,6 +322,27 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     {text}
                 </span>
             );
+        }
+
+        if (line.startsWith('[[Arquivo:') || /\|[a-zA-Z0-9 ]*=\s*\[\[Arquivo:/g.test(line))
+        {
+            if (!untranslated)
+                return line.replace(/¢/g, '');
+            
+            return line.split('¢').map((part, index) => {
+                if (index % 2 === 0) 
+                    return (
+                        <span key = {`${part}${index}`}>
+                            {part}
+                        </span>
+                    );
+
+                return (
+                    <span key = {`${part}${index}`}>
+                        {renderUntranslatedSpan(part)}
+                    </span>
+                )
+            });
         }
 
         // Untranslated param and/or value in any Template.
