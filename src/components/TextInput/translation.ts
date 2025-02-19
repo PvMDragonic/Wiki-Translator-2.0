@@ -332,7 +332,8 @@ export async function translate({
                     '\n\ttext: ', 
                     text
                 );
-            return '';
+
+            return undefined;
         }
 
         if (text.startsWith('{{UH'))
@@ -671,5 +672,5 @@ export async function translate({
             ...translatedInput, 
             '}}'
         ];
-    })).then(value => value.flat());
+    })).then(value => value.flat().filter(line => line !== undefined));
 }
