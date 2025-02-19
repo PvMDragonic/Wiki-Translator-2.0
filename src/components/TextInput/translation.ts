@@ -489,9 +489,9 @@ export async function translate({
                         '\n\ttranslatedParamName: ', 
                         translatedParamName
                     );
-    
+
                 // § is used to mark templates to have hyperlinks added to them.
-                return `§{{${templateName}|${translatedParamName}}}`;
+                return `§{{${templateData.templateName}|${translatedParamName}}}`;
             }
     
             if (debugging && debugSkipped) 

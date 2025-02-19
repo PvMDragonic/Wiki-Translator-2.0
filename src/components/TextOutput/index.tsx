@@ -410,6 +410,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     >
                         {formattedLine}
                     </a>
+                    {'|'}
                     {splittedLine.length > 1 && splittedLine[1]}
                 </span>
             );   
