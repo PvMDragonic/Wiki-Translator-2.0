@@ -102,10 +102,22 @@ export async function translate({
             };
             
             for (let suffix in suffixMap) 
+            {
                 if (fileName.endsWith(suffix)) 
-                    return `[[Arquivo:¢${fileName.slice(0, -suffix.length)}¢${suffixMap[suffix]}`;
-            
-            return `[[Arquivo:¢${itemNames[fileName] || fileName}¢`;
+                {
+                    const name = fileName.slice(0, -suffix.length).trim();
+                    const translated = itemNames[name];
+
+                    return translated 
+                        ? `[[Arquivo:${translated} ${suffixMap[suffix]}`
+                        : `[[Arquivo:¢${name}¢ ${suffixMap[suffix]}`;
+                }
+            }
+
+            const translated = itemNames[fileName];
+            return translated 
+                ? `[[Arquivo:${translated}`
+                : `[[Arquivo:¢${fileName}¢`;
         }
 
         function formatFinalPart(finalPart: string): string
