@@ -36,7 +36,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
 
     function handleClipboard()
     {
-        const charsToRemove = ['&', '§', '$', '¬', '¬¬', '%'];
+        const charsToRemove = ['&', '§', '$', '¬', '¬¬', '%', '@'];
   
         // Needs to remove the markings used to highlight untranslated text.
         const cleanStrings = translation.map(str => 
@@ -324,7 +324,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
-        if (line.startsWith('[[Arquivo:') || /\|[a-zA-Z0-9 ]*=\s*\[\[Arquivo:/g.test(line))
+        if (line.startsWith('[[Arquivo:') || /^\|[\p{L}0-9 ]*=\s*\[\[Arquivo:/gu.test(line))
         {
             if (!untranslated)
                 return line.replace(/¢/g, '');
@@ -388,6 +388,31 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
+        if (line.startsWith('@'))
+        {
+            const lineWithoutPrefix = line.slice(1);
+
+            if (!hyperlinks)
+                return lineWithoutPrefix;
+            
+            const [templateName, ...paramValues] = lineWithoutPrefix.split('|');
+            const formattedLine = templateName.slice(2);
+
+            return (
+                <span>
+                    {'{{'}
+                    <a 
+                        href = {`https://pt.runescape.wiki/w/Predefinição:${formattedLine}`} 
+                        target = '_blank'
+                    >
+                        {formattedLine}
+                    </a>
+                    {'|'}
+                    {paramValues !== undefined && paramValues.join('|')}
+                </span>
+            );
+        }
+
         // Template name hyperlink.
         const isSwitch = /^\|item[1-9] = §/.test(line);
         if (line.startsWith('§') || isSwitch)
@@ -397,8 +422,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             if (!hyperlinks)
                 return lineWithoutPrefix;
 
-            const splittedLine = lineWithoutPrefix.split('|');
-            const formattedLine = splittedLine[0].slice(2);
+            const formattedLine = lineWithoutPrefix.slice(2);
 
             return (
                 <span>
@@ -410,8 +434,6 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     >
                         {formattedLine}
                     </a>
-                    {'|'}
-                    {splittedLine.length > 1 && splittedLine[1]}
                 </span>
             );   
         }
