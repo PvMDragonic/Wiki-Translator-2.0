@@ -158,38 +158,40 @@ export async function translate({
 
         for (let i = 0; i < splitted.length; i++)
         {
+            const curr = splitted[i];
+
             // Article body; headers; categories; etc.
-            if (!splitted[i].startsWith('{{'))
+            if (!curr.startsWith('{{'))
                 continue;
 
             // One-line Templates, like {{Clear}} or {{Price per dose}}.
-            if (splitted[i].endsWith('}}'))
+            if (curr.endsWith('}}'))
                 continue;
 
-            const isSwitch = splitted[i].startsWith('{{Switch infobox');
-            const baseString = splitted[i];
+            const isSwitch = curr.startsWith('{{Switch infobox');
+            const baseString = curr;
             const collected: string[] = [];
             const startingIndex = i + 1;
             let spliceLen = 0;
 
             for (let j = startingIndex; j < splitted.length; j++)
             {    
-                const curr = splitted[j];
+                const nestCurr = splitted[j];
 
-                if (curr.startsWith('|') || curr.startsWith('*') || curr === '')
+                if (nestCurr.startsWith('|') || nestCurr.startsWith('*') || nestCurr === '' || (isSwitch && splitted[j - 1].startsWith('|item')))
                 {
                     // Can't use 'collected.lenght' because of paramValuesAmount.
                     spliceLen++;
 
                     // Ignores {{UL}} or cases where the param value is a Template itself.
-                    if (!curr.startsWith('*') && !curr.includes(' = {{') && !curr.includes('={{'))
+                    if (!nestCurr.startsWith('*') && !nestCurr.includes(' = {{') && !nestCurr.includes('={{'))
                     {
-                        const paramValuesAmount = curr
+                        const paramValuesAmount = nestCurr
                             .split(/\|(?![^\[]*])/) // The | is matched only if it's not followed by a ], due to [[File:name.png|100px|left]].
                             .slice(1); // First elem after the split is always an empty string.
     
                         // Catches poorly-formatted Templates with more than one paramValue per line.
-                        if (paramValuesAmount.length > 1 && !curr.startsWith('*'))
+                        if (paramValuesAmount.length > 1 && !nestCurr.startsWith('*'))
                         {
                             paramValuesAmount.forEach(
                                 paramValue => collected.push(`|${paramValue}`)
@@ -199,13 +201,13 @@ export async function translate({
                         } 
                     }
 
-                    collected.push(curr);
+                    collected.push(nestCurr);
                 }
                 else 
                 {
                     if (isSwitch)
                     {
-                        if (curr !== '}}' || splitted[j + 1] !== '}}')
+                        if (nestCurr !== '}}' || splitted[j + 1] !== '}}')
                         {
                             // Needs to account for each }} at the end of each '|item'.
                             collected.push('}}');
