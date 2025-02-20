@@ -324,7 +324,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             );
         }
 
-        if (line.startsWith('[[Arquivo:') || /\|[a-zA-Z0-9 ]*=\s*\[\[Arquivo:/g.test(line))
+        if (line.startsWith('[[Arquivo:') || /^\|[\p{L}0-9 ]*=\s*\[\[Arquivo:/gu.test(line))
         {
             if (!untranslated)
                 return line.replace(/¢/g, '');
