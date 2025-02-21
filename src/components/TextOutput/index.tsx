@@ -396,7 +396,10 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 return lineWithoutPrefix;
             
             const [templateName, ...paramValues] = lineWithoutPrefix.split('|');
-            const formattedLine = templateName.slice(2);
+            const noParamTemplate = paramValues.length === 0;
+            const formattedLine = noParamTemplate 
+                ? templateName.slice(2, -2) 
+                : templateName.slice(2);
 
             return (
                 <span>
@@ -407,7 +410,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     >
                         {formattedLine}
                     </a>
-                    {'|'}
+                    {noParamTemplate ? '}}' : '|'}
                     {paramValues !== undefined && paramValues.join('|')}
                 </span>
             );

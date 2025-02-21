@@ -27,7 +27,7 @@ export async function translate({
 {
     function extractInputData(text: string)
     {
-        let templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
         templateName = templateName[0].toUpperCase() + templateName.slice(1);
 
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
@@ -439,20 +439,6 @@ export async function translate({
 
             return ('§' + result.join('\n|item') + '\n}}').split('\n');
         }
-            
-        if (!text.includes('|'))
-        {
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping navbox:',
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return ['¬' + text];
-        }
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
         const { templateName, templateEntries } = extractInputData(text);
@@ -460,6 +446,20 @@ export async function translate({
         const templateData = templates[templateName];
         if (!templateData)
         {
+            if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
+            {
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping navbox:',
+                        '\n\t\'splitted\' index: ',
+                        index,
+                        '\n\ttext: ', 
+                        text
+                    );
+    
+                return ['¬' + text];
+            }
+
             if (debugging && debugMissing) 
                 console.log(
                     'Wiki .json missing Template: ', 
@@ -491,6 +491,20 @@ export async function translate({
         if (templateEntries.length === 0)
         {    
             const itemName = text.split('|')[1];
+            if (!itemName)
+            {
+                if (debugging && debugSuccess) 
+                    console.log(
+                        'No params Template translated:',
+                        '\n\ttemplateName: ',
+                        templateName,
+                        '\n\tTranslated Template: ',
+                        templateData.templateName
+                    );
+
+                return `@{{${templateData.templateName}}}`;
+            }
+
             const translatedParamName = itemNames[itemName.slice(0, itemName.length - 2)];
             
             if (translatedParamName)
