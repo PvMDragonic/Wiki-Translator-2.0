@@ -27,7 +27,7 @@ export async function translate({
 {
     function extractInputData(text: string)
     {
-        let templateName = text.split('|')[0].replace(/^{{/, '').trim();
+        let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
         templateName = templateName[0].toUpperCase() + templateName.slice(1);
 
         const templateEntries = text.split('\n').slice(1, -1).map(entry => 
@@ -168,7 +168,7 @@ export async function translate({
             if (curr.endsWith('}}'))
                 continue;
 
-            const isSwitch = curr.startsWith('{{Switch infobox');
+            const isSwitch = curr.startsWith('{{Switch infobox') || curr.startsWith('{{Multi infobox');
             const baseString = curr;
             const collected: string[] = [];
             const startingIndex = i + 1;
@@ -263,7 +263,7 @@ export async function translate({
         {
             const headers: Record<string, string> = {
                 '==creation==': '==Criação==',
-                '==combat stats==': '==Estatísticas de Combate==',
+                '==combat stats==': '==Estatísticas de combate==',
                 '==special attack==': '==Ataque Especial==',
                 '==price per dose==': '==Preço por dose==',
                 '==products==': '==Utilização==',
@@ -382,11 +382,11 @@ export async function translate({
             return translation.split('\n');
         }
 
-        if (text.startsWith('{{Switch infobox'))
+        if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
         {
             if (debugging && debugSuccess) 
                 console.log(
-                    '{{Switch infobox}} found:',
+                    '{{Switch/Multi infobox}} found:',
                     '\n\t\'splitted\' index: ',
                     index,
                     '\n\ttext: ', 
@@ -397,7 +397,7 @@ export async function translate({
 
             const result: string[] = await Promise.all(splitted.map(async (line, index) =>
             {
-                if (!line.startsWith('{{Switch infobox')) 
+                if (!line.startsWith('{{Switch infobox') && !line.startsWith('{{Multi infobox')) 
                 {
                     const sliceLimit = line.indexOf('{');
                     const stringStart = line.slice(0, sliceLimit);
@@ -432,26 +432,12 @@ export async function translate({
                 }
 
                 const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
-                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox');
+                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox').replace('Multi infobox', 'Multi Infobox');
                 const textOne = itemNames[textOneName] || `&${textOneName}`;
                 return `${header}\n|text1 = ${textOne}`;
             }));
 
             return ('§' + result.join('\n|item') + '\n}}').split('\n');
-        }
-            
-        if (!text.includes('|'))
-        {
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping navbox:',
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return ['¬' + text];
         }
 
         // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
@@ -460,6 +446,20 @@ export async function translate({
         const templateData = templates[templateName];
         if (!templateData)
         {
+            if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
+            {
+                if (debugging && debugSkipped) 
+                    console.log(
+                        'Skipping navbox:',
+                        '\n\t\'splitted\' index: ',
+                        index,
+                        '\n\ttext: ', 
+                        text
+                    );
+    
+                return ['¬' + text];
+            }
+
             if (debugging && debugMissing) 
                 console.log(
                     'Wiki .json missing Template: ', 
@@ -491,6 +491,20 @@ export async function translate({
         if (templateEntries.length === 0)
         {    
             const itemName = text.split('|')[1];
+            if (!itemName)
+            {
+                if (debugging && debugSuccess) 
+                    console.log(
+                        'No params Template translated:',
+                        '\n\ttemplateName: ',
+                        templateName,
+                        '\n\tTranslated Template: ',
+                        templateData.templateName
+                    );
+
+                return `@{{${templateData.templateName}}}`;
+            }
+
             const translatedParamName = itemNames[itemName.slice(0, itemName.length - 2)];
             
             if (translatedParamName)
