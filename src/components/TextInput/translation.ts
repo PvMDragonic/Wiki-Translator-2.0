@@ -168,7 +168,7 @@ export async function translate({
             if (curr.endsWith('}}'))
                 continue;
 
-            const isSwitch = curr.startsWith('{{Switch infobox');
+            const isSwitch = curr.startsWith('{{Switch infobox') || curr.startsWith('{{Multi infobox');
             const baseString = curr;
             const collected: string[] = [];
             const startingIndex = i + 1;
@@ -382,11 +382,11 @@ export async function translate({
             return translation.split('\n');
         }
 
-        if (text.startsWith('{{Switch infobox'))
+        if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
         {
             if (debugging && debugSuccess) 
                 console.log(
-                    '{{Switch infobox}} found:',
+                    '{{Switch/Multi infobox}} found:',
                     '\n\t\'splitted\' index: ',
                     index,
                     '\n\ttext: ', 
@@ -397,7 +397,7 @@ export async function translate({
 
             const result: string[] = await Promise.all(splitted.map(async (line, index) =>
             {
-                if (!line.startsWith('{{Switch infobox')) 
+                if (!line.startsWith('{{Switch infobox') && !line.startsWith('{{Multi infobox')) 
                 {
                     const sliceLimit = line.indexOf('{');
                     const stringStart = line.slice(0, sliceLimit);
@@ -432,7 +432,7 @@ export async function translate({
                 }
 
                 const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
-                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox');
+                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox').replace('Multi infobox', 'Multi Infobox');
                 const textOne = itemNames[textOneName] || `&${textOneName}`;
                 return `${header}\n|text1 = ${textOne}`;
             }));
