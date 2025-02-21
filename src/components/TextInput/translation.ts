@@ -263,7 +263,7 @@ export async function translate({
         {
             const headers: Record<string, string> = {
                 '==creation==': '==Criação==',
-                '==combat stats==': '==Estatísticas de Combate==',
+                '==combat stats==': '==Estatísticas de combate==',
                 '==special attack==': '==Ataque Especial==',
                 '==price per dose==': '==Preço por dose==',
                 '==products==': '==Utilização==',
