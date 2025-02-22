@@ -384,9 +384,11 @@ export async function translate({
 
         if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
         {
+            const isSwitchNotMulti = text.startsWith('{{Switch');
+
             if (debugging && debugSuccess) 
                 console.log(
-                    '{{Switch/Multi infobox}} found:',
+                    `{{${isSwitchNotMulti ? '{{Switch' : '{{Multi'} infobox}} found:`,
                     '\n\t\'splitted\' index: ',
                     index,
                     '\n\ttext: ', 
@@ -404,11 +406,11 @@ export async function translate({
 
                     const splittedLine = line.split(/\n\|text[0-9] = /);
                     const isntLastItem = splittedLine.length === 2;
-                    
+
                     const translatedTextName = itemNames[splittedLine[1]] || `&${splittedLine[1]}`;
 
                     const stringEnd = isntLastItem 
-                        ? `\n|text${index + 1} = ${translatedTextName}` 
+                        ? `\n${isSwitchNotMulti ? '|text' : '|texto'}${index + 1} = ${translatedTextName}` 
                         : '';
 
                     const toTranslate = isntLastItem 
@@ -432,9 +434,18 @@ export async function translate({
                 }
 
                 const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
-                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox').replace('Multi infobox', 'Multi Infobox');
                 const textOne = itemNames[textOneName] || `&${textOneName}`;
-                return `${header}\n|text1 = ${textOne}`;
+
+                if (isSwitchNotMulti)
+                {
+                    const header = templateHeader.replace('Switch infobox', 'Alterar Infobox');
+                    return `${header}\n|text1 = ${textOne}`;
+                }
+                else 
+                {
+                    const header = templateHeader.replace('Multi infobox', 'Multi Infobox');
+                    return `${header}\n|texto1 = ${textOne}`;
+                }
             }));
 
             return ('§' + result.join('\n|item') + '\n}}').split('\n');
