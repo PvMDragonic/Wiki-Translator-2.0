@@ -1,160 +1,42 @@
-import { IWikiItems, IWikiTemplates, Wiki } from "../../api/wiki";
+import { IWikiItems, IWikiTemplates, Wiki } from "src/api/wiki";
+import { Debugger, IDebugger } from "./debugger";
+import { FileName } from "./fileName";
 
 interface ITranslate
 {
-    textToTranslate: string;
     templates: IWikiTemplates;
     itemNames: IWikiItems;
-    debugging: boolean;
-    debugSplitted: boolean;
-    debugTemplate: boolean; 
-    debugSuccess: boolean;
-    debugSkipped: boolean; 
-    debugMissing: boolean;
+    debugger: IDebugger;
 }
 
-export async function translate({ 
-    textToTranslate,
-    templates,
-    itemNames, 
-    debugging, 
-    debugSplitted, 
-    debugTemplate,
-    debugSuccess, 
-    debugSkipped, 
-    debugMissing 
-}: ITranslate) 
+export class Translation implements ITranslate
 {
-    function extractInputData(text: string)
-    {
-        let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
-        templateName = templateName[0].toUpperCase() + templateName.slice(1);
+    debugger: Debugger;
 
-        const templateEntries = text.split('\n').slice(1, -1).map(entry => 
-        {
-            // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
-            const [key, ...value] = entry.split('=').map(
-                splitted => (splitted.startsWith('|') 
-                    ? splitted.slice(1) 
-                    : splitted
-                ).trim() // Needs to trim because 'param = value' leaves trailing and leading spaces.
-            );
-
-            return { 
-                paramName: key,
-                paramValue: value.join('=')
-            };
-        });
-
-        return {
-            templateName, 
-            templateEntries
-        };
+    constructor(
+        public templates: IWikiTemplates, 
+        public itemNames: IWikiItems,
+        { 
+            debugging, debugSplitted, debugTemplate, 
+            debugSuccess, debugSkipped, debugMissing
+        }: IDebugger
+    ) {
+        this.debugger = new Debugger(
+            debugging,
+            debugSplitted,
+            debugTemplate, 
+            debugSuccess,
+            debugSkipped, 
+            debugMissing
+        );
     }
 
-    function extractFileName(textLine: string): string
+    /**
+     * Splits and agregates all that belongs to each template into a single line.
+     */
+    #splitRawInput(text: string): string[]
     {
-        // Couldn't cook any regex to do this specific thing.
-        function splitOutsideBrackets(input: string): string[] 
-        {
-            let result = [];
-            let buffer = '';
-            let depth = 0;
-        
-            for (let i = 0; i < input.length; i++) 
-            {
-                let char = input[i];
-        
-                if (char === '[' && input[i + 1] === '[') // Detect opening brackets [[.
-                {
-                    depth++;
-                    buffer += char;
-                }
-                else if (char === ']' && input[i + 1] === ']') // Detects closing brackets ]].
-                {
-                    depth--;
-                    buffer += char;
-                }
-                else if (char === '|' && depth === 0) // Split at | only if it's outside of [[ ]].
-                {
-                    result.push(buffer);
-                    buffer = '';
-                } 
-                else // Adds character to buffer.
-                {
-                    buffer += char;
-                }
-            }
-        
-            // Push the remaining buffer.
-            if (buffer)
-                result.push(buffer);
-        
-            return result;
-        }
-
-        function formatFileName(fileName: string): string
-        {
-            const suffixMap: Record<string, string> = 
-            {
-                'detail': 'detalhe',
-                'chathead': 'cabeça'
-            };
-            
-            for (let suffix in suffixMap) 
-            {
-                if (fileName.endsWith(suffix)) 
-                {
-                    const name = fileName.slice(0, -suffix.length).trim();
-                    const translated = itemNames[name];
-
-                    return translated 
-                        ? `[[Arquivo:${translated} ${suffixMap[suffix]}`
-                        : `[[Arquivo:¢${name}¢ ${suffixMap[suffix]}`;
-                }
-            }
-
-            const translated = itemNames[fileName];
-            return translated 
-                ? `[[Arquivo:${translated}`
-                : `[[Arquivo:¢${fileName}¢`;
-        }
-
-        function formatFinalPart(finalPart: string): string
-        {
-            const splittedAttributes = splitOutsideBrackets(finalPart);
-            if (splittedAttributes.length > 2 && splittedAttributes.some(str => str.length >= 10))
-            {
-                const fileDescription = splittedAttributes.find(str => str.length >= 10);
-                if (fileDescription)
-                {
-                    const descriptionIndex = splittedAttributes.findIndex(str => str === fileDescription);
-                    const finalFirstHalf = splittedAttributes.slice(0, descriptionIndex - 1).join('|');
-                    const finalSecondHalf = descriptionIndex !== splittedAttributes.length - 1 
-                        ? fileDescription + '¢|' + splittedAttributes.slice(descriptionIndex + 1).join('|')
-                        : fileDescription.slice(0, -2) + '¢]]'; 
-        
-                    return finalFirstHalf + '|¢' + finalSecondHalf;
-                }
-            }
-
-            return finalPart;
-        }
-
-        const match = textLine.match(/\.(?:gif|png)/);
-
-        if (match)
-        {
-            const finalPartIndex = (textLine.indexOf(match[0]) + match[0].length - 1) - 3; // 4 is to rip the file ext aswell.
-            return formatFileName(textLine.slice(7, finalPartIndex)) + formatFinalPart(textLine.slice(finalPartIndex));
-        }
-
-        return textLine;
-    }
-
-    function splitRawInput()
-    {
-        const splitted = textToTranslate.split('\n');
+        const splitted = text.split('\n');
 
         for (let i = 0; i < splitted.length; i++)
         {
@@ -252,464 +134,355 @@ export async function translate({
         return splitted;
     }
 
-    const splitted = splitRawInput();
-
-    if (debugging && debugSplitted) 
-        console.log('splitted array:\n\t', splitted);
-
-    return await Promise.all(splitted.map(async (text, index) => 
+    /**
+     * Extracts 'templateName' and 'templateEntries' from a given {{Template|param1=value1|...}} string.
+     */
+    #extractInputData(text: string)
     {
-        if (text.startsWith('='))
+        let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
+        templateName = templateName[0].toUpperCase() + templateName.slice(1);
+
+        const templateEntries = text.split('\n').slice(1, -1).map(entry => 
         {
-            const headers: Record<string, string> = {
-                '==creation==': '==Criação==',
-                '==combat stats==': '==Estatísticas de combate==',
-                '==special attack==': '==Ataque Especial==',
-                '==price per dose==': '==Preço por dose==',
-                '==products==': '==Utilização==',
-                '==repair==': '==Reparo==',
-                '==history==': '==História==',
-                '==drops==': '==Objetos Largados==',
-                '==update history==': '==Histórico de Atualizações==',
-                '==achievements==': '==Conquistas==',
-                '==drop sources==': '==Obtenção==',
-                '==disassembly==': '==Desmontar==',
-                '==shop locations': '==Locais de lojas==',
-                '==dialogue==': '==Diálogo==',
-                '==gallery==': '==Galeria==',
-                '==trivia==': '==Curiosidades==\n',
-                '==references==': '==Referências=='
-            }; 
+            // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
+            const [key, ...value] = entry.split('=').map(
+                splitted => (splitted.startsWith('|') 
+                    ? splitted.slice(1) 
+                    : splitted
+                ).trim() // Needs to trim because 'param = value' leaves trailing and leading spaces.
+            );
 
-            const translatedHeader = headers[text.toLowerCase()];
-            if (translatedHeader)
-            {
-                if (debugging && debugSuccess) 
-                    console.log(
-                        'Header successfully translated:',
-                        '\n\t\'splitted\' index: ',
-                        index,
-                        '\n\ttext: ', 
-                        text
-                    );
-
-                return [translatedHeader];
-            }
-
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Unknown header skipped:',
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return ['¬' + text];
-        }
-        
-        if (!text.startsWith('{{'))
-        {
-            if (text.startsWith('[[File:'))
-            {
-                const translatedFile = extractFileName(text);
-
-                if (translatedFile)
-                    return [translatedFile];
-
-                // Unlikely to ever make it here, but I'm not taking chances at this point.
-                return [text];
-            }
-
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping article body:', 
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return text.startsWith('[[') && text.endsWith(']]')
-                ? text.split('\n').map(line => '¬' + line)
-                : text.split('\n').map(line => '¬¬' + line);
-        }
-
-        // Unsupported and unconventional template.
-        if (text.startsWith('{{GU'))
-        {
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping GU:', 
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            return undefined;
-        }
-
-        if (text.startsWith('{{UH'))
-        {
-            if (debugging && debugSuccess) 
-                console.log(
-                    'UH found:',
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            const replacements: Record<string, string> = 
-            {
-                'UH': 'HA',
-                'UL': 'LA',
-                'type=': 'tipo=',
-                'update=': 'atualização=&',
-                'date=': 'data=',
-                '=patch': '=correção',
-                '=update': '=atualização'
+            return { 
+                paramName: key,
+                paramValue: value.join('=')
             };
+        });
 
-            let translation = text;
-            for (const [search, replace] of Object.entries(replacements)) 
-            {
-                const regex = new RegExp(search, 'g');
-                translation = translation.replace(regex, replace);
-            }
+        return {
+            templateName, 
+            templateEntries
+        };
+    }
 
-            return translation.split('\n');
-        }
+    #handleHeader(text: string, index: number)
+    {
+        const headers: Record<string, string> = {
+            '==creation==': '==Criação==',
+            '==combat stats==': '==Estatísticas de combate==',
+            '==special attack==': '==Ataque Especial==',
+            '==price per dose==': '==Preço por dose==',
+            '==products==': '==Utilização==',
+            '==repair==': '==Reparo==',
+            '==history==': '==História==',
+            '==drops==': '==Objetos Largados==',
+            '==update history==': '==Histórico de Atualizações==',
+            '==achievements==': '==Conquistas==',
+            '==drop sources==': '==Obtenção==',
+            '==disassembly==': '==Desmontar==',
+            '==shop locations': '==Locais de lojas==',
+            '==dialogue==': '==Diálogo==',
+            '==gallery==': '==Galeria==',
+            '==trivia==': '==Curiosidades==\n',
+            '==references==': '==Referências=='
+        }; 
 
-        if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
+        const translatedHeader = headers[text.toLowerCase()];
+        if (translatedHeader)
         {
-            const isSwitchNotMulti = text.startsWith('{{Switch');
-
-            if (debugging && debugSuccess) 
-                console.log(
-                    `{{${isSwitchNotMulti ? '{{Switch' : '{{Multi'} infobox}} found:`,
-                    '\n\t\'splitted\' index: ',
-                    index,
-                    '\n\ttext: ', 
-                    text
-                );
-
-            const splitted = text.split('\n|item');
-
-            const result: string[] = await Promise.all(splitted.map(async (line, index) =>
-            {
-                if (!line.startsWith('{{Switch infobox') && !line.startsWith('{{Multi infobox')) 
-                {
-                    const sliceLimit = line.indexOf('{');
-                    const stringStart = line.slice(0, sliceLimit);
-
-                    const splittedLine = line.split(/\n\|text[0-9] = /);
-                    const isntLastItem = splittedLine.length === 2;
-
-                    const translatedTextName = itemNames[splittedLine[1]] || `&${splittedLine[1]}`;
-
-                    const stringEnd = isntLastItem 
-                        ? `\n${isSwitchNotMulti ? '|text' : '|texto'}${index + 1} = ${translatedTextName}` 
-                        : '';
-
-                    const toTranslate = isntLastItem 
-                        ? splittedLine[0].slice(sliceLimit)
-                        : splittedLine[0].slice(sliceLimit, splittedLine[0].length - 6);
-
-                    const translated = await translate({ 
-                        textToTranslate: toTranslate,
-                        templates,
-                        itemNames, 
-                        debugging, 
-                        debugSplitted, 
-                        debugTemplate,
-                        debugSuccess, 
-                        debugSkipped, 
-                        debugMissing  
-                    });
-
-                    translated[0] = stringStart + translated[0];
-                    return translated.join('\n') + stringEnd;
-                }
-
-                const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
-                const textOne = itemNames[textOneName] || `&${textOneName}`;
-
-                if (isSwitchNotMulti)
-                {
-                    const header = templateHeader.replace('Switch infobox', 'Alterar Infobox');
-                    return `${header}\n|text1 = ${textOne}`;
-                }
-                else 
-                {
-                    const header = templateHeader.replace('Multi infobox', 'Multi Infobox');
-                    return `${header}\n|texto1 = ${textOne}`;
-                }
-            }));
-
-            return ('§' + result.join('\n|item') + '\n}}').split('\n');
+            this.debugger.logSuccess('Header', index, text);
+            return [translatedHeader];
         }
 
-        // Extracts data from {{Infobox Bonuses|param = value|param2 = value2|etc...}}
-        const { templateName, templateEntries } = extractInputData(text);
+        this.debugger.logSkipped('Header', index, text);
+        return ['¬' + text];
+    }
 
-        const templateData = templates[templateName];
-        if (!templateData)
+    #handleFileCall(text: string, index: number)
+    {
+        const translatedFile = FileName.translate(this.itemNames, text);
+
+        if (translatedFile.startsWith('[[Arquivo:¢'))
+            this.debugger.logMissing('[[File]] name', index, text);
+
+        if (translatedFile.startsWith('[[Arquivo:'))
+            this.debugger.logSuccess('[[File]] name', index, text);
+
+        return translatedFile;
+    }
+
+    #handleArticleBody(text: string, index: number)
+    {
+        if (text.startsWith('[[File:'))
+            return [this.#handleFileCall(text, index)];
+
+        this.debugger.logSkipped('Article body', index, text);
+
+        return text.startsWith('[[') && text.endsWith(']]')
+            ? text.split('\n').map(line => '¬' + line)
+            : text.split('\n').map(line => '¬¬' + line);
+    }
+
+    #handleUpdateHistory(text: string, index: number)
+    {
+        const replacements: Record<string, string> = 
         {
-            if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
-            {
-                if (debugging && debugSkipped) 
-                    console.log(
-                        'Skipping navbox:',
-                        '\n\t\'splitted\' index: ',
-                        index,
-                        '\n\ttext: ', 
-                        text
-                    );
-    
-                return ['¬' + text];
-            }
+            'UH': 'HA',
+            'UL': 'LA',
+            'type=': 'tipo=',
+            'update=': 'atualização=&',
+            'date=': 'data=',
+            '=patch': '=correção',
+            '=update': '=atualização'
+        };
 
-            if (debugging && debugMissing) 
-                console.log(
-                    'Wiki .json missing Template: ', 
-                    '\n\t\'splitted\' index: ', 
-                    index,
-                    '\n\ttemplateName: ',
-                    templateName
-                );
-
-            return text.split('\n').map(line => '¬' + line);
-        }
-        else
+        let translation = text;
+        for (const [search, replace] of Object.entries(replacements)) 
         {
-            if (debugging && debugTemplate)
-                console.log(
-                    'Template found:',
-                    '\n\t\'splitted\' index: ', 
-                    index, 
-                    '\n\ttemplateName: ', 
-                    templateName, 
-                    '\n\ttemplateEntries: ', 
-                    templateEntries, 
-                    '\n\ttemplateData: ', 
-                    templateData
-                );
+            const regex = new RegExp(search, 'g');
+            translation = translation.replace(regex, replace);
         }
 
-        // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
-        if (templateEntries.length === 0)
-        {    
-            const itemName = text.split('|')[1];
-            if (!itemName)
-            {
-                if (debugging && debugSuccess) 
-                    console.log(
-                        'No params Template translated:',
-                        '\n\ttemplateName: ',
-                        templateName,
-                        '\n\tTranslated Template: ',
-                        templateData.templateName
-                    );
+        this.debugger.logSuccess('{{UH}}', index, text);
+        return translation.split('\n');
+    }
 
-                return `@{{${templateData.templateName}}}`;
-            }
+    async #handleSwitchInfobox(text: string, index: number)
+    {
+        const isSwitchNotMulti = text.startsWith('{{Switch');
 
-            const translatedParamName = itemNames[itemName.slice(0, itemName.length - 2)];
-            
-            if (translatedParamName)
-            {
-                if (debugging && debugSuccess) 
-                    console.log(
-                        'Unconventional translated:',
-                        '\n\ttemplateName: ',
-                        templateName,
-                        '\n\ttranslatedParamName: ', 
-                        translatedParamName
-                    );
+        this.debugger.logSuccess(`{{${isSwitchNotMulti ? '{{Switch' : '{{Multi'} infobox}}`, index, text);
 
-                // @ is used to mark single-line Templates to have hyperlinks added to them.
-                return `@{{${templateData.templateName}|${translatedParamName}}}`;
-            }
-    
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Empty template found:',
-                    '\n\ttemplateName: ',
-                    templateName,
-                    '\n\ttext: ', 
-                    text
-                );
+        const splitted = text.split('\n|item');
 
-            return text.split('\n').map(line => '¬' + line);
-        }
-
-        const translatedInput = await Promise.all(templateEntries.map(async entry =>
+        const result: string[] = await Promise.all(splitted.map(async (line, index) =>
         {
-            const name = entry.paramName;
-            const value = entry.paramValue;
-
-            const translatedParam = (() => 
+            if (!line.startsWith('{{Switch infobox') && !line.startsWith('{{Multi infobox')) 
             {
-                try
-                {
-                    const translatedParam = templateData.templateParams[name];
-                    if (!translatedParam) // Wiki .json is lacking a given param.
-                        return false;
-                    
-                    return templateData.templateParams[name];
-                }
-                catch(error)
-                {
-                    // Wiki .json is also lacking a given param.
-                    return false;
-                }
-            })();
+                const sliceLimit = line.indexOf('{');
+                const stringStart = line.slice(0, sliceLimit);
 
-            if (!translatedParam)
-            {
-                if (debugging && debugMissing) 
-                    console.log(
-                        'Wiki .json missing param: ', 
-                        '\n\t\'splitted\' index: ', 
-                        index,
-                        '\n\ttemplateName: ',
-                        templateName,
-                        '\n\tparamName: ',
-                        name,
-                        '\n\tparamValue: ',
-                        value
-                    );
+                const splittedLine = line.split(/\n\|text[0-9] = /);
+                const isntLastItem = splittedLine.length === 2;
 
-                // & marks stuff left untranslated, unless it's solely a number.
-                return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
+                const translatedTextName = this.itemNames[splittedLine[1]] || `&${splittedLine[1]}`;
+
+                const stringEnd = isntLastItem 
+                    ? `\n${isSwitchNotMulti ? '|text' : '|texto'}${index + 1} = ${translatedTextName}` 
+                    : '';
+
+                const toTranslate = isntLastItem 
+                    ? splittedLine[0].slice(sliceLimit)
+                    : splittedLine[0].slice(sliceLimit, splittedLine[0].length - 6);
+
+                const translated = await this.translate(toTranslate);
+
+                translated[0] = stringStart + translated[0];
+                return translated.join('\n') + stringEnd;
             }
 
-            const correctedParam = translatedParam ? translatedParam : `&${name}`; 
+            const [templateHeader, textOneName] = line.split(/\n\|text[0-9] = /);
+            const textOne = this.itemNames[textOneName] || `&${textOneName}`;
 
-            if (correctedParam.startsWith('exam'))
+            if (isSwitchNotMulti)
             {
-                const currNumber = correctedParam.charAt(correctedParam.length - 1);
-                const targetParam = !isNaN(Number(currNumber)) ? `name${currNumber}` : 'name';
-                const itemName = templateEntries.find(obj => obj.paramName === targetParam)?.paramValue;
-                const ptbrItemName = itemNames[itemName!];
-
-                if (ptbrItemName)
-                {
-                    const examine = await Wiki.requestItemExamine(ptbrItemName);
-                    if (examine)
-                        return `|${correctedParam} = ${examine}`;
-                }
-
-                return `$|${correctedParam} = ${value}`;
+                const header = templateHeader.replace('Switch infobox', 'Alterar Infobox');
+                return `${header}\n|text1 = ${textOne}`;
             }
-
-            if (/^[(),.\d]+$/.test(value))
+            else 
             {
-                if (debugging && debugSkipped) 
-                    console.log(
-                        'Skipping numeric param value:',
-                        '\n\tparamName: ',
-                        name,
-                        '\n\tparamValue: ',
-                        value
-                    );
-
-                return `|${correctedParam} = ${value}`;
+                const header = templateHeader.replace('Multi infobox', 'Multi Infobox');
+                return `${header}\n|texto1 = ${textOne}`;
             }
-
-            // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
-            const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
-            if (correctedValue) 
-                return `|${correctedParam} = ${correctedValue}`; 
-
-            const translatedParamValue = (() => 
-            {
-                // Starts with [[ followed by one or two numbers and a space.
-                if (/^\[\[\d{1,2}/.test(value))
-                {
-                    // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
-                    const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
-
-                    // Scuffed return because it gets formatted on <TextOutput>.
-                    return `%|${correctedParam} = ${day} = ${month} = ${year}`;
-                }
-
-                if (value.startsWith('[[File'))
-                {
-                    const translatedFile = extractFileName(value);
-
-                    if (translatedFile)
-                        return `|${correctedParam} = ${translatedFile}`;
-
-                    // Unlikely to ever make it here, but I'm not taking chances at this point.
-                    return `|${correctedParam} = ${value.replace('File', 'Arquivo')}`;
-                }
-                
-                if (value.includes('equipped'))
-                {
-                    const cleanValue = value.split('equipped')[0].trim();
-                    return `|${correctedParam} = ${itemNames[cleanValue]} equipado.png`;
-                }
-
-                if (value.includes('.png') || value.includes('.gif'))
-                {
-                    const cleanValue = value.split('.');
-                    return `|${correctedParam} = ${itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
-                }
-
-                // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-                const itemName = itemNames[value];
-                if (itemName !== undefined)
-                    return `|${correctedParam} = ${itemName}`; 
-
-                return false;
-            })();
-
-            if (translatedParamValue)
-            {
-                if (debugging && debugSuccess) 
-                    console.log(
-                        'Successful param value translation:',
-                        '\n\tparamName: ',
-                        name,
-                        '\n\tparamValue: ',
-                        correctedValue
-                    );
-                    
-                return translatedParamValue;
-            }
-
-            if (!value)
-            {
-                if (debugging && debugSkipped) 
-                    console.log(
-                        'Skipping param left blank:',
-                        '\n\tparamName: ',
-                        name
-                    );
-
-                return `|${correctedParam} = `;
-            }
-
-            if (debugging && debugSkipped) 
-                console.log(
-                    'Skipping param value translation:',
-                    '\n\tparamName: ',
-                    name,
-                    '\n\tparamValue: ',
-                    value
-                );
-            
-            return `|${correctedParam} = &${value}`;
         }));
 
-        // § is used to mark templates to have hyperlinks added to them.
-        return [
-            `§{{${templateData.templateName}`, 
-            ...translatedInput, 
-            '}}'
-        ];
-    })).then(value => value.flat().filter(line => line !== undefined));
+        return ('§' + result.join('\n|item') + '\n}}').split('\n');
+    }
+
+    async translate(textToTranslate: string)
+    {
+        const cleanInput = this.#splitRawInput(textToTranslate);
+
+        return await Promise.all(cleanInput.map(async (text, index) => 
+        {
+            if (text.startsWith('='))
+                return this.#handleHeader(text, index);
+            
+            if (!text.startsWith('{{'))
+                return this.#handleArticleBody(text, index);
+    
+            if (text.startsWith('{{UH'))
+                return this.#handleUpdateHistory(text, index);
+
+            // Unsupported and unconventional template.
+            if (text.startsWith('{{GU'))
+            {
+                this.debugger.logSkipped('{{GU}}', index, text);
+                return undefined;
+            }
+    
+            if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
+                return this.#handleSwitchInfobox(text, index);
+    
+            const { templateName, templateEntries } = this.#extractInputData(text);
+    
+            const templateData = this.templates[templateName];
+            if (!templateData)
+            {
+                if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
+                {
+                    this.debugger.logSkipped('Navbox', index, text);
+                    return ['¬' + text];
+                }
+    
+                this.debugger.logMissing('Wiki .json Template', index, templateName);
+                return text.split('\n').map(line => '¬' + line);
+            }
+            else
+            {
+                this.debugger.logTemplate(index, templateName, templateEntries, templateData);
+            }
+    
+            // Unconventional templates like {{Uses material list}} don't have a set of key:value params.
+            if (templateEntries.length === 0)
+            {    
+                const itemName = text.split('|')[1];
+                if (!itemName)
+                {
+                    this.debugger.logSuccess('No-params Template', index, templateName, templateData.templateName);
+                    return `@{{${templateData.templateName}}}`;
+                }
+    
+                const translatedParamName = this.itemNames[itemName.slice(0, itemName.length - 2)];
+                
+                if (translatedParamName)
+                {
+                    this.debugger.logSuccess('Unconventional Template', index, templateName, translatedParamName);
+                    return `@{{${templateData.templateName}|${translatedParamName}}}`;
+                }
+        
+                this.debugger.logSkipped('Empty Template', index, text);
+                return text.split('\n').map(line => '¬' + line);
+            }
+    
+            const translatedInput = await Promise.all(templateEntries.map(async entry =>
+            {
+                const name = entry.paramName;
+                const value = entry.paramValue;
+    
+                const translatedParam = (() => 
+                {
+                    try
+                    {
+                        const translatedParam = templateData.templateParams[name];
+                        if (!translatedParam) // Wiki .json is lacking a given param.
+                            return false;
+                        
+                        return templateData.templateParams[name];
+                    }
+                    catch(error)
+                    {
+                        // Wiki .json is also lacking a given param.
+                        return false;
+                    }
+                })();
+    
+                if (!translatedParam)
+                {
+                    this.debugger.logMissingParam(index, templateName, name, value);
+                    return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
+                }
+    
+                const correctedParam = translatedParam ? translatedParam : `&${name}`; 
+    
+                if (correctedParam.startsWith('exam'))
+                {
+                    const currNumber = correctedParam.charAt(correctedParam.length - 1);
+                    const targetParam = !isNaN(Number(currNumber)) ? `name${currNumber}` : 'name';
+                    const itemName = templateEntries.find(obj => obj.paramName === targetParam)?.paramValue;
+                    const ptbrItemName = this.itemNames[itemName!];
+    
+                    if (ptbrItemName)
+                    {
+                        const examine = await Wiki.requestItemExamine(ptbrItemName);
+                        if (examine)
+                            return `|${correctedParam} = ${examine}`;
+                    }
+    
+                    return `$|${correctedParam} = ${value}`;
+                }
+    
+                if (/^[(),.\d]+$/.test(value))
+                {
+                    this.debugger.logSkippedParam('Numeric param value', name, value);
+                    return `|${correctedParam} = ${value}`;
+                }
+    
+                // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
+                const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
+                if (correctedValue) 
+                    return `|${correctedParam} = ${correctedValue}`; 
+    
+                const translatedParamValue = (() => 
+                {
+                    // Starts with [[ followed by one or two numbers and a space.
+                    if (/^\[\[\d{1,2}/.test(value))
+                    {
+                        // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
+                        const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
+    
+                        // Scuffed return because it gets formatted on <TextOutput>.
+                        return `%|${correctedParam} = ${day} = ${month} = ${year}`;
+                    }
+    
+                    if (value.startsWith('[[File'))
+                        return `|${correctedParam} = ${this.#handleFileCall(text, index)}`;
+                    
+                    if (value.includes('equipped'))
+                    {
+                        const cleanValue = value.split('equipped')[0].trim();
+                        return `|${correctedParam} = ${this.itemNames[cleanValue]} equipado.png`;
+                    }
+    
+                    if (value.includes('.png') || value.includes('.gif'))
+                    {
+                        const cleanValue = value.split('.');
+                        return `|${correctedParam} = ${this.itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                    }
+    
+                    // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
+                    const itemName = this.itemNames[value];
+                    if (itemName !== undefined)
+                        return `|${correctedParam} = ${itemName}`; 
+    
+                    return false;
+                })();
+    
+                if (translatedParamValue)
+                {
+                    this.debugger.logSuccess('Param value', index, name, correctedValue);
+                    return translatedParamValue;
+                }
+    
+                if (!value)
+                {
+                    this.debugger.logSkipped('Blank param value', index, name);
+                    return `|${correctedParam} = `;
+                }
+                
+                this.debugger.logSkippedParam('Param value translation', name, value);
+                return `|${correctedParam} = &${value}`;
+            }));
+    
+            return [
+                `§{{${templateData.templateName}`, 
+                ...translatedInput, 
+                '}}'
+            ];
+        }))
+        .then(
+            value => value.flat().filter(
+                line => line !== undefined
+            )
+        );
+    }
 }

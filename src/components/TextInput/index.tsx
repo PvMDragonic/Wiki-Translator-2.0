@@ -1,7 +1,7 @@
 import { useContext, useRef } from "react";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
 import { IWikiTemplates, IWikiItems } from "../../api/wiki";
-import { translate } from "./translation";
+import { Translation } from "./translation";
 import SettingsContext from "@pages/Home/settingsContext";
 import TranslateIcon from "@assets/TranslateIcon";
 import NegativeIcon from "@assets/NegativeIcon";
@@ -52,20 +52,23 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
 
     function handleTranslation()
     {
-        const params = {
-            textToTranslate: textRef.current?.value!,
-            templates: templates as IWikiTemplates,
-            itemNames: itemNames as IWikiItems,
+        const debugFlags = {
             debugging,
             debugSplitted,
             debugTemplate,
             debugSuccess,
             debugSkipped, 
             debugMissing
-        };
+        }
 
-        translate(params).then(
-            translation => setTranslation(translation)
+        const translation = new Translation(
+            templates,
+            itemNames,
+            debugFlags
+        )
+
+        translation.translate(textRef.current?.value!).then(
+            translated => setTranslation(translated)
         );     
     }
 
