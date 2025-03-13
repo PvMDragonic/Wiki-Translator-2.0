@@ -142,7 +142,12 @@ export class Translation implements ITranslate
         let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
         templateName = templateName[0].toUpperCase() + templateName.slice(1);
 
-        const templateEntries = text.split('\n').slice(1, -1).map(entry => 
+        const splitNewline = text.split('\n');
+        const splitPipe = text.split('|');
+        const singleLineTemplate = splitNewline.length === 1 && splitPipe.length > 1;
+        const splitted = singleLineTemplate ? splitPipe.slice(1) : splitNewline.slice(1, -1);
+
+        const templateEntries = splitted.map(entry => 
         {
             // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
             const [key, ...value] = entry.split('=').map(
@@ -157,6 +162,13 @@ export class Translation implements ITranslate
                 paramValue: value.join('=')
             };
         });
+
+        if (singleLineTemplate)
+        {
+            // Removes trailing '}}', since its embedded into the last value from the last param.
+            const lastIndex = templateEntries.length - 1;
+            templateEntries[lastIndex].paramValue = templateEntries[lastIndex].paramValue.slice(0, -2);
+        }
 
         return {
             templateName, 
