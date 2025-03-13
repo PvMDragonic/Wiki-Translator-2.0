@@ -389,7 +389,7 @@ export class Translation implements ITranslate
                 const name = entry.paramName;
                 const value = entry.paramValue;
     
-                if (name && value === '')
+                if (name && value === '' && singleLineTemplate)
                     return `|&${name}`;
 
                 const translatedParam = (() => 
