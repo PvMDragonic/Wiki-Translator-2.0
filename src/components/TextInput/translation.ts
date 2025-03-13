@@ -149,8 +149,10 @@ export class Translation implements ITranslate
 
         const templateEntries = splitted.map(entry => 
         {
+            const entrySplit = entry.split('=');
+
             // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
-            const [key, ...value] = entry.split('=').map(
+            const [key, ...value] = entrySplit.map(
                 splitted => (splitted.startsWith('|') 
                     ? splitted.slice(1) 
                     : splitted
@@ -167,7 +169,10 @@ export class Translation implements ITranslate
         {
             // Removes trailing '}}', since its embedded into the last value from the last param.
             const lastIndex = templateEntries.length - 1;
-            templateEntries[lastIndex].paramValue = templateEntries[lastIndex].paramValue.slice(0, -2);
+            if (templateEntries[lastIndex].paramValue !== '')
+                templateEntries[lastIndex].paramValue = templateEntries[lastIndex].paramValue.slice(0, -2);
+            else
+                templateEntries[lastIndex].paramName = templateEntries[lastIndex].paramName.slice(0, -2);
         }
 
         return {
@@ -383,6 +388,9 @@ export class Translation implements ITranslate
                 const name = entry.paramName;
                 const value = entry.paramValue;
     
+                if (name && value === '')
+                    return `|&${name}`;
+
                 const translatedParam = (() => 
                 {
                     try
