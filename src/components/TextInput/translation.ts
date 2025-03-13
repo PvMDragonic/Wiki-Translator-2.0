@@ -435,7 +435,7 @@ export class Translation implements ITranslate
                     }
     
                     if (value.startsWith('[[File'))
-                        return `|${correctedParam} = ${this.#handleFileCall(text, index)}`;
+                        return `|${correctedParam} = ${this.#handleFileCall(value, index)}`;
                     
                     if (value.includes('equipped'))
                     {
