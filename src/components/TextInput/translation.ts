@@ -302,6 +302,8 @@ export class Translation implements ITranslate
     {
         const cleanInput = this.#splitRawInput(textToTranslate);
 
+        this.debugger.logSplitted(cleanInput);
+
         return await Promise.all(cleanInput.map(async (text, index) => 
         {
             if (text.startsWith('='))
