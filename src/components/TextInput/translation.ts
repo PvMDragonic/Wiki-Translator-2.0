@@ -388,9 +388,18 @@ export class Translation implements ITranslate
             {
                 const name = entry.paramName;
                 const value = entry.paramValue;
-    
+
                 if (name && value === '' && singleLineTemplate)
-                    return `|&${name}`;
+                {
+                    const translatedItem = this.itemNames[name];
+                    if (!translatedItem)
+                    {
+                        this.debugger.logMissingName(index, templateName, name);
+                        return `|&${name}`;
+                    }
+
+                    return `|${translatedItem}`;
+                }
 
                 const translatedParam = (() => 
                 {

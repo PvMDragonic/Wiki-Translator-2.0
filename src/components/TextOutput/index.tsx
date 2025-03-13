@@ -349,12 +349,12 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         const [paramName, paramValue] = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (paramValue && paramValue.startsWith('&')))
         {
-            if (paramName && !paramValue)
+            if (paramName.endsWith('&&') && !paramValue)
             {
                 return (
                     <span>
                         {'|'}
-                        {renderUntranslatedSpan(paramName.slice(1))}
+                        {renderUntranslatedSpan(paramName.slice(2, -2))}
                     </span>
                 )
             }
@@ -434,8 +434,12 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 <>
                     {formatLine(templateName)}
                     {templateParams.map((param, index) => (
+                        // Only formats if not translated item name.
                         <span key = {param + index}>
-                            {formatLine(param)}
+                            {param.startsWith('&')
+                                ? formatLine(`|${param}`)
+                                : `|${param}`
+                            }
                         </span>
                     ))}
                     {'}}'}

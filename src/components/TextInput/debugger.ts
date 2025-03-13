@@ -128,4 +128,19 @@ export class Debugger implements IDebugger
             value
         );
     }
+
+    logMissingName(index: number, templateName: string, name: string)
+    {
+        if (!this.debugging || !this.debugMissing) return;
+
+        console.log(
+            'Template param missing name translation', 
+            '\n\t\'splitted\' index: ', 
+            index,
+            '\n\ttemplateName: ',
+            templateName,
+            '\n\tparamName: ',
+            name
+        );
+    }
 }
