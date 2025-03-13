@@ -83,7 +83,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         );
     }
 
-    function formatLine(line: string)
+    function formatLine(line: string): React.ReactNode
     {
         // Update description about {{UL}}.
         if (line.startsWith('**'))
@@ -349,6 +349,16 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         const [paramName, paramValue] = line.split(' = ');
         if (line.startsWith('|&') || line.startsWith('&') || (paramValue && paramValue.startsWith('&')))
         {
+            if (paramName.endsWith('&&') && !paramValue)
+            {
+                return (
+                    <span>
+                        {'|'}
+                        {renderUntranslatedSpan(paramName.slice(2, -2))}
+                    </span>
+                )
+            }
+
             const condition = 
                 paramName.startsWith('|&') || 
                 paramName.startsWith('&') && 
@@ -414,6 +424,27 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                     {paramValues !== undefined && paramValues.join('|')}
                 </span>
             );
+        }
+
+        if (line.startsWith('§') && line.includes('|'))
+        {
+            const [templateName, ...templateParams] = line.split('|');
+
+            return (
+                <>
+                    {formatLine(templateName)}
+                    {templateParams.map((param, index) => (
+                        // Only formats if not translated item name.
+                        <span key = {param + index}>
+                            {param.startsWith('&')
+                                ? formatLine(`|${param}`)
+                                : `|${param}`
+                            }
+                        </span>
+                    ))}
+                    {'}}'}
+                </>
+            )
         }
 
         // Template name hyperlink.

@@ -142,10 +142,17 @@ export class Translation implements ITranslate
         let templateName = text.split('|')[0].replace(/^{{/, '').replace(/}}$/, '').trim();
         templateName = templateName[0].toUpperCase() + templateName.slice(1);
 
-        const templateEntries = text.split('\n').slice(1, -1).map(entry => 
+        const splitNewline = text.split('\n');
+        const splitPipe = text.split('|');
+        const singleLineTemplate = splitNewline.length === 1 && splitPipe.length > 1;
+        const splitted = singleLineTemplate ? splitPipe.slice(1) : splitNewline.slice(1, -1);
+
+        const templateEntries = splitted.map(entry => 
         {
+            const entrySplit = entry.split('=');
+
             // '...value' is to gather paramValues that are Templates; does nothing to regular param values.
-            const [key, ...value] = entry.split('=').map(
+            const [key, ...value] = entrySplit.map(
                 splitted => (splitted.startsWith('|') 
                     ? splitted.slice(1) 
                     : splitted
@@ -158,9 +165,20 @@ export class Translation implements ITranslate
             };
         });
 
+        if (singleLineTemplate)
+        {
+            // Removes trailing '}}', since its embedded into the last value from the last param.
+            const lastIndex = templateEntries.length - 1;
+            if (templateEntries[lastIndex].paramValue !== '')
+                templateEntries[lastIndex].paramValue = templateEntries[lastIndex].paramValue.slice(0, -2);
+            else
+                templateEntries[lastIndex].paramName = templateEntries[lastIndex].paramName.slice(0, -2);
+        }
+
         return {
             templateName, 
-            templateEntries
+            templateEntries,
+            singleLineTemplate
         };
     }
 
@@ -302,6 +320,8 @@ export class Translation implements ITranslate
     {
         const cleanInput = this.#splitRawInput(textToTranslate);
 
+        this.debugger.logSplitted(cleanInput);
+
         return await Promise.all(cleanInput.map(async (text, index) => 
         {
             if (text.startsWith('='))
@@ -323,7 +343,7 @@ export class Translation implements ITranslate
             if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
                 return this.#handleSwitchInfobox(text, index);
     
-            const { templateName, templateEntries } = this.#extractInputData(text);
+            const { templateName, templateEntries, singleLineTemplate } = this.#extractInputData(text);
     
             const templateData = this.templates[templateName];
             if (!templateData)
@@ -368,7 +388,19 @@ export class Translation implements ITranslate
             {
                 const name = entry.paramName;
                 const value = entry.paramValue;
-    
+
+                if (name && value === '' && singleLineTemplate)
+                {
+                    const translatedItem = this.itemNames[name];
+                    if (!translatedItem)
+                    {
+                        this.debugger.logMissingName(index, templateName, name);
+                        return `|&${name}`;
+                    }
+
+                    return `|${translatedItem}`;
+                }
+
                 const translatedParam = (() => 
                 {
                     try
@@ -435,7 +467,7 @@ export class Translation implements ITranslate
                     }
     
                     if (value.startsWith('[[File'))
-                        return `|${correctedParam} = ${this.#handleFileCall(text, index)}`;
+                        return `|${correctedParam} = ${this.#handleFileCall(value, index)}`;
                     
                     if (value.includes('equipped'))
                     {
@@ -473,6 +505,9 @@ export class Translation implements ITranslate
                 return `|${correctedParam} = &${value}`;
             }));
     
+            if (singleLineTemplate)
+                return `§{{${templateData.templateName}${translatedInput.join('')}`;
+
             return [
                 `§{{${templateData.templateName}`, 
                 ...translatedInput, 
