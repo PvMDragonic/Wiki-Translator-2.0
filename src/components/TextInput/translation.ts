@@ -177,7 +177,8 @@ export class Translation implements ITranslate
 
         return {
             templateName, 
-            templateEntries
+            templateEntries,
+            singleLineTemplate
         };
     }
 
@@ -342,7 +343,7 @@ export class Translation implements ITranslate
             if (text.startsWith('{{Switch infobox') || text.startsWith('{{Multi infobox'))
                 return this.#handleSwitchInfobox(text, index);
     
-            const { templateName, templateEntries } = this.#extractInputData(text);
+            const { templateName, templateEntries, singleLineTemplate } = this.#extractInputData(text);
     
             const templateData = this.templates[templateName];
             if (!templateData)
@@ -495,6 +496,9 @@ export class Translation implements ITranslate
                 return `|${correctedParam} = &${value}`;
             }));
     
+            if (singleLineTemplate)
+                return `§{{${templateData.templateName}${translatedInput.join('')}`;
+
             return [
                 `§{{${templateData.templateName}`, 
                 ...translatedInput, 
