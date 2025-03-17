@@ -3,6 +3,7 @@ import { useHasScrollbar } from "@hooks/useHasScrollbar";
 import SettingsContext from "@pages/Home/settingsContext";
 import CheckedIcon from "@assets/CheckedIcon";
 import CopyIcon from "@assets/CopyIcon";
+import { DataFormatter } from "./dataFormatter";
 
 interface ITextOutput
 {
@@ -41,6 +42,21 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // Needs to remove the markings used to highlight untranslated text.
         const cleanStrings = translation.map(str => 
         {
+            if (str.startsWith('*') && !str.startsWith('**'))
+            {
+                const { firstPart, day, translatedMonth, cleanYear } = DataFormatter.cleanULDate(str);
+                const [beginning, updateText] = firstPart.split('=&');
+                const [cleanUpdText, restPastUpdate] = updateText.split('|');
+
+                return `${beginning}=${cleanUpdText}|${restPastUpdate}data={{Data|${day}|${translatedMonth}|${cleanYear}}}`;
+            }
+
+            if (str.startsWith('%'))
+            {
+                const { paramName, day, translatedMonth, year } = DataFormatter.cleanInfoboxDate(str);
+                return `${paramName} = {{Data|${day}|${translatedMonth}|${year}}`;
+            }
+
             let modifiedStr = str;
             
             while (charsToRemove.some(char => modifiedStr.startsWith(char))) 
@@ -109,10 +125,9 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // {{Data}} formatting inside {{UL}}.
         if (line.startsWith('*') && !line.startsWith('**'))
         {
-            const [firstPart, dataPlusRest] = line.split('data=');
-            const [day, month, year] = dataPlusRest.split(' ');
-            const cleanYear = year.slice(0, 4);
-            const restFromYear = year.slice(4);
+            const { 
+                firstPart, day, monthNumber, translatedMonth, cleanYear, restFromYear
+            } = DataFormatter.cleanULDate(line);
 
             function formattedFirstPart()
             {
@@ -130,35 +145,12 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                 )
             }
 
-            const monthNumber = new Intl.DateTimeFormat(
-                'en-US', { month: 'numeric' }
-            ).format(
-                new Date(`${month} 1, 2000`)
-            );
-
-            const translatedMonth = {
-                'january': 'Janeiro',
-                'february': 'Fevereiro',
-                'march': 'Março',
-                'april': 'Abril',
-                'may': 'Maio',
-                'june': 'Junho',
-                'july': 'Julho',
-                'august': 'Agosto',
-                'september': 'Setembro',
-                'october': 'Outubro',
-                'november': 'Novembro',
-                'december': 'Dezembro'
-            }[month.toLowerCase()];
-
-            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${cleanYear}`;
-
             function openPages(event: React.MouseEvent)
             {
                 event.preventDefault();
                 
                 window.open(
-                    `https://secure.runescape.com/m=news/l=3/a=9/archive?year=${year}&month=${monthNumber}&filter=Filtrar`, 
+                    `https://secure.runescape.com/m=news/l=3/a=9/archive?year=${cleanYear}&month=${monthNumber}&filter=Filtrar`, 
                     '_blank'
                 ); 
                 
@@ -168,6 +160,8 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
                         '_new'
                     );
             }
+
+            const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${cleanYear}`;
 
             return (
                 <span>
@@ -198,29 +192,9 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
         // {{Data}} formatting.
         if (line.startsWith('%'))
         {
-            const lineWithoutPrefix = line.slice(1);
-            const [paramName, day, month, year] = lineWithoutPrefix.split(' = ');
-        
-            const monthNumber = new Intl.DateTimeFormat(
-                'en-US', { month: 'numeric' }
-            ).format(
-                new Date(`${month} 1, 2000`)
-            );
-
-            const translatedMonth = {
-                'january': 'Janeiro',
-                'february': 'Fevereiro',
-                'march': 'Março',
-                'april': 'Abril',
-                'may': 'Maio',
-                'june': 'Junho',
-                'july': 'Julho',
-                'august': 'Agosto',
-                'september': 'Setembro',
-                'october': 'Outubro',
-                'november': 'Novembro',
-                'december': 'Dezembro'
-            }[month.toLowerCase()];
+            const {
+                paramName, day, monthNumber, translatedMonth, year
+            } = DataFormatter.cleanInfoboxDate(line)
 
             const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${year}`;
 
