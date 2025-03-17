@@ -54,7 +54,7 @@ export function TextOutput({ textExists, translation }: ITextOutput): JSX.Elemen
             if (str.startsWith('%'))
             {
                 const { paramName, day, translatedMonth, year } = DataFormatter.cleanInfoboxDate(str);
-                return `${paramName} = {{Data|${day}|${translatedMonth}|${year}}`;
+                return `${paramName} = {{Data|${day}|${translatedMonth}|${year}}}`;
             }
 
             let modifiedStr = str;
