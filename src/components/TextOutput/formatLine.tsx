@@ -316,7 +316,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
     function formatSingleLineTemplate()
     {
-        const [templateName, ...templateParams] = line.split('|');
+        const [templateName, ...templateParams] = line.slice(0, -2).split('|');
 
         return (
             <>
@@ -333,6 +333,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                         </span>
                     )
                 })}
+                {'}}'}
             </>
         )
     }
