@@ -189,7 +189,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
         const text = line.slice(isArticleBody ? 2 : 1);
 
-        const isNavbox = !text.includes('|') && /^\{\{[a-zA-Z ]+\}\}$/.test(text);
+        const isNavbox = !text.includes('|') && /^\{\{[a-zA-Z -]+\}\}$/.test(text);
         const isCategory = !text.startsWith('[[File:') && text.startsWith('[[') && text.endsWith(']]');
 
         const color = (isNavbox && diffNavboxes) ? '#7b8eff' 
