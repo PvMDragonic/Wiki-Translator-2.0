@@ -189,7 +189,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
         const text = line.slice(isArticleBody ? 2 : 1);
 
-        const isNavbox = !text.includes('|') && /^\{\{[a-zA-Z ]+\}\}$/.test(text);
+        const isNavbox = !text.includes('|') && /^\{\{[a-zA-Z -]+\}\}$/.test(text);
         const isCategory = !text.startsWith('[[File:') && text.startsWith('[[') && text.endsWith(']]');
 
         const color = (isNavbox && diffNavboxes) ? '#7b8eff' 
@@ -233,9 +233,9 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         });
     }
 
-    function formatUntranslated()
+    function formatUntranslated(text?: string)
     {
-        const [paramName, paramValue] = line.split(' = ');
+        const [paramName, paramValue] = (text || line).split(' = ');
 
         if (paramName.endsWith('&&') && !paramValue)
         {
@@ -316,26 +316,33 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
     function formatSingleLineTemplate()
     {
-        const [templateName, ...templateParams] = line.split('|');
-    
+        const [templateName, ...templateParams] = line.slice(0, -2).split('|');
+
         return (
             <>
-                {FormatLine({ line: templateName })}
-                {templateParams.map((param, index) => (
-                    // Only formats if not a translated item name.
-                    <span key = {param + index}>
-                        {param.startsWith('&') ? FormatLine({ line: `|${param}` }) : `|${param}`}
-                    </span>
-                ))}
+                {formatTemplateHyperlink(templateName)}
+                {templateParams.map((param, index) => {
+                    const needsFormatting = 
+                        param.startsWith('|&') || 
+                        param.startsWith('&') || 
+                        param.includes(' = &');
+
+                    return (
+                        <span key = {param + index}>
+                            {needsFormatting ? formatUntranslated(`|${param}`) : `|${param}`}
+                        </span>
+                    )
+                })}
                 {'}}'}
             </>
         )
     }
 
-    function formatTemplateHyperlink()
+    function formatTemplateHyperlink(text?: string)
     {
-        const isSwitch = /^\|item[1-9] = §/.test(line);
-        const lineWithoutPrefix = isSwitch ? line.slice(10) : line.slice(1);
+        const target = text || line;
+        const isSwitch = /^\|item[1-9] = §/.test(target);
+        const lineWithoutPrefix = isSwitch ? target.slice(10) : target.slice(1);
 
         if (!hyperlinks)
             return lineWithoutPrefix;
@@ -344,7 +351,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
         return (
             <span>
-                {isSwitch && line.slice(0, 9)}
+                {isSwitch && target.slice(0, 9)}
                 {'{{'}
                 <a 
                     href = {`https://pt.runescape.wiki/w/Predefinição:${formattedLine}`} 
@@ -377,15 +384,15 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         
             case line.startsWith('[[Arquivo:') || /^\|[\p{L}0-9 ]*=\s*\[\[Arquivo:/gu.test(line):
                 return formatFile();
-        
-            case line.startsWith('|&') || line.startsWith('&') || line.includes(' = &'):
-                return formatUntranslated();
-        
+                
             case line.startsWith('@'):
                 return formatSingleLineTemplateName();
-        
-            case line.startsWith('§') && line.includes('|'):
+
+            case line.startsWith('§') && line.endsWith('}}'):
                 return formatSingleLineTemplate();
+                
+            case line.startsWith('|&') || line.startsWith('&') || line.includes(' = &'):
+                return formatUntranslated();
         
             case line.startsWith('§') || /^\|item[1-9] = §/.test(line):
                 return formatTemplateHyperlink();

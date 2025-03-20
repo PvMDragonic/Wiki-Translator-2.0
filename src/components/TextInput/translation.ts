@@ -506,7 +506,7 @@ export class Translation implements ITranslate
             }));
     
             if (singleLineTemplate)
-                return `§{{${templateData.templateName}${translatedInput.join('')}`;
+                return `§{{${templateData.templateName}${translatedInput.join('')}}}`;
 
             return [
                 `§{{${templateData.templateName}`, 
