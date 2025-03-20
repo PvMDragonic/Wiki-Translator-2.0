@@ -327,7 +327,6 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                         {param.startsWith('&') ? FormatLine({ line: `|${param}` }) : `|${param}`}
                     </span>
                 ))}
-                {'}}'}
             </>
         )
     }
