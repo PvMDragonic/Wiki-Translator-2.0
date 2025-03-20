@@ -383,15 +383,15 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         
             case line.startsWith('[[Arquivo:') || /^\|[\p{L}0-9 ]*=\s*\[\[Arquivo:/gu.test(line):
                 return formatFile();
-        
-            case line.startsWith('|&') || line.startsWith('&') || line.includes(' = &'):
-                return formatUntranslated();
-        
+                
             case line.startsWith('@'):
                 return formatSingleLineTemplateName();
-        
+
             case line.startsWith('§') && line.endsWith('}}'):
                 return formatSingleLineTemplate();
+                
+            case line.startsWith('|&') || line.startsWith('&') || line.includes(' = &'):
+                return formatUntranslated();
         
             case line.startsWith('§') || /^\|item[1-9] = §/.test(line):
                 return formatTemplateHyperlink();
