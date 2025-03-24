@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trans } from "react-i18next";
 import { IWikiItems, IWikiTemplates, Wiki } from "src/api/wiki";
 import { OptionsBar } from "@components/OptionsBar";
 import { TextInput } from "@components/TextInput";
@@ -30,7 +31,7 @@ export function Home()
     const [debugSuccess, setDebugSuccess] = useState<boolean>(false);
     const [debugSkipped, setDebugSkipped] = useState<boolean>(false);
     const [debugMissing, setDebugMissing] = useState<boolean>(false);
-    
+
     useEffect(() => 
     {
         Wiki.requestTemplates().then(data => setTemplates(data));
@@ -85,13 +86,17 @@ export function Home()
                         </SettingsContext.Provider>
                     </section>
                     <p className = "home__credits">
-                        Feito por <a 
-                            target = "_blank" 
-                            href = "https://github.com/LucianoDLima"
-                            >Queen Guava</a> & <a 
-                            target = "_blank" 
-                            href = "https://github.com/PvMDragonic"
-                            >PvM Dragonic</a>.
+                        <Trans 
+                            i18nKey = "Credits" 
+                            values = {{ 
+                                guava: 'Queen Guava', 
+                                dragonic: 'PvM Dragonic' 
+                            }}
+                            components = {{ 
+                                1: <a href='https://github.com/LucianoDLima'/>,
+                                2: <a href='https://github.com/PvMDragonic'/>
+                            }} 
+                        />
                     </p>
                 </div>
             )}

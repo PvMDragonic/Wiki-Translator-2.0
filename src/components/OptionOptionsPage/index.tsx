@@ -1,4 +1,6 @@
+import { OptionOptionsButton } from "@components/OptionOptionsButton";
 import { OptionOptionsEntry } from "@components/OptionOptionsEntry";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "@hooks/useSettings";
 
 /**
@@ -29,30 +31,32 @@ export function OptionOptionsPage(): JSX.Element
         debugMissing, setDebugMissing
     } = useSettings();
 
+    const { t, i18n } = useTranslation();
+
     const hyperlinkOptions = [
     {
-        label: 'Adicionar links',
+        label: t('Add links'),
         lcKey: 'wikiTranslatorHyperlinks',
-        tooltip: 'Adiciona hyperlinks às predefinições encontradas no texto traduzido.',
+        tooltip: t('Add links description'),
         addendum: undefined,
         state: hyperlinks,
         stateUpdate: setHyperlinks,
         disabled: false
     },
     {
-        label: 'Separar predef. Data',
+        label: t('Split data template'),
         lcKey: 'wikiTranslatorSplitData',
-        tooltip: 'Adiciona links tanto para a página da Predefinição quanto para a data em si em {{Data}}.',
+        tooltip: t('Split data template description'),
         addendum: undefined,
         state: splitData,
         stateUpdate: setSplitData,
         disabled: !hyperlinks
     },
     {
-        label: 'Data RuneScape Wiki',
+        label: t('Date rsw'),
         lcKey: 'wikiTranslatorRSWData',
-        tooltip: 'Clicar em uma {{Data}} também abre a página da Wiki PT-BR correspondente.',
-        addendum: 'Precisa que janelas em pop-up estejam permitidas no navegador.',
+        tooltip: t('Date rsw description'),
+        addendum: t('Date rsw addendum'),
         state: rswData,
         stateUpdate: setRswData,
         disabled: !hyperlinks
@@ -60,52 +64,52 @@ export function OptionOptionsPage(): JSX.Element
 
     const untranslatedOptions = [
     {
-        label: 'Remover textos',
+        label: t('Remove text'),
         lcKey: 'wikiTranslatorRemoveBody',
-        tooltip: 'Remove partes do corpo do artigo que ficaram sem traduzir.',
-        addendum: 'Não inclui predefinições ou seus parâmetros e valores não-traduzidos.',
+        tooltip: t('Remove text description'),
+        addendum: t('Remove text addendum'),
         state: removeBody,
         stateUpdate: setRemoveBody,
         disabled: false
     },
     {
-        label: 'Realçar não-traduzido',
+        label: t('Highlight untranslated'),
         lcKey: 'wikiTranslatorUntranslated',
-        tooltip: 'Marca o texto inalterado após a tradução com uma cor diferente.',
+        tooltip: t('Highlight untranslated description'),
         addendum: undefined,
         state: untranslated,
         stateUpdate: setUntranslated,
         disabled: false
     },
     {
-        label: 'Diferenciar examinar',
+        label: t('Differentiate examines'),
         lcKey: 'wikiTranslatorDiffExamine',
-        tooltip: 'Diferencia o examinar não-traduzido das outras partes não-traduzidas.',
+        tooltip: t('Differentiate examines description'),
         addendum: undefined,
         state: diffExamine,
         stateUpdate: setDiffExamine,
         disabled: !untranslated
     },
     {
-        label: 'Diferenciar navboxes',
+        label: t('Differentiate navboxes'),
         lcKey: 'wikiTranslatorDiffNavboxes',
-        tooltip: 'Diferencia navboxes não-traduzidas das outras partes não-traduzidas.',
+        tooltip: t('Differentiate navboxes description'),
         addendum: undefined,
         state: diffNavboxes,
         stateUpdate: setDiffNavboxes,
         disabled: !untranslated
     },
     {
-        label: 'Diferenciar categorias',
+        label: t('Differentiate categories'),
         lcKey: 'wikiTranslatorDiffCategories',
-        tooltip: 'Diferencia categorias não-traduzidas das outras partes não-traduzidas.',
+        tooltip: t('Differentiate categories description'),
         addendum: undefined,
         state: diffCategories,
         stateUpdate: setDiffCategories,
         disabled: !untranslated
     },
     {
-        label: 'Marcação agressiva',
+        label: t('Aggressive highlighting'),
         lcKey: 'wikiTranslatorAggressive',
         tooltip: '😡 😡 😡 😡',
         addendum: undefined,
@@ -116,18 +120,18 @@ export function OptionOptionsPage(): JSX.Element
 
     const devOptions = [
     {
-        label: 'Botão retraduzir',
+        label: t('Retranslate'),
         lcKey: 'wikiTranslatorRetranslate',
-        tooltip: 'Adiciona um botão à caixa de entrada de texto para reexecutar a tradução.',
+        tooltip: t('Retranslate description'),
         addendum: undefined,
         state: retranslate,
         stateUpdate: setRetranslate,
         disabled: false
     },
     {
-        label: 'Ativar debugger',
+        label: t('Debugger'),
         lcKey: 'wikiTranslatorDebugger',
-        tooltip: 'Ativa a exibição de todas as variáveis no console do navegador durante a tradução.',
+        tooltip: t('Debugger description'),
         addendum: undefined,
         state: debugging,
         stateUpdate: setDebugging,
@@ -136,7 +140,7 @@ export function OptionOptionsPage(): JSX.Element
     {
         label: 'Debugger "splitted"',
         lcKey: 'wikiTranslatorDebugSplitted',
-        tooltip: 'Exibe a variável \'splitted\' no debugger durante a tradução.',
+        tooltip: t('Debugger splitted'),
         addendum: undefined,
         state: debugSplitted,
         stateUpdate: setDebugSplitted,
@@ -145,34 +149,34 @@ export function OptionOptionsPage(): JSX.Element
     {
         label: 'Debugger Template',
         lcKey: 'wikiTranslatorDebugTemplate',
-        tooltip: 'Exibe as informações no debugger de cada Template encontrado durante a tradução.',
+        tooltip: t('Debugger template'),
         addendum: undefined,
         state: debugTemplate,
         stateUpdate: setDebugTemplate,
         disabled: !debugging
     },
     {
-        label: 'Debugger sucessos',
+        label: t('Debugger success'),
         lcKey: 'wikiTranslatorDebugSuccess',
-        tooltip: 'Exibe no debugger as linhas irregulares de texto traduzidas com sucesso.',
+        tooltip: t('Debugger success description'),
         addendum: undefined,
         state: debugSuccess,
         stateUpdate: setDebugSuccess,
         disabled: !debugging
     },
     {
-        label: 'Debugger ignorados',
+        label: t('Debugger skipped'),
         lcKey: 'wikiTranslatorDebugSkipped',
-        tooltip: 'Exibe no debugger as linhas de texto ignoradas durante a tradução.',
+        tooltip: t('Debugger skipped description'),
         addendum: undefined,
         state: debugSkipped,
         stateUpdate: setDebugSkipped,
         disabled: !debugging
     },
     {
-        label: 'Debugger erros',
+        label: t('Debugger errors'),
         lcKey: 'wikiTranslatorDebugMissing',
-        tooltip: 'Exibe no debugger as linhas de texto que são ignoradas por falta e/ou não-existência de dados.',
+        tooltip: t('Debugger errors description'),
         addendum: undefined,
         state: debugMissing,
         stateUpdate: setDebugMissing,
@@ -182,13 +186,36 @@ export function OptionOptionsPage(): JSX.Element
     return (
         <div className = "side-page">
             <h1 className = "side-page__title">
-                Opções
+                {t('Options')}
             </h1>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    Hyperlinks
+                    {t('Language')}
                 </h2>
-                <ul className = "options-entry__list">
+                <ul className = "options-entry__list options-entry__list--buttons">
+                    <li>
+                        <OptionOptionsButton
+                            label = {'PT'}
+                            tooltip = {'Português-Brasileiro'}
+                            active = {i18n.language === 'pt' || i18n.language.startsWith('pt-')}
+                            onClick = {() => i18n.changeLanguage('pt')}
+                        />
+                    </li>
+                    <li>
+                        <OptionOptionsButton
+                            label = {'EN'}
+                            tooltip = {'English'}
+                            active = {i18n.language === 'en' || i18n.language.startsWith('en-')}
+                            onClick = {() => i18n.changeLanguage('en')}
+                        />
+                    </li>
+                </ul>
+            </div>
+            <div className = "options-entry">
+                <h2 className = "options-entry__title">
+                    {t('Hyperlinks')}
+                </h2>
+                <ul className = "options-entry__list options-entry__list--text">
                     {hyperlinkOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
@@ -206,9 +233,9 @@ export function OptionOptionsPage(): JSX.Element
             </div>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    Texto Não-traduzido
+                    {t('Untraslated text')}
                 </h2>
-                <ul className = "options-entry__list">
+                <ul className = "options-entry__list options-entry__list--text">
                     {untranslatedOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
@@ -226,16 +253,15 @@ export function OptionOptionsPage(): JSX.Element
             </div>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    Desenvolvedor
+                    {t('Developer')}
                 </h2>
-                <ul className = "options-entry__list">
+                <ul className = "options-entry__list options-entry__list--text">
                     {devOptions.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}
                                 lcKey = {option.lcKey}
                                 tooltip = {option.tooltip}
-                                
                                 state = {option.state}
                                 stateUpdate = {option.stateUpdate}
                                 disabled = {option.disabled}
