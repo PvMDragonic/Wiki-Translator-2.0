@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import HelpIcon from "@assets/HelpIcon";
 
 /**
@@ -8,6 +9,8 @@ import HelpIcon from "@assets/HelpIcon";
  */
 export function OptionHelp(): JSX.Element
 {
+    const { t } = useTranslation();
+
     return (
         <a 
             href = "https://github.com/PvMDragonic/Wiki-Translator-2.0/blob/main/README.md" 
@@ -16,7 +19,7 @@ export function OptionHelp(): JSX.Element
         >        
             <button className = "options-bar__button options-bar__button--inactive">
                 <HelpIcon/>
-                <span>AJUDA</span>
+                <span>{t('Help').toUpperCase()}</span>
             </button>
     </a>
     )

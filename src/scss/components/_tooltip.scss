@@ -6,11 +6,11 @@
     font-size: 1rem;
     font-family: monospace;
     text-align: center;
-    position: absolute;
+    position: fixed;
     border-radius: 0.5rem;
     padding: 0.5rem;
     width: 16rem;
-    z-index: 100;
+    z-index: 1000;
     top: -10rem; // Prevents tooltip from triggering onMouseLeave.
 
     @include border-lighting(dark, strong-neutral, soft-neutral);

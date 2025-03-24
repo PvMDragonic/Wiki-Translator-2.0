@@ -1,7 +1,8 @@
-import OptionsIcon from "@assets/OptionsIcon";
-import { SideMenu } from "@components/SideMenu";
-import { OptionOptionsPage } from "@components/OptionOptionsPage";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { OptionOptionsPage } from "@components/OptionOptionsPage";
+import { SideMenu } from "@components/SideMenu";
+import OptionsIcon from "@assets/OptionsIcon";
 
 /**
  * Renders the options button on the options bar.
@@ -13,6 +14,8 @@ export function OptionOptions(): JSX.Element
 {
     const [showSideMenu, setShowSideMenu] = useState<string>('');
     const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const { t } = useTranslation();
 
     const buttonClass = `options-bar__button options-bar__button--${
         showSideMenu === 'show' ? 'active' : 'inactive'
@@ -34,7 +37,7 @@ export function OptionOptions(): JSX.Element
                 onClick = {() => setShowSideMenu(prev => prev === 'show' ? 'hide' : 'show')}
             >
                 <OptionsIcon/>
-                <span>OPÇÕES</span>
+                <span>{t('Options').toUpperCase()}</span>
             </button>
         </>  
     )

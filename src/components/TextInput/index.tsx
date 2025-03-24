@@ -1,4 +1,5 @@
 import { useContext, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useHasScrollbar } from "@hooks/useHasScrollbar";
 import { IWikiTemplates, IWikiItems } from "../../api/wiki";
 import { Translation } from "./translation";
@@ -39,7 +40,9 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
         debugMissing
     } = useContext(SettingsContext);
     
-    const { hasScroll } = useHasScrollbar({ elementRef: textRef })
+    const { hasScroll } = useHasScrollbar({ elementRef: textRef });
+
+    const { t, i18n } = useTranslation();
     
     // Having the <textarea>'s 'value' be 'translation.join('\n')' would both the ctrl-Z and ctrl-Y. 
     function handleTextReset()
@@ -76,7 +79,7 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
         <div className = "textbox">
             {textExists && (
                 <button 
-                    title = "Apagar texto"
+                    title = {t('Clear text')}
                     className = "textbox__button textbox__button--clear-input"
                     onClick = {handleTextReset}
                     style = {{
@@ -88,7 +91,7 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
             )}
             {textExists && retranslate && (
                 <button 
-                    title = "Retraduzir"
+                    title = {t('Retranslate button')}
                     className = "textbox__button textbox__button--retranslate"
                     onClick = {handleTranslation}
                     style = {{
@@ -99,9 +102,9 @@ export function TextInput({ textExists, templates, itemNames, setTranslation }: 
                 </button>
             )}
             <textarea
-                lang = "pt"
                 ref = {textRef}
-                placeholder = "Digite aqui" 
+                lang = {i18n.language}
+                placeholder = {t('Type here')} 
                 className = "textbox__textarea" 
                 onChange = {handleTranslation}
             />
