@@ -13,6 +13,8 @@ interface UserContextType
     // Highlight options.
     removeBody: boolean;
     setRemoveBody: React.Dispatch<React.SetStateAction<boolean>>;
+    equalsSpacing: boolean;
+    setEqualsSpacing: React.Dispatch<React.SetStateAction<boolean>>;
     untranslated: boolean;
     setUntranslated: React.Dispatch<React.SetStateAction<boolean>>;
     diffExamine: boolean;
