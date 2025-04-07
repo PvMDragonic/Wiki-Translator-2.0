@@ -39,7 +39,7 @@ export function useSettings()
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorSplitData", setter: setSplitData, defaultValue: false },
             { key: "wikiTranslatorRSWData", setter: setRswData, defaultValue: false },
-            { key: "wikiTranslatorRemoveBody", setter: setAggressive, defaultValue: false },
+            { key: "wikiTranslatorRemoveBody", setter: setRemoveBody, defaultValue: false },
             { key: "wikiTranslatorEqualsSpacing", setter: setEqualsSpacing, defaultValue: true },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
