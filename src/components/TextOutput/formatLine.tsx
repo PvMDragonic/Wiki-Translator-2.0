@@ -13,9 +13,8 @@ interface IFormatLine
 export function FormatLine({ line }: IFormatLine): React.ReactNode
 {
     const { 
-        hyperlinks, splitData, rswData, 
-        removeBody, untranslated, diffExamine, 
-        diffNavboxes, diffCategories, aggressive 
+        hyperlinks, splitData, rswData, removeBody, equalsSpacing, 
+        untranslated, diffExamine, diffNavboxes, diffCategories, aggressive 
     } = useContext(SettingsContext);
 
     function renderUntranslatedSpan(text: string) 
@@ -77,13 +76,13 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         return (
             <span>
                 <span>
-                    {beginning}
-                    =
+                    {equalsSpacing ? beginning.replace('=', ' = ') : beginning.replace(' = ', '=')}
+                    {equalsSpacing ? ' = ' : '='}
                     {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
                     |
                     {restPastUpdate}
                 </span>
-                {'data={{'}
+                {equalsSpacing ? 'data = {{' : 'data={{'}
                 {splitData && hyperlinks && (
                     <a 
                         target = '_blank'
@@ -133,7 +132,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         return (
             <span>
                 {paramName}
-                {' = {{'}
+                {equalsSpacing ? ' = {{' : '={{'}
                 {splitData && hyperlinks && (
                     <a 
                         target = '_blank'
@@ -166,7 +165,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
         return (
             <span>
-                {`${examineParam} = `}
+                {equalsSpacing ? `${examineParam} = ` : `${examineParam}=`}
                 <span 
                     style = {{ 
                         ...(aggressive && { background: '#ca4c4c' }),
@@ -214,10 +213,12 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
 
     function formatFile()
     {
+        const spacedLine = equalsSpacing ? line : line.replace(' = ', '=');
+
         if (!untranslated)
-            return line.replace(/¢/g, '');
+            return spacedLine.replace(/¢/g, '');
         
-        return line.split('¢').map((part, index) => {
+        return spacedLine.split('¢').map((part, index) => {
             if (index % 2 === 0) 
                 return (
                     <span key = {`${part}${index}`}>
@@ -274,13 +275,15 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
             : paramValue;
 
         if (!untranslated) 
-            return `|${firstHalf} = ${secondHalf}`;
+            return equalsSpacing 
+                ? `|${firstHalf} = ${secondHalf}`
+                : `|${firstHalf}=${secondHalf}`;
         
         return (
             <span>
                 {firstHalf.startsWith('{') ? '' : '|'}
                 {`|${firstHalf}` !== paramName ? renderUntranslatedSpan(firstHalf) : firstHalf}
-                {' = '}
+                {equalsSpacing ? ' = ' : '='}
                 {secondHalf !== paramValue ? renderUntranslatedSpan(secondHalf) : secondHalf}
             </span>
         );
@@ -327,9 +330,11 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                         param.startsWith('&') || 
                         param.includes(' = &');
 
+                    const spacedParam = equalsSpacing ? param : param.replace(' = ', '=');
+
                     return (
                         <span key = {param + index}>
-                            {needsFormatting ? formatUntranslated(`|${param}`) : `|${param}`}
+                            {needsFormatting ? formatUntranslated(`|${spacedParam}`) : `|${spacedParam}`}
                         </span>
                     )
                 })}
@@ -398,7 +403,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                 return formatTemplateHyperlink();
         
             default:
-                return <span>{line}</span>;
+                return <span>{equalsSpacing ? line : line.replace(' = ', '=')}</span>;
         }
     }
 

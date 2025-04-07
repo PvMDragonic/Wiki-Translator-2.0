@@ -17,6 +17,7 @@ export function OptionOptionsPage(): JSX.Element
         splitData, setSplitData,
         rswData, setRswData,
         removeBody, setRemoveBody,
+        equalsSpacing, setEqualsSpacing,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,
@@ -62,7 +63,7 @@ export function OptionOptionsPage(): JSX.Element
         disabled: !hyperlinks
     }];
 
-    const untranslatedOptions = [
+    const textFormatting = [
     {
         label: t('Remove text'),
         lcKey: 'wikiTranslatorRemoveBody',
@@ -70,6 +71,15 @@ export function OptionOptionsPage(): JSX.Element
         addendum: t('Remove text addendum'),
         state: removeBody,
         stateUpdate: setRemoveBody,
+        disabled: false
+    },
+    {
+        label: t('Space equals sign'),
+        lcKey: 'wikiTranslatorEqualsSpacing',
+        tooltip: t('Space equals sign description'),
+        addendum: t('Space equals sign addendum'),
+        state: equalsSpacing,
+        stateUpdate: setEqualsSpacing,
         disabled: false
     },
     {
@@ -233,10 +243,10 @@ export function OptionOptionsPage(): JSX.Element
             </div>
             <div className = "options-entry">
                 <h2 className = "options-entry__title">
-                    {t('Untraslated text')}
+                    {t('Text formatting')}
                 </h2>
                 <ul className = "options-entry__list options-entry__list--text">
-                    {untranslatedOptions.map((option, index) => (
+                    {textFormatting.map((option, index) => (
                         <li key = {index} className = "options-entry__item">
                             <OptionOptionsEntry
                                 label = {option.label}

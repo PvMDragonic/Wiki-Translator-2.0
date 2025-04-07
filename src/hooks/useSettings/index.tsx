@@ -11,8 +11,9 @@ export function useSettings()
         splitData, setSplitData,
         rswData, setRswData,
 
-        // Untranslated options.
+        // Text foramtting options.
         removeBody, setRemoveBody,
+        equalsSpacing, setEqualsSpacing,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,
@@ -38,7 +39,8 @@ export function useSettings()
             { key: "wikiTranslatorHyperlinks", setter: setHyperlinks, defaultValue: true },
             { key: "wikiTranslatorSplitData", setter: setSplitData, defaultValue: false },
             { key: "wikiTranslatorRSWData", setter: setRswData, defaultValue: false },
-            { key: "wikiTranslatorRemoveBody", setter: setAggressive, defaultValue: false },
+            { key: "wikiTranslatorRemoveBody", setter: setRemoveBody, defaultValue: false },
+            { key: "wikiTranslatorEqualsSpacing", setter: setEqualsSpacing, defaultValue: true },
             { key: "wikiTranslatorUntranslated", setter: setUntranslated, defaultValue: true },
             { key: "wikiTranslatorDiffExamine", setter: setDiffExamine, defaultValue: true },
             { key: "wikiTranslatorDiffNavboxes", setter: setDiffNavboxes, defaultValue: true },
@@ -57,15 +59,12 @@ export function useSettings()
             ({ key, setter, defaultValue }) => setter(loadFromStorage(key, defaultValue))
         );
     }, [
-        setHyperlinks, setSplitData, 
-        setRswData, setRemoveBody, 
-        setUntranslated, setDiffExamine, 
-        setDiffNavboxes, setDiffCategories,
-        setAggressive, setRetranslate, 
-        setDebugging, setDebugSplitted, 
-        setDebugTemplate, setDebugSuccess, 
-        setDebugSkipped, setDebugMissing, 
-        loadFromStorage
+        setHyperlinks, setSplitData, setRswData, 
+        setRemoveBody, setEqualsSpacing, setUntranslated, 
+        setDiffExamine, setDiffNavboxes, setDiffCategories,
+        setAggressive, setRetranslate, setDebugging, 
+        setDebugSplitted, setDebugTemplate, setDebugSuccess, 
+        setDebugSkipped, setDebugMissing, loadFromStorage
     ]);
   
     return {
@@ -73,6 +72,7 @@ export function useSettings()
         splitData, setSplitData,
         rswData, setRswData,
         removeBody, setRemoveBody,
+        equalsSpacing, setEqualsSpacing,
         untranslated, setUntranslated,
         diffExamine, setDiffExamine,
         diffNavboxes, setDiffNavboxes,

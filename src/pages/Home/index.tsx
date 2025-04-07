@@ -19,6 +19,7 @@ export function Home()
     const [splitData, setSplitData] = useState<boolean>(false);
     const [rswData, setRswData] = useState<boolean>(false);
     const [removeBody, setRemoveBody] = useState<boolean>(false);
+    const [equalsSpacing, setEqualsSpacing] = useState<boolean>(true);
     const [untranslated, setUntranslated] = useState<boolean>(true);
     const [diffExamine, setDiffExamine] = useState<boolean>(true);
     const [diffNavboxes, setDiffNavboxes] = useState<boolean>(true);
@@ -56,6 +57,7 @@ export function Home()
                                 splitData, setSplitData,
                                 rswData, setRswData,
                                 removeBody, setRemoveBody,
+                                equalsSpacing, setEqualsSpacing,
                                 untranslated, setUntranslated,
                                 diffExamine, setDiffExamine,
                                 diffNavboxes, setDiffNavboxes,
