@@ -70,18 +70,22 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         }
 
         const [beginning, updateText] = firstPart.split('=&');
-        const [cleanUpdText, restPastUpdate] = updateText.split('|');
+        // Some {{UL}} don't have `|update=update_name`, so nothing marked as untranslated.
+        const noUpdate = updateText !== undefined;
+        const [cleanUpdText, restPastUpdate] = noUpdate ? updateText.split('|') : ['', ''];
         const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${cleanYear}`;
 
         return (
             <span>
-                <span>
-                    {equalsSpacing ? beginning.replace('=', ' = ') : beginning.replace(' = ', '=')}
-                    {equalsSpacing ? ' = ' : '='}
-                    {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
-                    |
-                    {restPastUpdate}
-                </span>
+                {equalsSpacing ? beginning.replace('=', ' = ') : beginning.replace(' = ', '=')}
+                {equalsSpacing ? ' = ' : '='}
+                {noUpdate && (
+                    <>
+                        {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
+                        |
+                        {restPastUpdate}
+                    </>
+                )}
                 {equalsSpacing ? 'data = {{' : 'data={{'}
                 {splitData && hyperlinks && (
                     <a 
