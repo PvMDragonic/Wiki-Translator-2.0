@@ -282,7 +282,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
             return equalsSpacing 
                 ? `|${firstHalf} = ${secondHalf}`
                 : `|${firstHalf}=${secondHalf}`;
-        
+
         return (
             <span>
                 {firstHalf.startsWith('{') ? '' : '|'}
@@ -334,11 +334,12 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                         param.startsWith('&') || 
                         param.includes(' = &');
 
-                    const spacedParam = equalsSpacing ? param : param.replace(' = ', '=');
-
                     return (
                         <span key = {param + index}>
-                            {needsFormatting ? formatUntranslated(`|${spacedParam}`) : `|${spacedParam}`}
+                            {needsFormatting 
+                                ? formatUntranslated(`|${param}`) 
+                                : `|${equalsSpacing ? param : param.replace(' = ', '=')}`
+                            }
                         </span>
                     )
                 })}
