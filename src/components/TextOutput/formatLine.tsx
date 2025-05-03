@@ -70,18 +70,22 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         }
 
         const [beginning, updateText] = firstPart.split('=&');
-        const [cleanUpdText, restPastUpdate] = updateText.split('|');
+        // Some {{UL}} don't have `|update=update_name`, so nothing marked as untranslated.
+        const noUpdate = updateText !== undefined;
+        const [cleanUpdText, restPastUpdate] = noUpdate ? updateText.split('|') : ['', ''];
         const formattedDate = `${!splitData || !hyperlinks ? 'Data' : ''}|${day}|${translatedMonth}|${cleanYear}`;
 
         return (
             <span>
-                <span>
-                    {equalsSpacing ? beginning.replace('=', ' = ') : beginning.replace(' = ', '=')}
-                    {equalsSpacing ? ' = ' : '='}
-                    {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
-                    |
-                    {restPastUpdate}
-                </span>
+                {equalsSpacing ? beginning.replace('=', ' = ') : beginning.replace(' = ', '=')}
+                {equalsSpacing ? ' = ' : '='}
+                {noUpdate && (
+                    <>
+                        {untranslated ? renderUntranslatedSpan(cleanUpdText) : cleanUpdText}
+                        |
+                        {restPastUpdate}
+                    </>
+                )}
                 {equalsSpacing ? 'data = {{' : 'data={{'}
                 {splitData && hyperlinks && (
                     <a 
@@ -278,7 +282,7 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
             return equalsSpacing 
                 ? `|${firstHalf} = ${secondHalf}`
                 : `|${firstHalf}=${secondHalf}`;
-        
+
         return (
             <span>
                 {firstHalf.startsWith('{') ? '' : '|'}
@@ -330,11 +334,12 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
                         param.startsWith('&') || 
                         param.includes(' = &');
 
-                    const spacedParam = equalsSpacing ? param : param.replace(' = ', '=');
-
                     return (
                         <span key = {param + index}>
-                            {needsFormatting ? formatUntranslated(`|${spacedParam}`) : `|${spacedParam}`}
+                            {needsFormatting 
+                                ? formatUntranslated(`|${param}`) 
+                                : `|${equalsSpacing ? param : param.replace(' = ', '=')}`
+                            }
                         </span>
                     )
                 })}
