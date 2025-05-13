@@ -420,6 +420,34 @@ export class Translation implements ITranslate
     
                 if (!translatedParam)
                 {
+                    // Stuff like "* 1 [[Eye of newt]]" from the param "items" in {{Quest details}} gets here.
+                    if (name.includes('*'))
+                    {
+                        const [asterisks, numOfItems, ...rest] = name.trim().split(/\s+/); // Split by one or more whitespaces.
+                        
+                        const itemNames = rest
+                            .join(" ")
+                            .split(/\[\[|\]\]/) // Split by both [[ and ]].
+                            .filter(Boolean)
+                            .map((itemName, index) => {
+                                const translatedItemName = this.itemNames[itemName];
+                                return translatedItemName 
+                                    ? `[[${translatedItemName}]]` 
+                                    : index % 2 === 0 // Actual item names are left on even indexes.
+                                        ? `&[[${itemName}]]&`
+                                        : itemName.length >= 15 // Probably a description/addendum.
+                                            ? `&${itemName}&`
+                                            : itemName;
+                            })
+                            .join('');
+
+                        // The -- are markings for the <TextOutput> formatting.
+                        if (itemNames)
+                            return `${asterisks} ${numOfItems} ${itemNames}--`;
+
+                        return `${name}--`;
+                    }
+
                     this.debugger.logMissingParam(index, templateName, name, value);
                     return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
                 }
