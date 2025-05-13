@@ -113,6 +113,13 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
     {
         const cleanLine = line.slice(0, -2);
 
+        if (!untranslated)
+            return (
+                <span>
+                    {cleanLine.split('&').join('')}
+                </span>
+            )
+
         return (
             cleanLine.split('&').map((part, index) => {
                 return index % 2 === 1 // Odd-index are untranslated bits.
