@@ -478,7 +478,7 @@ export class Translation implements ITranslate
                 }
     
                 // Is a paramValue is only a number (or a string representing one).
-                if (/^[(),.\d]+$/.test(value))
+                if (/^[-(),.\d]+$/.test(value))
                 {
                     this.debugger.logSkippedParam('Numeric param value', name, value);
                     return `|${correctedParam} = ${value}`;
