@@ -344,10 +344,12 @@ export class Translation implements ITranslate
                 return this.#handleSwitchInfobox(text, index);
     
             const { templateName, templateEntries, singleLineTemplate } = this.#extractInputData(text);
-    
             const templateData = this.templates[templateName];
+
+            // Unknown Template was found.
             if (!templateData)
             {
+                // Denotes a {{navbox}}.
                 if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
                 {
                     this.debugger.logSkipped('Navbox', index, text);
@@ -384,11 +386,13 @@ export class Translation implements ITranslate
                 return text.split('\n').map(line => '¬' + line);
             }
     
+            // Regular Templates that have many pairs of 'param = value', each on a newline, make it here.
             const translatedInput = await Promise.all(templateEntries.map(async entry =>
             {
                 const name = entry.paramName;
                 const value = entry.paramValue;
 
+                // Params that are simply a name.
                 if (name && value === '' && singleLineTemplate)
                 {
                     const translatedItem = this.itemNames[name];
@@ -401,6 +405,7 @@ export class Translation implements ITranslate
                     return `|${translatedItem}`;
                 }
 
+                // Searches the wiki json for the paramName translation.
                 const translatedParam = (() => 
                 {
                     try
@@ -454,6 +459,7 @@ export class Translation implements ITranslate
     
                 const correctedParam = translatedParam ? translatedParam : `&${name}`; 
     
+                // Handles 'examine' params.
                 if (correctedParam.startsWith('exam'))
                 {
                     const currNumber = correctedParam.charAt(correctedParam.length - 1);
@@ -471,6 +477,7 @@ export class Translation implements ITranslate
                     return `$|${correctedParam} = ${value}`;
                 }
     
+                // Is a paramValue is only a number (or a string representing one).
                 if (/^[(),.\d]+$/.test(value))
                 {
                     this.debugger.logSkippedParam('Numeric param value', name, value);
@@ -482,6 +489,7 @@ export class Translation implements ITranslate
                 if (correctedValue) 
                     return `|${correctedParam} = ${correctedValue}`; 
     
+                // Attempts to translate the paramValue.
                 const translatedParamValue = (() => 
                 {
                     // Starts with [[ followed by one or two numbers and a space.
