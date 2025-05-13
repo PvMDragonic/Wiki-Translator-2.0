@@ -513,8 +513,13 @@ export class Translation implements ITranslate
     
                     if (value.includes('.png') || value.includes('.gif'))
                     {
-                        const cleanValue = value.split('.');
-                        return `|${correctedParam} = ${this.itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                        const [itemName, fileExt] = value.split('.');
+                        const translatedName = this.itemNames[itemName.trim()];
+
+                        if (translatedName)
+                            return `|${correctedParam} = ${translatedName}.${fileExt}`;
+
+                        return `|${correctedParam} = &${value}`;
                     }
     
                     // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
