@@ -109,6 +109,19 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
         )
     }
 
+    function formatItemListing()
+    {
+        const cleanLine = line.slice(0, -2);
+
+        return (
+            cleanLine.split('&').map((part, index) => {
+                return index % 2 === 1 // Odd-index are untranslated bits.
+                    ? <span key={index}>{renderUntranslatedSpan(part)}</span>
+                    : <span key={index}>{part}</span>;
+            })
+        )
+    }
+
     function formatDate()
     {
         const {
@@ -377,12 +390,15 @@ export function FormatLine({ line }: IFormatLine): React.ReactNode
     {
         switch (true)
         {
-            case line.startsWith('**'):
+            case line.startsWith('**') && !line.endsWith('--'):
                 return formatUpdateLine();
         
-            case line.startsWith('*') && !line.startsWith('**'):
+            case line.startsWith('*') && !line.startsWith('**') && !line.endsWith('--'):
                 return formatDateUpdateLine();
         
+            case line.startsWith('*') && line.endsWith('--'):
+                return formatItemListing();
+
             case line.startsWith('%'):
                 return formatDate();
         

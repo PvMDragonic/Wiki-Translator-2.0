@@ -344,10 +344,12 @@ export class Translation implements ITranslate
                 return this.#handleSwitchInfobox(text, index);
     
             const { templateName, templateEntries, singleLineTemplate } = this.#extractInputData(text);
-    
             const templateData = this.templates[templateName];
+
+            // Unknown Template was found.
             if (!templateData)
             {
+                // Denotes a {{navbox}}.
                 if (!text.includes('|') && text.startsWith('{{') && text.endsWith('}}'))
                 {
                     this.debugger.logSkipped('Navbox', index, text);
@@ -384,11 +386,13 @@ export class Translation implements ITranslate
                 return text.split('\n').map(line => '¬' + line);
             }
     
+            // Regular Templates that have many pairs of 'param = value', each on a newline, make it here.
             const translatedInput = await Promise.all(templateEntries.map(async entry =>
             {
                 const name = entry.paramName;
                 const value = entry.paramValue;
 
+                // Params that are simply a name.
                 if (name && value === '' && singleLineTemplate)
                 {
                     const translatedItem = this.itemNames[name];
@@ -401,6 +405,7 @@ export class Translation implements ITranslate
                     return `|${translatedItem}`;
                 }
 
+                // Searches the wiki json for the paramName translation.
                 const translatedParam = (() => 
                 {
                     try
@@ -420,12 +425,41 @@ export class Translation implements ITranslate
     
                 if (!translatedParam)
                 {
+                    // Stuff like "* 1 [[Eye of newt]]" from the param "items" in {{Quest details}} gets here.
+                    if (name.includes('*'))
+                    {
+                        const [asterisks, numOfItems, ...rest] = name.trim().split(/\s+/); // Split by one or more whitespaces.
+                        
+                        const itemNames = rest
+                            .join(" ")
+                            .split(/\[\[|\]\]/) // Split by both [[ and ]].
+                            .filter(Boolean)
+                            .map((itemName, index) => {
+                                const translatedItemName = this.itemNames[itemName];
+                                return translatedItemName 
+                                    ? `[[${translatedItemName}]]` 
+                                    : index % 2 === 0 // Actual item names are left on even indexes.
+                                        ? `&[[${itemName}]]&`
+                                        : itemName.length >= 15 // Probably a description/addendum.
+                                            ? `&${itemName}&`
+                                            : itemName;
+                            })
+                            .join('');
+
+                        // The -- are markings for the <TextOutput> formatting.
+                        if (itemNames)
+                            return `${asterisks} ${numOfItems} ${itemNames}--`;
+
+                        return `${name}--`;
+                    }
+
                     this.debugger.logMissingParam(index, templateName, name, value);
                     return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
                 }
     
                 const correctedParam = translatedParam ? translatedParam : `&${name}`; 
     
+                // Handles 'examine' params.
                 if (correctedParam.startsWith('exam'))
                 {
                     const currNumber = correctedParam.charAt(correctedParam.length - 1);
@@ -443,7 +477,8 @@ export class Translation implements ITranslate
                     return `$|${correctedParam} = ${value}`;
                 }
     
-                if (/^[(),.\d]+$/.test(value))
+                // Is a paramValue is only a number (or a string representing one).
+                if (/^[-(),.\d]+$/.test(value))
                 {
                     this.debugger.logSkippedParam('Numeric param value', name, value);
                     return `|${correctedParam} = ${value}`;
@@ -454,6 +489,7 @@ export class Translation implements ITranslate
                 if (correctedValue) 
                     return `|${correctedParam} = ${correctedValue}`; 
     
+                // Attempts to translate the paramValue.
                 const translatedParamValue = (() => 
                 {
                     // Starts with [[ followed by one or two numbers and a space.
@@ -477,8 +513,13 @@ export class Translation implements ITranslate
     
                     if (value.includes('.png') || value.includes('.gif'))
                     {
-                        const cleanValue = value.split('.');
-                        return `|${correctedParam} = ${this.itemNames[cleanValue[0].trim()]}.${cleanValue[1]}`;
+                        const [itemName, fileExt] = value.split('.');
+                        const translatedName = this.itemNames[itemName.trim()];
+
+                        if (translatedName)
+                            return `|${correctedParam} = ${translatedName}.${fileExt}`;
+
+                        return `|${correctedParam} = &${value}`;
                     }
     
                     // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
