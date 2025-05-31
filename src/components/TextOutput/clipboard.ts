@@ -12,7 +12,7 @@ export function formatClipboard(textLines: string[])
             const [beginning, updateText] = firstPart.split('=&');
             const [cleanUpdText, restPastUpdate] = updateText.split('|');
 
-            return `${beginning}=${cleanUpdText}|${restPastUpdate}data={{Data|${day}|${translatedMonth}|${cleanYear}}}`;
+            return `${beginning}=${cleanUpdText}|${restPastUpdate}data={{Data|${day}|${translatedMonth}|${cleanYear}}}}}`;
         }
 
         if (str.startsWith('%'))
