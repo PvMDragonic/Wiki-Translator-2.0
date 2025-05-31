@@ -31,6 +31,7 @@ export function formatClipboard(textLines: string[])
         
         // Very unoptimized, but this whole function isn't called ofter so w/e.
         modifiedStr = modifiedStr
+            .replace(/\|&/g, '|')
             .replace('=&', '=')
             .replace(' = &', ' = ')
             .replace(/¢/g, '');
