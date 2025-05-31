@@ -12,7 +12,7 @@ export function formatClipboard(textLines: string[])
             const [beginning, updateText] = firstPart.split('=&');
             const [cleanUpdText, restPastUpdate] = updateText.split('|');
 
-            return `${beginning}=${cleanUpdText}|${restPastUpdate}data={{Data|${day}|${translatedMonth}|${cleanYear}}}`;
+            return `${beginning}=${cleanUpdText}|${restPastUpdate}data={{Data|${day}|${translatedMonth}|${cleanYear}}}}}`;
         }
 
         if (str.startsWith('%'))
@@ -31,6 +31,7 @@ export function formatClipboard(textLines: string[])
         
         // Very unoptimized, but this whole function isn't called ofter so w/e.
         modifiedStr = modifiedStr
+            .replace(/\|&/g, '|')
             .replace('=&', '=')
             .replace(' = &', ' = ')
             .replace(/¢/g, '');
