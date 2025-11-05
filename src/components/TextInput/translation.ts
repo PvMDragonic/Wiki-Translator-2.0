@@ -410,19 +410,15 @@ export class Translation implements ITranslate
                 {
                     try
                     {
-                        const translatedParam = templateData.templateParams[name];
-                        if (!translatedParam) // Wiki .json is lacking a given param.
-                            return false;
-                        
-                        return templateData.templateParams[name];
+                        return templateData.templateParams[name] || false;
                     }
                     catch(error)
                     {
-                        // Wiki .json is also lacking a given param.
                         return false;
                     }
                 })();
     
+                // False if wiki .json is lacking a given param.
                 if (!translatedParam)
                 {
                     // Stuff like "* 1 [[Eye of newt]]" from the param "items" in {{Quest details}} gets here.
@@ -483,15 +479,23 @@ export class Translation implements ITranslate
                     this.debugger.logSkippedParam('Numeric param value', name, value);
                     return `|${correctedParam} = ${value}`;
                 }
-    
-                // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
-                const correctedValue = templateData.templateValues?.[name]?.[value.toLowerCase()];
-                if (correctedValue) 
-                    return `|${correctedParam} = ${correctedValue}`; 
-    
-                // Attempts to translate the paramValue.
+
+                // Attempts to translate the paramValue; inside an anon function just to abuse early-return.
                 const translatedParamValue = (() => 
                 {
+                    // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
+                    const templateValues = templateData.templateValues?.[name];
+                    if (templateValues)
+                    {
+                        const translatedParamValue = 
+                            templateValues[value.charAt(0).toUpperCase() + value.slice(1)] || 
+                            templateValues[value.toLowerCase()] || 
+                            templateValues[value];
+
+                        if (translatedParamValue)
+                            return `|${correctedParam} = ${translatedParamValue}`;
+                    }
+
                     // Starts with [[ followed by one or two numbers and a space.
                     if (/^\[\[\d{1,2}/.test(value))
                     {
@@ -532,7 +536,7 @@ export class Translation implements ITranslate
     
                 if (translatedParamValue)
                 {
-                    this.debugger.logSuccess('Param value', index, name, correctedValue);
+                    this.debugger.logSuccess('Param value', index, name, value);
                     return translatedParamValue;
                 }
     
