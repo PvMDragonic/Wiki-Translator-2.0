@@ -410,19 +410,15 @@ export class Translation implements ITranslate
                 {
                     try
                     {
-                        const translatedParam = templateData.templateParams[name];
-                        if (!translatedParam) // Wiki .json is lacking a given param.
-                            return false;
-                        
-                        return templateData.templateParams[name];
+                        return templateData.templateParams[name] || false;
                     }
                     catch(error)
                     {
-                        // Wiki .json is also lacking a given param.
                         return false;
                     }
                 })();
     
+                // False if wiki .json is lacking a given param.
                 if (!translatedParam)
                 {
                     // Stuff like "* 1 [[Eye of newt]]" from the param "items" in {{Quest details}} gets here.
