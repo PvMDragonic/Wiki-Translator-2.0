@@ -389,17 +389,17 @@ export class Translation implements ITranslate
             // Regular Templates that have many pairs of 'param = value', each on a newline, make it here.
             const translatedInput = await Promise.all(templateEntries.map(async entry =>
             {
-                const name = entry.paramName;
-                const value = entry.paramValue;
+                const paramName = entry.paramName;
+                const paramValue = entry.paramValue;
 
                 // Params that are simply a name.
-                if (name && value === '' && singleLineTemplate)
+                if (paramName && paramValue === '' && singleLineTemplate)
                 {
-                    const translatedItem = this.itemNames[name];
+                    const translatedItem = this.itemNames[paramName];
                     if (!translatedItem)
                     {
-                        this.debugger.logMissingName(index, templateName, name);
-                        return `|&${name}`;
+                        this.debugger.logMissingName(index, templateName, paramName);
+                        return `|&${paramName}`;
                     }
 
                     return `|${translatedItem}`;
@@ -410,7 +410,7 @@ export class Translation implements ITranslate
                 {
                     try
                     {
-                        return templateData.templateParams[name] || false;
+                        return templateData.templateParams[paramName] || false;
                     }
                     catch(error)
                     {
@@ -422,9 +422,9 @@ export class Translation implements ITranslate
                 if (!translatedParam)
                 {
                     // Stuff like "* 1 [[Eye of newt]]" from the param "items" in {{Quest details}} gets here.
-                    if (name.includes('*'))
+                    if (paramName.includes('*'))
                     {
-                        const [asterisks, numOfItems, ...rest] = name.trim().split(/\s+/); // Split by one or more whitespaces.
+                        const [asterisks, numOfItems, ...rest] = paramName.trim().split(/\s+/); // Split by one or more whitespaces.
                         
                         const itemNames = rest
                             .join(" ")
@@ -446,11 +446,11 @@ export class Translation implements ITranslate
                         if (itemNames)
                             return `${asterisks} ${numOfItems} ${itemNames}--`;
 
-                        return `${name}--`;
+                        return `${paramName}--`;
                     }
 
-                    this.debugger.logMissingParam(index, templateName, name, value);
-                    return `|&${name} = ${!(/^[(),.\d]+$/.test(value)) ? `&${value}` : value}`;
+                    this.debugger.logMissingParam(index, templateName, paramName, paramValue);
+                    return `|&${name} = ${!(/^[(),.\d]+$/.test(paramValue)) ? `&${paramValue}` : paramValue}`;
                 }
     
                 const correctedParam = translatedParam ? translatedParam : `&${name}`; 
@@ -470,84 +470,89 @@ export class Translation implements ITranslate
                             return `|${correctedParam} = ${examine}`;
                     }
     
-                    return `$|${correctedParam} = ${value}`;
+                    return `$|${correctedParam} = ${paramValue}`;
                 }
     
-                // Is a paramValue is only a number (or a string representing one).
-                if (/^[-(),.\d]+$/.test(value))
+                if (!paramValue)
                 {
-                    this.debugger.logSkippedParam('Numeric param value', name, value);
-                    return `|${correctedParam} = ${value}`;
+                    this.debugger.logSkipped('Blank param value', index, paramName);
+                    return `|${correctedParam} = `;
+                }
+
+                // Is a paramValue is only a number (or a string representing one).
+                if (/^[-(),.\d]+$/.test(paramValue))
+                {
+                    this.debugger.logSkippedParam('Numeric param value', paramName, paramValue);
+                    return `|${correctedParam} = ${paramValue}`;
                 }
 
                 // Attempts to translate the paramValue; inside an anon function just to abuse early-return.
-                const translatedParamValue = (() => 
+                const [fullLine, translatedParamValue] = (() => 
                 {
                     // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
-                    const templateValues = templateData.templateValues?.[name];
+                    const templateValues = templateData.templateValues?.[paramName];
                     if (templateValues)
                     {
                         const translatedParamValue = 
-                            templateValues[value.charAt(0).toUpperCase() + value.slice(1)] || 
-                            templateValues[value.toLowerCase()] || 
-                            templateValues[value];
+                            templateValues[paramValue.charAt(0).toUpperCase() + paramValue.slice(1)] || 
+                            templateValues[paramValue.toLowerCase()] || 
+                            templateValues[paramValue];
 
                         if (translatedParamValue)
-                            return `|${correctedParam} = ${translatedParamValue}`;
+                            return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
                     }
 
                     // Starts with [[ followed by one or two numbers and a space.
-                    if (/^\[\[\d{1,2}/.test(value))
+                    if (/^\[\[\d{1,2}/.test(paramValue))
                     {
                         // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
-                        const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
+                        const [day, month, year] = paramValue.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
     
-                        // Scuffed return because it gets formatted on <TextOutput>.
-                        return `%|${correctedParam} = ${day} = ${month} = ${year}`;
+                        // Scuffed return because it gets formatted at <TextOutput>.
+                        return [`%|${correctedParam} = ${day} = ${month} = ${year}`, `${day}/${month}/${year}`];
                     }
     
-                    if (value.startsWith('[[File'))
-                        return `|${correctedParam} = ${this.#handleFileCall(value, index)}`;
+                    if (paramValue.startsWith('[[File'))
+                    {
+                        const translatedParamValue = this.#handleFileCall(paramValue, index)
+                        return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
+                    }
                     
-                    if (value.includes('equipped'))
+                    if (paramValue.includes('equipped'))
                     {
-                        const cleanValue = value.split('equipped')[0].trim();
-                        return `|${correctedParam} = ${this.itemNames[cleanValue]} equipado.png`;
+                        const cleanValue = paramValue.split('equipped')[0].trim();
+                        const translatedParamValue = `${this.itemNames[cleanValue]} equipado.png`;
+                        return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
                     }
     
-                    if (value.includes('.png') || value.includes('.gif'))
+                    if (paramValue.includes('.png') || paramValue.includes('.gif'))
                     {
-                        const [itemName, fileExt] = value.split('.');
+                        const [itemName, fileExt] = paramValue.split('.');
                         const translatedName = this.itemNames[itemName.trim()];
 
                         if (translatedName)
-                            return `|${correctedParam} = ${translatedName}.${fileExt}`;
-
-                        return `|${correctedParam} = &${value}`;
+                        {
+                            const translatedParamValue = `${translatedName}.${fileExt}`;
+                            return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
+                        }
                     }
     
                     // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
-                    const itemName = this.itemNames[value];
+                    const itemName = this.itemNames[paramValue];
                     if (itemName !== undefined)
-                        return `|${correctedParam} = ${itemName}`; 
+                        return [`|${correctedParam} = ${itemName}`, itemName]; 
     
-                    return false;
+                    return ['', ''];
                 })();
     
                 if (translatedParamValue)
                 {
-                    this.debugger.logSuccess('Param value', index, name, value);
-                    return translatedParamValue;
-                }
-    
-                if (!value)
-                {
-                    this.debugger.logSkipped('Blank param value', index, name);
-                    return `|${correctedParam} = `;
+                    this.debugger.logSuccess('Param value', index, paramName, translatedParamValue);
+                    return fullLine;
                 }
                 
-                this.debugger.logSkippedParam('Param value translation', name, value);
-                return `|${correctedParam} = &${value}`;
+                this.debugger.logSkippedParam('Param value translation', paramName, paramValue);
+                return `|${correctedParam} = &${paramValue}`;
             }));
     
             if (singleLineTemplate)

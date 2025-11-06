@@ -67,9 +67,9 @@ export class Debugger implements IDebugger
             `${name} successfully translated:`,
             '\n\t\'splitted\' index: ',
             index,
-            '\n\ttext: ', 
+            translated ? '\n\tparamName:' : '\n\ttext: ', 
             text,
-            translated ? `\n\ttranslated: ${translated}` : ''
+            translated ? `\n\tparamValue: ${translated}` : ''
         )
     }
 
