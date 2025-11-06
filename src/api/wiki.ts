@@ -101,53 +101,48 @@ export class Wiki
     
     static async requestItemNames(): Promise<IWikiItems>
     {
-        const pages = ["data", "data/2", "data/3"];
         const items: IWikiItems = {};
-    
-        for (const page of pages)
-        {
-            const params = new URLSearchParams(Wiki.URL);
-            params.set('titles', `Módulo:Traduções/${page}`);
+        const params = new URLSearchParams(Wiki.URL);
+        params.set('titles', `Módulo:Traduções/data`);
 
-            await fetch(`${Wiki.API}?${params}`)
-                .then(response => 
+        await fetch(`${Wiki.API}?${params}`)
+            .then(response => 
+            {
+                if (!response.ok) 
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+    
+                return response.json();
+            })
+            .then(data => 
+            {
+                const queryPages = data.query.pages;
+                const pageData = queryPages[Object.keys(queryPages)[0]];
+                const content = pageData.revisions[0]['*'];
+                
+                content.split('] = {').slice(1).map((entry: string) => 
                 {
-                    if (!response.ok) 
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-        
-                    return response.json();
-                })
-                .then(data => 
-                {
-                    const queryPages = data.query.pages;
-                    const pageData = queryPages[Object.keys(queryPages)[0]];
-                    const content = pageData.revisions[0]['*'];
-                    
-                    content.split('] = {').slice(1).map((entry: string) => 
+                    const [_, en, pt] = entry.split('=');
+
+                    try
                     {
-                        const [_, en, pt] = entry.split('=');
-    
-                        try
-                        {
-                            const key = en.match(/'(.*?[^\\])'/)![1]; // Handles "Nulodion's Notes". 
-                            const value = pt.split('\'')[1];
-                            items[key] = value;
-                        }
-                        catch(e)
-                        {
-                            // Some titles and stuff that contain HTML tags for coloring
-                            // are included in this, and they'll cause errors. Since the
-                            // main objetive is to translate items, may aswell ignore
-                            // titles and other edge cases for now.
-                        }
-                    });
-                })
-                .catch(error => 
-                {
-                    console.error("Error fetching the module:", error);
+                        const key = en.match(/'(.*?[^\\])'/)![1]; // Handles "Nulodion's Notes". 
+                        const value = pt.split('\'')[1];
+                        items[key] = value;
+                    }
+                    catch(e)
+                    {
+                        // Some titles and stuff that contain HTML tags for coloring
+                        // are included in this, and they'll cause errors. Since the
+                        // main objetive is to translate items, may aswell ignore
+                        // titles and other edge cases for now.
+                    }
                 });
-        }
-    
+            })
+            .catch(error => 
+            {
+                console.error("Error fetching the module:", error);
+            });
+
         return items;
     }
 }
