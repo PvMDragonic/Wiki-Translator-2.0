@@ -473,6 +473,12 @@ export class Translation implements ITranslate
                     return `$|${correctedParam} = ${value}`;
                 }
     
+                if (!value)
+                {
+                    this.debugger.logSkipped('Blank param value', index, name);
+                    return `|${correctedParam} = `;
+                }
+
                 // Is a paramValue is only a number (or a string representing one).
                 if (/^[-(),.\d]+$/.test(value))
                 {
@@ -481,7 +487,7 @@ export class Translation implements ITranslate
                 }
 
                 // Attempts to translate the paramValue; inside an anon function just to abuse early-return.
-                const translatedParamValue = (() => 
+                const [fullLine, translatedParamValue] = (() => 
                 {
                     // Templates with untranslatable values, like {{Disassembly}}, may not have 'templateValues'.
                     const templateValues = templateData.templateValues?.[name];
@@ -493,7 +499,7 @@ export class Translation implements ITranslate
                             templateValues[value];
 
                         if (translatedParamValue)
-                            return `|${correctedParam} = ${translatedParamValue}`;
+                            return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
                     }
 
                     // Starts with [[ followed by one or two numbers and a space.
@@ -502,17 +508,21 @@ export class Translation implements ITranslate
                         // Splits "[[25 November]] [[2020]]" into ["25", "November", "2020"].
                         const [day, month, year] = value.split(' ').map(part => part.replace(/\[\[|\]\]/g, ''));
     
-                        // Scuffed return because it gets formatted on <TextOutput>.
-                        return `%|${correctedParam} = ${day} = ${month} = ${year}`;
+                        // Scuffed return because it gets formatted at <TextOutput>.
+                        return [`%|${correctedParam} = ${day} = ${month} = ${year}`, `${day}/${month}/${year}`];
                     }
     
                     if (value.startsWith('[[File'))
-                        return `|${correctedParam} = ${this.#handleFileCall(value, index)}`;
+                    {
+                        const translatedParamValue = this.#handleFileCall(value, index)
+                        return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
+                    }
                     
                     if (value.includes('equipped'))
                     {
                         const cleanValue = value.split('equipped')[0].trim();
-                        return `|${correctedParam} = ${this.itemNames[cleanValue]} equipado.png`;
+                        const translatedParamValue = `${this.itemNames[cleanValue]} equipado.png`;
+                        return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
                     }
     
                     if (value.includes('.png') || value.includes('.gif'))
@@ -521,29 +531,24 @@ export class Translation implements ITranslate
                         const translatedName = this.itemNames[itemName.trim()];
 
                         if (translatedName)
-                            return `|${correctedParam} = ${translatedName}.${fileExt}`;
-
-                        return `|${correctedParam} = &${value}`;
+                        {
+                            const translatedParamValue = `${translatedName}.${fileExt}`;
+                            return [`|${correctedParam} = ${translatedParamValue}`, translatedParamValue];
+                        }
                     }
     
                     // Mostly for {{Infobox Recipe}} with all its |mat(s) and |output(s).
                     const itemName = this.itemNames[value];
                     if (itemName !== undefined)
-                        return `|${correctedParam} = ${itemName}`; 
+                        return [`|${correctedParam} = ${itemName}`, itemName]; 
     
-                    return false;
+                    return ['', ''];
                 })();
     
                 if (translatedParamValue)
                 {
-                    this.debugger.logSuccess('Param value', index, name, value);
-                    return translatedParamValue;
-                }
-    
-                if (!value)
-                {
-                    this.debugger.logSkipped('Blank param value', index, name);
-                    return `|${correctedParam} = `;
+                    this.debugger.logSuccess('Param value', index, name, translatedParamValue);
+                    return fullLine;
                 }
                 
                 this.debugger.logSkippedParam('Param value translation', name, value);
